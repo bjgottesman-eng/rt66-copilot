@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Route 66 Copilot</title>
+<meta name="description" content="Live GPS road-trip copilot: schedule, countdowns, ETA.">
+<meta name="theme-color" content="#0b0d10">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Copilot">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<style>
+:root{--bg:#0b0d10;--card:#151a21;--card2:#1c232c;--txt:#f5f5f2;--mut:#8f9aa8;--acc:#ffd23f;--ok:#37d67a;--bad:#ff5a5a;--blue:#4cc2ff;--line:#262e38}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,Helvetica,Arial,sans-serif;font-size:18px;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+body{padding-bottom:calc(env(safe-area-inset-bottom) + 24px);transition:background .15s}
+body.flash{background:#ff5a5a}
+body.flash .hero{background:#3a1010}
+button{font:inherit;color:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:5;background:rgba(11,13,16,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px}
+.tab{flex:1;padding:9px 0 7px;border-radius:12px;background:#1b2129;text-align:center;font-weight:800;font-size:20px;border:0;color:var(--mut);line-height:1.05}
+.tab small{display:block;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;opacity:.8}
+.tab.on{background:var(--acc);color:#111}
+.tab.today:not(.on){box-shadow:inset 0 0 0 2px var(--acc)}
+.topline{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:15px;color:var(--mut);font-variant-numeric:tabular-nums}
+.topline b{color:var(--txt);font-size:17px}
+.iconbtns{display:flex;gap:6px}
+.ib{background:#1b2129;border:0;border-radius:10px;padding:6px 10px;font-size:16px;color:var(--txt)}
+.ib.off{opacity:.45}
+.hero{margin:10px 12px 8px;background:var(--card);border-radius:22px;padding:16px 16px 14px;transition:background .15s}
+.hero .lbl{font-size:14px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);font-weight:700}
+.hero .name{font-size:30px;font-weight:800;line-height:1.1;margin:2px 0 6px;letter-spacing:-.3px}
+.hero .big{font-size:64px;font-weight:900;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;margin:4px 0 4px}
+.hero .big.now{color:var(--bad);animation:pulse 1s infinite}
+.hero .big.warn{color:var(--acc)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.row{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-top:6px}
+.sub{font-size:17px;color:var(--mut);font-variant-numeric:tabular-nums}
+.sub b{color:var(--txt);font-weight:700}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:800;font-size:16px;font-variant-numeric:tabular-nums;background:#2a3340;color:var(--txt);white-space:nowrap}
+.chip.ok{background:var(--ok);color:#052}
+.chip.bad{background:var(--bad);color:#fff}
+.chip.acc{background:var(--acc);color:#221}
+.chip.big{font-size:22px;padding:6px 14px}
+.gps{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:15px;color:var(--mut);font-variant-numeric:tabular-nums;gap:8px;flex-wrap:wrap}
+.gps b{color:var(--blue);font-size:19px}
+.banner{margin:0 12px 8px;background:var(--ok);color:#052;border-radius:18px;padding:14px 16px;display:none;align-items:center;justify-content:space-between;gap:12px;font-weight:800;font-size:20px}
+.banner.show{display:flex}
+.banner button{background:#052;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:900;font-size:18px;white-space:nowrap}
+.actions{display:flex;gap:8px;margin:0 12px 10px}
+.actions button{flex:1;background:var(--card2);border:0;border-radius:14px;padding:14px 8px;font-weight:800;font-size:16px}
+.actions button.primary{background:var(--blue);color:#032;flex:2}
+.list{padding:0 12px}
+.stop{background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:8px;border:2px solid transparent;position:relative}
+.stop.cur{border-color:var(--acc)}
+.stop.here{border-color:var(--ok)}
+.stop.done{opacity:.55}
+.stop .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.stop .nm{font-size:23px;font-weight:800;line-height:1.15;letter-spacing:-.2px}
+.stop .nm small{color:var(--mut);font-weight:700;font-size:15px;margin-right:6px}
+.stop .plan{font-size:17px;color:var(--mut);margin-top:3px;font-variant-numeric:tabular-nums}
+.stop .plan b{color:var(--txt);font-weight:700}
+.stop .tz{font-size:12px;font-weight:800;letter-spacing:.5px;color:#111;background:#c8d0da;border-radius:6px;padding:1px 5px;vertical-align:middle;margin-left:4px}
+.stop .proj{font-size:20px;margin-top:4px;font-variant-numeric:tabular-nums;font-weight:700}
+.stop .proj .mut{color:var(--mut);font-weight:600;font-size:16px}
+.stop .note{font-size:16px;color:#c9d1db;margin-top:6px;line-height:1.3}
+.stop .dur{font-size:15px;color:var(--mut);white-space:nowrap}
+.btns{display:flex;gap:8px;margin-top:12px}
+.btns button{flex:1;border:0;border-radius:16px;font-weight:900;font-size:30px;padding:20px 8px;letter-spacing:.5px}
+.btns button.arr{background:var(--ok);color:#052}
+.btns button.dep{background:var(--acc);color:#221}
+.btns button.sm{font-size:16px;padding:12px 8px;background:var(--card2);color:var(--txt);font-weight:800}
+.mini{display:none}
+.stop.open .mini{display:flex}
+.foot{margin:18px 12px 8px;color:var(--mut);font-size:14px;line-height:1.5;text-align:center}
+.foot a{color:var(--blue)}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%) translateY(20px);background:#fff;color:#111;font-weight:800;padding:12px 18px;border-radius:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9;font-size:18px;max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.dayend{margin:0 12px 8px;color:var(--mut);font-size:16px;text-align:center;font-variant-numeric:tabular-nums}
+.dayend b{color:var(--txt)}
+</style>
+</head>
+<body>
+<header>
+  <div class="tabs" id="tabs"></div>
+  <div class="topline">
+    <div><b id="clock">--:--</b> <span id="clocktz"></span> · <span id="tripday"></span></div>
+    <div class="iconbtns">
+      <button class="ib" id="soundBtn" title="Sound">🔔</button>
+      <button class="ib" id="awakeBtn" title="Keep screen awake">☀️</button>
+      <button class="ib" id="cfgBtn" title="Settings">⚙︎</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="hero"></section>
+<div class="banner" id="banner"><span id="bannerTxt">You're here — mark arrived?</span><button id="bannerBtn">ARRIVED</button></div>
+<div class="actions">
+  <button class="primary" id="copyBtn">📋 COPY STATUS</button>
+  <button id="shareBtn">⤴︎ Share</button>
+  <button id="gpsBtn">📍 GPS</button>
+</div>
+<div class="dayend" id="dayend"></div>
+<div class="list" id="list"></div>
+<div class="foot" id="foot"></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ============ DATA ============ */
+const PHX='America/Phoenix', DEN='America/Denver', CHI='America/Chicago', NYC='America/New_York';
+const ROAD=1.2;          // straight-line -> road distance factor for ETA
+const FALLBACK_MPH=55;   // ETA speed when not moving
+const ARRIVE_MI=0.6;     // "you're here" radius
+const LS='rt66copilot.v1';
+
+// [lat, lon] — famous landmarks & Superchargers (SC). Winslow/Gallup/Tupelo/Birmingham
+// multi-target stops are geocoded at the first-named target.
+const GEO={
+ flagstaff:[35.1983,-111.6513], twinarrows:[35.1611,-111.2792], twoguns:[35.1146,-111.0921],
+ meteorcrater:[35.0327,-111.0214], winslow_corner:[35.0237,-110.6983], wigwam:[34.9026,-110.1688],
+ petrified_n:[35.0658,-109.7809], gallup_sc:[35.5053,-108.8281], doghouse:[35.0876,-106.6616],
+ lafonda:[35.6865,-105.9378], bluehole:[34.9405,-104.6733], blueswallow:[35.1720,-103.7164],
+ glenrio:[35.1789,-103.0424], midpoint:[35.2707,-102.6729], cadillac:[35.1872,-101.9871],
+ bigtexan:[35.1938,-101.7550], groom:[35.2050,-101.1069], udropinn:[35.2267,-100.2487],
+ lucilles:[35.5372,-98.5882], national_okc:[35.4685,-97.5160], okc_memorial:[35.4737,-97.5173],
+ milkbottle:[35.4941,-97.5321], roundbarn:[35.6624,-97.3260], rockcafe:[35.7489,-96.6541],
+ tulsa11th:[36.1477,-95.9747], bluewhale:[36.1938,-95.7329], tulsa_sc:[36.1038,-95.9121],
+ russellville:[35.2996,-93.1350], nlr_sc:[34.7807,-92.2182], peabody:[35.1422,-90.0518],
+ rendezvous:[35.1434,-90.0518], sunstudio:[35.1393,-90.0377], lorraine:[35.1346,-90.0574],
+ graceland:[35.0469,-90.0252], tupelo_shack:[34.2600,-88.6799], saws:[33.4739,-86.8083],
+ oxford_sc:[33.6100,-85.7821], macon_sc:[32.8973,-83.6894], tifton_sc:[31.4490,-83.5283],
+ lakecity_sc:[30.2465,-82.6766], ocala_sc:[29.1739,-82.1581], ritz_orlando:[28.4052,-81.4295],
+ fortdrum_sc:[27.6014,-80.8222], onehotel:[25.7991,-80.1273]
+};
+
+// t: planned arrive (or depart for origin, o:1) as HH:MM in zone z (HH may exceed 24 = after midnight)
+// d: dwell minutes; g: geo key; note: free text
+const DAYS=[
+ {n:2,dow:'Tue',stops:[
+  {t:'09:30',d:0,n:'Depart Flagstaff',g:'flagstaff',z:PHX,o:1,note:'Wheels up. Phoenix time (no DST) until Gallup.'},
+  {t:'09:55',d:5,n:'Twin Arrows',g:'twinarrows',z:PHX,note:'I-40 exit 219 — trading-post ruins & arrows.'},
+  {t:'10:10',d:10,n:'Two Guns',g:'twoguns',z:PHX,note:'I-40 exit 230 — ghost town / zoo ruins.'},
+  {t:'10:35',d:60,n:'Meteor Crater',g:'meteorcrater',z:PHX,note:'Visitor center + rim.'},
+  {t:'12:00',d:40,n:'Winslow',g:'winslow_corner',z:PHX,note:'Standin’ on the Corner · La Posada · ⚡ SC to 75% — ⚠︎ Winslow SC (2206 N Park Dr) shows PLANNED/not open; fallback Holbrook SC 2096 Navajo Blvd.'},
+  {t:'13:05',d:10,n:'Wigwam Motel · Holbrook',g:'wigwam',z:PHX,note:'811 W Hopi Dr — teepees & classic cars.'},
+  {t:'13:30',d:55,n:'Petrified Forest (north)',g:'petrified_n',z:PHX,note:'Painted Desert entrance, I-40 exit 311.'},
+  {t:'15:50',d:30,n:'Gallup',g:'gallup_sc',z:PHX,note:'⚡ SC 111 Twin Buttes Rd to 85% · El Rancho 1000 E Hwy 66. (Local clock = MDT, +1h.)'},
+  {t:'19:10',d:40,n:'Albuquerque',g:'doghouse',z:DEN,note:'Dog House 1216 Central NW · Crossroads Motel 1001 Central NE · ⚡ SC splash 55% (2600 Menaul NE, or 2510 12th St NW at I-40).'},
+  {t:'20:45',d:0,n:'La Fonda · Santa Fe',g:'lafonda',z:DEN,note:'Check in, 100 E San Francisco St.'},
+  {t:'21:00',d:75,n:'La Plazuela dinner',g:'lafonda',z:DEN,note:'At La Fonda.'}
+ ]},
+ {n:3,dow:'Wed',stops:[
+  {t:'07:30',d:0,n:'Depart Santa Fe',g:'lafonda',z:DEN,o:1,note:'Amanda car 9:15 · WN1371 departs 12:00.'},
+  {t:'09:10',d:50,n:'Blue Hole · Santa Rosa',g:'bluehole',z:DEN,note:'⚡ SC 2516 Historic Rt 66.'},
+  {t:'11:05',d:55,n:'Blue Swallow · Tucumcari',g:'blueswallow',z:DEN,note:'815 E Rte 66 Blvd · ⚡ SC 2624 S Adams St.'},
+  {t:'13:50',d:12,n:'Glenrio',g:'glenrio',z:CHI,note:'TX/NM line ghost town. Now Central time.'},
+  {t:'14:20',d:20,n:'Midpoint Café · Adrian',g:'midpoint',z:CHI,note:'Halfway on 66.'},
+  {t:'15:10',d:35,n:'Cadillac Ranch',g:'cadillac',z:CHI,note:'I-40 exit 60 — bring spray paint.'},
+  {t:'16:00',d:70,n:'Big Texan',g:'bigtexan',z:CHI,note:'7701 I-40 E · ⚡ SC 8507 I-40 (next door).'},
+  {t:'17:40',d:10,n:'Groom Cross',g:'groom',z:CHI,note:'I-40 exit 112.'},
+  {t:'18:35',d:25,n:'U-Drop Inn · Shamrock',g:'udropinn',z:CHI,note:'⚡ SC at the Conoco tower.'},
+  {t:'20:00',d:8,n:'Lucille’s · Hydro',g:'lucilles',z:CHI,note:'I-40 exit 88.'},
+  {t:'21:15',d:0,n:'The National · OKC',g:'national_okc',z:CHI,note:'120 N Robinson Ave. Check in.'}
+ ]},
+ {n:4,dow:'Thu',stops:[
+  {t:'08:15',d:35,n:'OKC National Memorial',g:'okc_memorial',z:CHI,note:'620 N Harvey Ave.'},
+  {t:'09:00',d:10,n:'Milk Bottle + Gold Dome',g:'milkbottle',z:CHI,note:'2426 N Classen · 1112 NW 23rd.'},
+  {t:'09:35',d:35,n:'Round Barn + POPS · Arcadia',g:'roundbarn',z:CHI,note:'Round Barn first, POPS 66 next door.'},
+  {t:'10:50',d:20,n:'Rock Café · Stroud',g:'rockcafe',z:CHI,note:'114 W Main St.'},
+  {t:'12:10',d:20,n:'Tulsa 11th St',g:'tulsa11th',z:CHI,note:'Meadow Gold sign, 11th & Peoria.'},
+  {t:'13:05',d:25,n:'Blue Whale · Catoosa',g:'bluewhale',z:CHI,note:''},
+  {t:'13:50',d:25,n:'Tulsa ⚡ SC',g:'tulsa_sc',z:CHI,note:'5726 E 41st St. Charge, then Muskogee Tpk → I-40 east.'},
+  {t:'16:35',d:25,n:'Russellville ⚡',g:'russellville',z:CHI,note:'⚠︎ NO Tesla SC in Russellville (supercharge.info). Use Ozark AR 3202 Pence Ln (I-40 ex 37, before) or Conway AR 975 S Amity Rd (ex 125, after).'},
+  {t:'18:20',d:20,n:'N. Little Rock ⚡ SC',g:'nlr_sc',z:CHI,note:'3101 Springhill Dr, I-40 exit 156.'},
+  {t:'20:00',d:0,n:'Peabody · Memphis',g:'peabody',z:CHI,note:'149 Union Ave. Check in.'},
+  {t:'20:45',d:90,n:'Rendezvous + Beale',g:'rendezvous',z:CHI,note:'52 S 2nd St, then Beale St.'}
+ ]},
+ {n:5,dow:'Fri',stops:[
+  {t:'07:40',d:0,n:'Checkout Peabody',g:'peabody',z:CHI,o:1,note:'Car at 80%.'},
+  {t:'07:50',d:8,n:'Sun Studio',g:'sunstudio',z:CHI,note:'706 Union Ave — photo stop.'},
+  {t:'08:10',d:20,n:'Lorraine Motel',g:'lorraine',z:CHI,note:'450 Mulberry St.'},
+  {t:'09:00',d:150,n:'Graceland UVIP',g:'graceland',z:CHI,note:'Ultimate VIP tour.'},
+  {t:'13:00',d:60,n:'Tupelo',g:'tupelo_shack',z:CHI,note:'Elvis birthplace 306 Elvis Presley Dr · ⚡ SC 1001 Barnes Crossing Rd (4 mi N).'},
+  {t:'16:20',d:35,n:'Birmingham',g:'saws',z:CHI,note:'Saw’s Homewood 1008 Oxmoor Rd to-go · ⚡ SC 2115 1st Ave S to 90% · GO / NO-GO call at 5pm.'},
+  {t:'19:20',d:15,n:'Oxford ⚡ SC',g:'oxford_sc',z:NYC,note:'1105 Oxford Exchange Blvd. Times from here in Eastern.'},
+  {t:'21:40',d:20,n:'Macon ⚡ SC',g:'macon_sc',z:NYC,note:'265 Tom Hill Sr Rd, I-75 exit 169.'},
+  {t:'23:25',d:25,n:'Tifton ⚡ SC',g:'tifton_sc',z:NYC,note:'708 US-319, I-75 exit 62.'},
+  {t:'25:30',d:20,n:'Lake City ⚡ SC',g:'lakecity_sc',z:NYC,note:'4772 US-41, I-75 exit 435. (1:30a Sat)'},
+  {t:'26:35',d:10,n:'Ocala ⚡ splash',g:'ocala_sc',z:NYC,note:'2000 SW College Rd, I-75 exit 350. (2:35a Sat)'},
+  {t:'27:40',d:0,n:'Ritz-Carlton Grande Lakes',g:'ritz_orlando',z:NYC,note:'4012 Central Florida Pkwy, Orlando. Sleep.'}
+ ]},
+ {n:6,dow:'Sat',stops:[
+  {t:'08:30',d:0,n:'Depart Orlando',g:'ritz_orlando',z:NYC,o:1,note:'Car at 90%.'},
+  {t:'10:15',d:25,n:'Fort Drum plaza ⚡ SC',g:'fortdrum_sc',z:NYC,note:'Florida’s Turnpike MM 184.'},
+  {t:'12:00',d:0,n:'South Beach — 1 Hotel',g:'onehotel',z:NYC,note:'2341 Collins Ave. Sand. 🏁'}
+ ]}
+];
+
+/* ============ STATE ============ */
+let S; try{S=JSON.parse(localStorage.getItem(LS))||{}}catch(e){S={}}
+S.arr=S.arr||{}; S.dep=S.dep||{}; S.ack=S.ack||{}; if(S.sound==null)S.sound=true; if(S.awake==null)S.awake=true; S.day2=S.day2||'2026-08-18';
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+
+/* ============ TIME ============ */
+const dtfCache={};
+function parts(ms,tz){const f=dtfCache['p'+tz]||(dtfCache['p'+tz]=new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'}));const o={};for(const p of f.formatToParts(new Date(ms)))o[p.type]=p.value;return o;}
+function tzOff(ms,tz){const p=parts(ms,tz);const asUTC=Date.UTC(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute,+p.second);return Math.round((asUTC-Math.floor(ms/1000)*1000)/60000);}
+function zoned(dateStr,hm,tz){const [y,m,d]=dateStr.split('-').map(Number);const [H,M]=hm.split(':').map(Number);const guess=Date.UTC(y,m-1,d,H,M);let off=tzOff(guess,tz);let ms=guess-off*60000;const off2=tzOff(ms,tz);if(off2!==off)ms=guess-off2*60000;return ms;}
+function dayDate(n){const [y,m,d]=S.day2.split('-').map(Number);return new Date(Date.UTC(y,m-1,d+(n-2))).toISOString().slice(0,10);}
+function fmtT(ms,tz){const f=dtfCache['t'+tz]||(dtfCache['t'+tz]=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit'}));return f.format(ms).replace(' AM','a').replace(' PM','p');}
+function tzAbbr(ms,tz){const f=dtfCache['z'+tz]||(dtfCache['z'+tz]=new Intl.DateTimeFormat('en-US',{timeZone:tz,timeZoneName:'short'}));const p=f.formatToParts(ms).find(x=>x.type==='timeZoneName');return p?p.value:'';}
+function fmtDelta(m){if(Math.abs(m)<1)return 'on time';return (m>0?'+':'−')+Math.abs(m)+' min '+(m>0?'behind':'ahead');}
+function fmtDeltaShort(m){if(Math.abs(m)<1)return '±0';return (m>0?'+':'−')+Math.abs(m);}
+function deltaClass(m){return Math.abs(m)<1?'':(m>0?(m>=10?'bad':'acc'):'ok');}
+function fmtDur(ms){ms=Math.max(0,ms);const s=Math.floor(ms/1000);const h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;if(h>0)return h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');return m+':'+String(sec).padStart(2,'0');}
+function fmtMin(ms){const m=Math.round(ms/60000);if(m<60)return m+' min';return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';}
+
+/* ============ GEO ============ */
+function hav(a,b){const R=3958.8,toR=Math.PI/180;const dLat=(b.lat-a.lat)*toR,dLon=(b.lon-a.lon)*toR;const s=Math.sin(dLat/2)**2+Math.cos(a.lat*toR)*Math.cos(b.lat*toR)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(s));}
+let gps={ok:false,lat:null,lon:null,acc:null,mph:null,ts:0,err:null,watching:false};
+let fixes=[];
+function onFix(p){const c=p.coords,t=p.timestamp||Date.now();fixes.push({t,lat:c.latitude,lon:c.longitude});const cutoff=t-180e3;while(fixes.length>2&&fixes[0].t<cutoff)fixes.shift();
+ let mph=null;if(fixes.length>=2){let dist=0;for(let i=1;i<fixes.length;i++)dist+=hav(fixes[i-1],fixes[i]);const hrs=(t-fixes[0].t)/3600e3;if(hrs>=20/3600)mph=dist/hrs;}
+ if(mph==null&&c.speed!=null&&c.speed>=0)mph=c.speed*2.23694;
+ gps={ok:true,lat:c.latitude,lon:c.longitude,acc:c.accuracy,mph,ts:t,err:null,watching:true};}
+function onGpsErr(e){gps.err=e.code===1?'GPS denied':e.code===2?'no fix':'GPS timeout';gps.watching=true;}
+function startGps(){if(!navigator.geolocation){gps.err='no GPS';return;}if(gps.watching)return;gps.watching=true;navigator.geolocation.watchPosition(onFix,onGpsErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000});}
+function etaTo(stop){if(!gps.ok||!stop)return null;const g=GEO[stop.g];if(!g)return null;const dist=hav(gps,{lat:g[0],lon:g[1]});const road=dist*ROAD;let ms,est=false;if(gps.mph!=null&&gps.mph>8)ms=road/gps.mph*3600e3;else{ms=road/FALLBACK_MPH*3600e3;est=true;}return {dist,ms,est};}
+
+/* ============ SCHEDULE ENGINE ============ */
+function compute(day,now){
+ const date=dayDate(day.n);
+ const st=day.stops.map((s,i)=>{const key=day.n+'-'+i;const A=zoned(date,s.t,s.z);return Object.assign({},s,{i,key,A,D:A+s.d*60000,arr:S.arr[key]||null,dep:S.dep[key]||null});});
+ const live=now>=st[0].A-3*3600e3&&now<=st[st.length-1].D+8*3600e3;
+ let cur=st.findIndex(s=>!s.dep);if(cur<0)cur=st.length;
+ const mode=cur>=st.length?'done':((st[cur].arr||st[cur].o)?'here':'driving');
+ const target=mode==='here'?cur+1:cur;
+ const eta=(live&&mode==='driving')?etaTo(st[target]):(live&&mode==='here'&&st[target])?etaTo(st[target]):null;
+ let prevDep=null;
+ st.forEach((s,i)=>{
+  const L=i>0?s.A-st[i-1].D:0;
+  let pa;
+  if(s.arr)pa=s.arr;
+  else if(s.o)pa=s.A;
+  else{pa=i>0?prevDep+L:s.A;if(live&&eta&&!eta.est&&i===target&&mode==='driving')pa=now+eta.ms;if(live&&!s.dep)pa=Math.max(pa,now);}
+  let due=(s.arr||s.A)+s.d*60000; if(s.o)due=s.A;      // when you *should* leave
+  let pd;
+  if(s.dep)pd=s.dep;
+  else if(s.arr||s.o){pd=due;if(live)pd=Math.max(pd,now);}
+  else pd=pa+s.d*60000;
+  s.pa=pa;s.pd=pd;s.due=due;
+  s.delta=Math.round((s.o?pd-s.D:pa-s.A)/60000);
+  s.depDelta=Math.round((pd-s.D)/60000);
+  s.status=s.dep?'done':i===cur?mode:'future';
+  prevDep=pd;
+ });
+ return {day,st,cur,mode,target,live,eta,end:st[st.length-1],next:st[target]||null,curStop:st[cur]||null};
+}
+function autoDay(){const now=Date.now();let pick=DAYS[0].n;for(const d of DAYS){const first=zoned(dayDate(d.n),d.stops[0].t,d.stops[0].z);if(now>=first-3*3600e3)pick=d.n;}return pick;}
+
+/* ============ AUDIO / ALERTS ============ */
+let actx=null;
+function unlockAudio(){try{if(!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx&&actx.state==='suspended')actx.resume();}catch(e){}}
+function beep(n){if(!S.sound||!actx)return;try{let t=actx.currentTime+0.02;for(let i=0;i<n;i++){const o=actx.createOscillator(),g=actx.createGain();o.type='square';o.frequency.value=i%2?1320:880;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.4,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+0.32);t+=0.42;}}catch(e){}}
+function alarm(kind){document.body.classList.add('flash');setTimeout(()=>document.body.classList.remove('flash'),kind===0?5000:2500);
+ if(navigator.vibrate)try{navigator.vibrate(kind===0?[300,120,300,120,600]:[200,100,200]);}catch(e){}
+ beep(kind===0?5:3);toast(kind===0?'⏰ TIME TO LEAVE':'⏰ 5 minutes to departure');}
+let wakeLock=null;
+async function keepAwake(){if(!S.awake||!('wakeLock' in navigator))return;try{if(wakeLock&&!wakeLock.released)return;wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;});}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')keepAwake();});
+
+/* ============ UI ============ */
+const $=id=>document.getElementById(id);
+let selDay=autoDay(), manual=false;
+let cardEls={};
+let toastT=null;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function dayByN(n){return DAYS.find(d=>d.n===n);}
+
+function renderTabs(){const today=autoDay();$('tabs').innerHTML=DAYS.map(d=>`<button class="tab ${d.n===selDay?'on':''} ${d.n===today?'today':''}" data-n="${d.n}"><small>Day ${d.n}</small>${d.dow}</button>`).join('');
+ $('tabs').querySelectorAll('.tab').forEach(b=>b.onclick=()=>{selDay=+b.dataset.n;manual=true;render();});}
+
+function mark(key,kind){const now=Date.now();if(kind==='arr'){S.arr[key]=now;}else{S.dep[key]=now;if(!S.arr[key])S.arr[key]=now;}save();render();toast(kind==='arr'?'✓ Arrived '+fmtT(now,curTz()):'✓ Departed '+fmtT(now,curTz()));}
+function undo(key){if(S.dep[key])delete S.dep[key];else delete S.arr[key];save();render();toast('Undone');}
+function curTz(){const c=compute(dayByN(selDay),Date.now());const s=c.next||c.curStop||c.end;return s.z;}
+
+function render(){
+ renderTabs();
+ const day=dayByN(selDay);const now=Date.now();const c=compute(day,now);
+ cardEls={};
+ const list=$('list');list.innerHTML='';
+ c.st.forEach((s,i)=>{
+  const isCur=i===c.cur;
+  const el=document.createElement('div');
+  el.className='stop '+(s.status==='done'?'done':isCur?(c.mode==='here'?'here cur':'cur'):'future');
+  el.dataset.key=s.key;
+  const tzchange=i===0||s.z!==c.st[i-1].z;
+  const planTxt=s.o?`<b>depart ${fmtT(s.A,s.z)}</b>`:`<b>${fmtT(s.A,s.z)}</b> → ${fmtT(s.D,s.z)}`;
+  const tzTag=`<span class="tz">${tzAbbr(s.A,s.z)}</span>`;
+  const btnsBig=isCur?`<div class="btns">${(s.o||s.arr)?'':`<button class="arr" data-k="${s.key}" data-a="arr">ARRIVED</button>`}<button class="dep" data-k="${s.key}" data-a="dep">DEPARTED</button>${(s.arr&&!s.o)?`<button class="sm" data-k="${s.key}" data-a="undo" style="flex:0 0 78px">undo</button>`:''}</div>`:'';
+  const btnsMini=!isCur?`<div class="btns mini">${(s.o||s.arr||s.dep)?'':`<button class="sm" data-k="${s.key}" data-a="arr">Arrived</button>`}${s.dep?'':`<button class="sm" data-k="${s.key}" data-a="dep">Departed</button>`}${(s.arr||s.dep)?`<button class="sm" data-k="${s.key}" data-a="undo">Undo</button>`:''}</div>`:'';
+  el.innerHTML=`<div class="hd"><div class="nm"><small>${s.o?'▶':(i+1)}</small>${esc(s.n)}</div><div class="dur">${s.d?s.d+' min':(s.o?'':'0 min')}</div></div>
+   <div class="plan">${planTxt}${tzchange?tzTag:''}</div>
+   <div class="proj" data-f="proj"></div>
+   ${s.note?`<div class="note">${esc(s.note)}</div>`:''}
+   ${btnsBig}${btnsMini}`;
+  el.querySelectorAll('button[data-a]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();unlockAudio();keepAwake();const a=b.dataset.a,k=b.dataset.k;if(a==='undo')undo(k);else mark(k,a);});
+  if(!isCur)el.onclick=()=>{el.classList.toggle('open');};
+  list.appendChild(el);
+  cardEls[s.key]={el,proj:el.querySelector('[data-f=proj]')};
+ });
+ tick(true);
+ // scroll current stop into view on day change / mark
+ const curEl=c.curStop&&cardEls[c.curStop.key];
+ if(curEl)setTimeout(()=>{const r=curEl.el.getBoundingClientRect();if(r.top<120||r.bottom>window.innerHeight)curEl.el.scrollIntoView({behavior:'smooth',block:'center'});},50);
+}
+
+let lastAlertCheck=0;
+function tick(force){
+ const day=dayByN(selDay);const now=Date.now();const c=compute(day,now);
+ // header clock in zone of current/next stop
+ const zs=(c.next||c.curStop||c.end);
+ $('clock').textContent=fmtT(now,zs.z);$('clocktz').textContent=tzAbbr(now,zs.z);
+ $('tripday').textContent='Day '+day.n+' · '+day.dow+' '+dayDate(day.n).slice(5).replace('-','/');
+ // cards
+ c.st.forEach(s=>{const ce=cardEls[s.key];if(!ce)return;let html='';
+  if(s.dep){html=`<span class="mut">was</span> ${fmtT(s.arr||s.A,s.z)}${s.o?'':' → '+fmtT(s.dep,s.z)}${s.o?' '+fmtT(s.dep,s.z):''} <span class="chip ${deltaClass(s.delta)}">${fmtDeltaShort(s.o?Math.round((s.dep-s.A)/60000):s.delta)}</span>`;}
+  else if(s.status==='here'){html=(s.o?'':`<span class="mut">arrived</span> ${fmtT(s.arr,s.z)} · `)+`<span class="mut">leave</span> ${fmtT(s.pd,s.z)} <span class="chip ${deltaClass(s.depDelta)}">${fmtDeltaShort(s.depDelta)}</span>`;}
+  else{html=`<span class="mut">proj</span> ${fmtT(s.pa,s.z)}${s.o?'':' → '+fmtT(s.pd,s.z)} <span class="chip ${deltaClass(s.delta)}">${fmtDeltaShort(s.delta)}</span>`;}
+  ce.proj.innerHTML=html;
+  const wantOpen=ce.el.classList.contains('open');
+  ce.el.className='stop '+(s.status==='done'?'done':s.i===c.cur?(c.mode==='here'?'here cur':'cur'):'future')+(wantOpen?' open':'');
+ });
+ // day end
+ if(c.mode==='done')$('dayend').innerHTML=`Day ${day.n} complete ✓ · finished ${fmtT(c.end.dep,c.end.z)}`;
+ else $('dayend').innerHTML=`Day ends <b>${fmtT(c.end.pa,c.end.z)} ${tzAbbr(c.end.pa,c.end.z)}</b> · <span class="chip ${deltaClass(c.end.delta)}">${fmtDelta(c.end.delta)}</span>`;
+ // hero
+ renderHero(c,now);
+ // arrival banner
+ const b=$('banner');
+ if(c.live&&c.mode==='driving'&&c.eta&&c.eta.dist<ARRIVE_MI&&c.curStop){b.classList.add('show');$('bannerTxt').textContent=`You're at ${c.curStop.n} — mark arrived?`;$('bannerBtn').onclick=()=>mark(c.curStop.key,'arr');}
+ else b.classList.remove('show');
+ // alerts (only for the auto-selected day, so a future tab can't fire)
+ if(c.live&&c.mode==='here'&&c.curStop&&(c.curStop.d>0||c.curStop.o)&&selDay===autoDay()){
+  const s=c.curStop;const rem=s.due-now;const k5=s.key+':5',k0=s.key+':0';
+  if(rem<=0&&!S.ack[k0]){S.ack[k0]=1;S.ack[k5]=1;save();alarm(0);}
+  else if(rem<=5*60e3&&rem>0&&!S.ack[k5]){S.ack[k5]=1;save();alarm(5);}
+ }
+ // gps status button
+ $('gpsBtn').textContent=gps.ok?`📍 ${gps.mph!=null?Math.round(gps.mph)+' mph':'fix'}`:(gps.err?'📍 '+gps.err:(gps.watching?'📍 …':'📍 GPS'));
+}
+
+function renderHero(c,now){
+ const h=$('hero');let html='';
+ const cs=c.curStop,nx=c.next;
+ if(!c.live&&c.mode!=='done'){
+  const first=c.st[0];const until=first.A-now;
+  html=`<div class="lbl">Day ${c.day.n} · ${c.day.dow}</div><div class="name">${esc(first.n)}</div>
+  <div class="big">${until>0?fmtMin(until):'—'}</div>
+  <div class="sub">${until>0?'until ':'planned '}<b>${fmtT(first.A,first.z)} ${tzAbbr(first.A,first.z)}</b> · ${c.st.length-1} stops · ends <b>${fmtT(c.end.A,c.end.z)}</b></div>`;
+ }else if(c.mode==='done'){
+  html=`<div class="lbl">Day ${c.day.n}</div><div class="name">All stops done 🏁</div><div class="big">✓</div><div class="sub">Finished <b>${fmtT(c.end.dep,c.end.z)}</b> · ${fmtDelta(Math.round((c.end.dep-c.end.A)/60000))}</div>`;
+ }else if(c.mode==='here'){
+  const rem=cs.due-now;const cls=rem<=0?'now':rem<=5*60e3?'warn':'';
+  html=`<div class="lbl">${cs.o?'Departure':'You are at'}</div><div class="name">${esc(cs.n)}</div>
+  <div class="big ${cls}">${rem<=0?'LEAVE NOW':fmtDur(rem)}</div>
+  <div class="row"><span class="sub">leave <b>${fmtT(cs.pd,cs.z)}</b> (plan ${fmtT(cs.D,cs.z)})</span><span class="chip big ${deltaClass(cs.depDelta)}">${fmtDelta(cs.depDelta)}</span></div>`;
+  if(nx){const e=c.eta;html+=`<div class="sub" style="margin-top:8px">next <b>${esc(nx.n)}</b>${e?` · ${e.dist.toFixed(1)} mi`:''} · arrive ~<b>${fmtT(nx.pa,nx.z)}</b> (plan ${fmtT(nx.A,nx.z)})</div>`;}
+ }else{ // driving
+  const e=c.eta;
+  html=`<div class="lbl">Next stop</div><div class="name">${esc(cs.n)}</div>`;
+  if(e){html+=`<div class="big">${e.dist<10?e.dist.toFixed(1):Math.round(e.dist)}<span style="font-size:28px;font-weight:700;letter-spacing:0;color:var(--mut)"> mi</span></div>
+   <div class="row"><span class="sub">ETA <b>${fmtT(now+e.ms,cs.z)}</b> ${e.est?`<span style="font-size:13px">(@${FALLBACK_MPH} mph est)</span>`:`· ${fmtMin(e.ms)}`}</span><span class="chip big ${deltaClass(cs.delta)}">${fmtDelta(cs.delta)}</span></div>`;}
+  else{html+=`<div class="big">${fmtT(cs.pa,cs.z)}</div><div class="row"><span class="sub">projected arrival (plan ${fmtT(cs.A,cs.z)}) · ${gps.err||'waiting for GPS…'}</span><span class="chip big ${deltaClass(cs.delta)}">${fmtDelta(cs.delta)}</span></div>`;}
+  html+=`<div class="sub" style="margin-top:8px">plan <b>${fmtT(cs.A,cs.z)}</b>${cs.d?` · stay ${cs.d} min · leave by <b>${fmtT(cs.pd,cs.z)}</b>`:''}</div>`;
+ }
+ if(gps.ok){html+=`<div class="gps"><span><b>${gps.mph!=null?Math.round(gps.mph):'–'}</b> mph avg</span><span>±${Math.round(gps.acc||0)} m</span><span>${c.eta?`≈${(c.eta.dist*ROAD).toFixed(0)} road mi`:''}</span></div>`;}
+ else if(c.live){html+=`<div class="gps"><span>${gps.err?gps.err:'📍 acquiring GPS…'}</span><span>tap 📍 to retry</span></div>`;}
+ h.innerHTML=html;
+}
+
+/* ============ STATUS LINE ============ */
+function statusLine(){
+ const day=dayByN(selDay);const now=Date.now();const c=compute(day,now);
+ const cs=c.curStop,nx=c.next;const z=(nx||cs||c.end).z;
+ let s=`${day.dow} ${fmtT(now,z)} ${tzAbbr(now,z)}`;
+ if(c.mode==='done')return s+` — Day ${day.n} done, finished ${fmtT(c.end.dep,c.end.z)} (${fmtDelta(Math.round((c.end.dep-c.end.A)/60000))}).`;
+ if(!c.live)return s+` — Day ${day.n} starts ${fmtT(c.st[0].A,c.st[0].z)} ${tzAbbr(c.st[0].A,c.st[0].z)}, ${c.st.length-1} stops, ends ~${fmtT(c.end.A,c.end.z)}.`;
+ if(c.mode==='here'){s+=` — AT ${cs.n}${cs.arr&&!cs.o?` (arr ${fmtT(cs.arr,cs.z)}, ${fmtDeltaShort(cs.delta)})`:''}, leaving ~${fmtT(cs.pd,cs.z)} (${fmtDelta(cs.depDelta)})`;
+  if(nx)s+=`; next ${nx.n} ~${fmtT(nx.pa,nx.z)}${c.eta?` (${c.eta.dist.toFixed(0)} mi)`:''}`;}
+ else{s+=` — EN ROUTE to ${cs.n}${c.eta?`, ${c.eta.dist.toFixed(0)} mi, ETA ${fmtT(now+c.eta.ms,cs.z)}`:`, ETA ~${fmtT(cs.pa,cs.z)}`} (${fmtDelta(cs.delta)})`;
+  const after=c.st[c.cur+1];if(after)s+=`; then ${after.n} ~${fmtT(after.pa,after.z)}`;}
+ s+=`. Day ends ~${fmtT(c.end.pa,c.end.z)} ${tzAbbr(c.end.pa,c.end.z)} (${fmtDelta(c.end.delta)}).`;
+ return s;
+}
+async function copyStatus(){const txt=statusLine();try{await navigator.clipboard.writeText(txt);toast('Copied ✓');}catch(e){try{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();document.execCommand('copy');ta.remove();toast('Copied ✓');}catch(e2){prompt('Copy:',txt);}}}
+async function shareStatus(){const text=statusLine();if(navigator.share){try{await navigator.share({text});}catch(e){}}else copyStatus();}
+
+/* ============ WIRING ============ */
+$('copyBtn').onclick=copyStatus;$('shareBtn').onclick=shareStatus;
+$('gpsBtn').onclick=()=>{gps.watching=false;startGps();toast('GPS restarted');};
+$('soundBtn').onclick=()=>{S.sound=!S.sound;save();unlockAudio();updIcons();if(S.sound){beep(1);toast('Sound on');}else toast('Sound off');};
+$('awakeBtn').onclick=()=>{S.awake=!S.awake;save();updIcons();if(S.awake)keepAwake();else if(wakeLock){wakeLock.release();wakeLock=null;}toast(S.awake?'Screen stays awake':'Screen may sleep');};
+$('cfgBtn').onclick=()=>{
+ const a=prompt('Settings:\n1 = set Day-2 date (currently '+S.day2+')\n2 = reset Day '+selDay+' marks\n3 = reset ALL marks\n4 = test alarm','');
+ if(a==='1'){const d=prompt('Day 2 (Tue) date YYYY-MM-DD',S.day2);if(d&&/^\d{4}-\d{2}-\d{2}$/.test(d)){S.day2=d;save();manual=false;selDay=autoDay();render();toast('Dates set');}}
+ else if(a==='2'){if(confirm('Reset all ARRIVED/DEPARTED marks for Day '+selDay+'?')){for(const k of Object.keys(S.arr))if(k.startsWith(selDay+'-'))delete S.arr[k];for(const k of Object.keys(S.dep))if(k.startsWith(selDay+'-'))delete S.dep[k];for(const k of Object.keys(S.ack))if(k.startsWith(selDay+'-'))delete S.ack[k];save();render();toast('Day reset');}}
+ else if(a==='3'){if(confirm('Reset EVERYTHING?')){S.arr={};S.dep={};S.ack={};save();render();toast('All reset');}}
+ else if(a==='4'){unlockAudio();setTimeout(()=>alarm(0),300);}
+};
+function updIcons(){$('soundBtn').textContent=S.sound?'🔔':'🔕';$('soundBtn').classList.toggle('off',!S.sound);$('awakeBtn').classList.toggle('off',!S.awake);}
+document.addEventListener('touchend',()=>{unlockAudio();keepAwake();},{passive:true});
+document.addEventListener('click',()=>{unlockAudio();keepAwake();});
+$('foot').innerHTML=`Times shown in each stop’s own zone. Miles are straight-line (ETA uses ×${ROAD} road factor). Marks saved on this phone. Not a Supercharger in Seligman — never route a charge there. <br>Add to Home Screen for full-screen + offline.`;
+
+updIcons();
+render();
+startGps();
+setInterval(tick,1000);
+// re-check auto day every minute unless the user picked a tab
+setInterval(()=>{if(!manual){const a=autoDay();if(a!==selDay){selDay=a;render();}}},60000);
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
+</script>
+</body>
+</html>
