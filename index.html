@@ -29,6 +29,8 @@ header .clock small{font-size:13px;color:var(--mut);font-weight:700;margin-left:
 .iconbtns{display:flex;gap:6px}
 .ib{background:#1b2129;border:0;border-radius:10px;padding:8px 10px;font-size:17px;color:var(--txt)}
 .ib.off{opacity:.45}
+.gates{margin:10px 12px 0;background:#2b2a1a;border:2px solid var(--acc);border-radius:16px;padding:12px 14px;color:var(--acc);font-weight:700;font-size:17px;line-height:1.35}
+.gates b{display:block;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:4px;color:#d9b52e}
 .sec{margin:10px 12px 0;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:800}
 .hero{margin:6px 12px 8px;background:var(--card);border-radius:22px;padding:16px 16px 14px;transition:background .15s;border:2px solid transparent}
 .hero.here{border-color:var(--ok)}
@@ -132,6 +134,7 @@ button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px soli
   </div>
 </header>
 
+<div class="gates" id="gates" style="display:none"></div>
 <div class="sec">Now</div>
 <section class="hero" id="hero"></section>
 <div class="actions">
@@ -166,29 +169,28 @@ const TYPE_LABEL={charger:'⚡ charger',sight:'sight',photo:'photo',food:'food',
 // t: planned arrive HH:MM in zone z (HH may exceed 24 = after midnight); min: dwell; target: charge-to %
 // type: charger/sight/photo/food/brba/hotel/flex; flex:1 = optional (take if at/ahead of gate); done:1 = already visited; cut:1 = cut from plan
 const DAYS=[
-{n:2,date:'2026-08-18',dow:'Tue',title:'Flagstaff → Breaking Bad ABQ → Santa Fe',tzNote:'MST, then MDT after the NM line',speedRule:'70–72 mph until the Holbrook charge, then normal (75–80, never above 85)',stops:[
+{n:2,date:'2026-08-18',dow:'Tue',title:'Flagstaff → Breaking Bad ABQ → Santa Fe — COMPRESSED for Paloma 8:45 PM (BOOKED, last seating)',tzNote:'MST, then MDT after the NM line',speedRule:'70–72 mph until the Holbrook charge, then normal (75–80, never above 85)',gates:'ABQ arrival by 19:05 = all three BrBa stops; 19:05–19:20 = drop Walt’s house; after 19:20 = Dog House only. Cut order if behind: Jack Rabbit → El Rancho → Crossroads → Dog House → never the Corner/La Posada. Paloma is a LAST SEATING (closes 9) — if slipping, call (505) 467-8624 from the car.',stops:[
  {t:'10:25',name:'Depart Little America',type:'hotel',addr:'2515 E Butler Ave, Flagstaff',lat:35.1900,lon:-111.6200,z:PHX,min:0,what:'Night-1 hotel.',why:'Departed at 52%, no morning charge — hence today’s speed rule.',done:1,origin:1},
  {t:'10:55',name:'Twin Arrows (drive-by)',type:'photo',addr:'I-40 exit 219, south frontage',lat:35.1611,lon:-111.2792,z:PHX,min:0,what:'Two giant yellow-and-red arrows planted nose-down beside a ruined 1950s trading post — a classic Route 66 photo relic.',why:'Seen from the exit at speed; the Navajo casino at this exit is the only services for 30 mi.',done:1},
- {t:'11:05',name:'Two Guns (skipped)',type:'flex',addr:'I-40 exit 230',lat:35.1146,lon:-111.0921,z:PHX,min:0,what:'Ghost ruins of a 1900s–50s tourist trap on the Canyon Diablo rim — stone zoo cages, Apache Death Cave lore.',why:'Skipped by call today; banked for Trip #2.',done:1,skipped:1},
- {t:'11:15',name:'Meteor Crater',type:'sight',addr:'Exit 233 + 6 mi S, Meteor Crater Rd',lat:35.0327,lon:-111.0214,z:PHX,min:55,what:'A 550-ft-deep, 4,000-ft-wide asteroid impact hole ~50,000 years old — best-preserved crater on Earth; museum + café.',why:'The one natural wonder on today’s line; the café doubles as the coffee stop; ~$29.'},
- {t:'12:40',name:'Standin’ on the Corner Park',type:'photo',addr:'Kinsley Ave & E 2nd St, Winslow',lat:35.0237,lon:-110.6983,z:PHX,min:10,what:'The Eagles’ “Take It Easy” corner: flatbed Ford, guitar-man statue, mural.',why:'THE Winslow photo. NOTE: no charger in this town.'},
- {t:'12:55',name:'La Posada Hotel',type:'sight',addr:'303 E 2nd St, Winslow',lat:35.0214,lon:-110.6954,z:PHX,min:10,what:'Mary Colter’s 1930 masterpiece — the last great Harvey railroad hotel on Route 66; gardens and art-filled lobby.',why:'10-min walk-through; coffee here if the crater café missed.'},
- {t:'13:10',name:'Jack Rabbit Trading Post',type:'flex',addr:'3386 Historic Rt 66, Joseph City (exit 269)',lat:34.9682,lon:-110.4305,z:PHX,min:10,flex:1,what:'The giant crouching jackrabbit and the 1949 “HERE IT IS” billboard — the payoff to a hundred miles of teaser signs.',why:'Kids sit ON the jackrabbit; 200 yds off the exit.'},
- {t:'13:45',name:'Holbrook Supercharger',type:'charger',addr:'2096 Navajo Blvd, Holbrook (Burger King lot, exit 286)',lat:34.9232,lon:-110.1455,z:PHX,min:30,target:80,what:'12 stalls, 250 kW — today’s anchor plug.',why:'Arriving ~19–20%; charge to 80%. Normal speeds resume after.',speed:1},
- {t:'13:50',name:'Wigwam Motel',type:'photo',addr:'811 W Hopi Dr, Holbrook',lat:34.9026,lon:-110.1688,z:PHX,min:10,what:'1950 sleep-in-a-teepee motel — concrete teepees with vintage cars parked nose-in; inspiration for the Cozy Cone in Cars.',why:'Kid photo while the car charges.'},
- {t:'14:00',name:'Bucket of Suds — touchless wash',type:'flex',addr:'2118 Navajo Blvd, Holbrook (1 block N of the Supercharger)',lat:34.9254,lon:-110.1438,z:PHX,min:10,flex:1,what:'In-bay TOUCH-FREE LaserWash + self-serve bays — the only touchless wash on today’s line (Winslow has none).',why:'Optional today; the scrape rule bans every brush tunnel. Car Wash Mode ON. (928) 421-1861.'},
- {t:'14:40',name:'Petrified Forest NP — north loop',type:'sight',addr:'I-40 exit 311, north entrance',lat:35.0658,lon:-109.7809,z:PHX,min:35,what:'The only national park containing a piece of Route 66 (rusted 1932 Studebaker marker) plus the Painted Desert rim.',why:'Two overlooks + the 66 marker, back on I-40 in 35 min; $25/car. Do NOT take the full 28-mi road.'},
- {t:'17:10',name:'Gallup Supercharger',type:'charger',addr:'111 Twin Buttes Rd, Gallup',lat:35.5053,lon:-108.8281,z:DEN,min:35,target:85,what:'8 stalls, 250 kW.',why:'Charge to 85% for the 138-mi run to ABQ; times are MDT from here.'},
- {t:'17:20',name:'El Rancho Hotel (peek)',type:'flex',addr:'1000 E Hwy 66, Gallup',lat:35.5296,lon:-108.7281,z:DEN,min:5,flex:1,what:'1937 “Home of the Movie Stars” — John Wayne, Bogart, Hepburn stayed during Western shoots; log-and-stone lobby.',why:'5-min lobby peek only if the charge allows.'},
- {t:'19:40',name:'ABQ Supercharger splash',type:'charger',addr:'nav picks near I-40/Central — 2510 12th St NW at I-40 exit 157B (24 stalls) or 2600 Menaul NE',lat:35.1114,lon:-106.6580,z:DEN,min:12,target:55,what:'12-min splash.',why:'Covers the Breaking Bad hour + 63 mi to Santa Fe; the car’s nav is the referee.'},
- {t:'19:50',name:'Dog House Drive In',type:'brba',addr:'1216 Central Ave NW, Albuquerque',lat:35.0876,lon:-106.6616,z:DEN,min:12,what:'The neon wagging-dachshund drive-in — Jesse buys his gun here on screen; real green-chile cheese dogs.',why:'Most filmable Breaking Bad location, and Central Ave IS old Route 66.'},
- {t:'20:05',name:'Crossroads Motel',type:'brba',addr:'1001 Central Ave NE, Albuquerque',lat:35.0828,lon:-106.6355,z:DEN,min:3,what:'“The Crystal Palace” — where Hank shows Walt Jr. the other end of meth.',why:'2-min exterior photo from the lot edge; it’s a working motel.'},
- {t:'21:05',name:'La Fonda on the Plaza',type:'hotel',addr:'100 E San Francisco St, Santa Fe',lat:35.6865,lon:-105.9378,z:DEN,min:0,what:'1922 grande dame ON the 1926–37 alignment — the most Route-66-correct night of the trip.',why:'Night 2. Dinner La Plazuela ~21:10 (call ~19:00 to hold); confirm Amanda’s 9:15 AM car.'}
+ {t:'11:05',name:'Two Guns (skipped)',type:'flex',addr:'I-40 exit 230',lat:35.1146,lon:-111.0921,z:PHX,min:0,what:'Ghost ruins of a 1900s–50s tourist trap on the Canyon Diablo rim — stone zoo cages, Apache Death Cave lore.',why:'Skipped by call; banked for Trip #2.',done:1,skipped:1},
+ {t:'11:15',name:'Meteor Crater',type:'sight',addr:'Exit 233 + 6 mi S, Meteor Crater Rd',lat:35.0327,lon:-111.0214,z:PHX,min:55,what:'A 550-ft-deep, 4,000-ft-wide asteroid impact hole ~50,000 years old — best-preserved crater on Earth; museum + café.',why:'The one natural wonder on today’s line; the café was the coffee stop; ~$29.',done:1},
+ {t:'12:45',name:'Standin’ on the Corner Park',type:'photo',addr:'Kinsley Ave & E 2nd St, Winslow',lat:35.0237,lon:-110.6983,z:PHX,min:8,what:'The Eagles’ “Take It Easy” corner: flatbed Ford, guitar-man statue, mural.',why:'THE Winslow photo. NOTE: no charger in this town.'},
+ {t:'12:55',name:'La Posada Hotel',type:'sight',addr:'303 E 2nd St, Winslow',lat:35.0214,lon:-110.6954,z:PHX,min:10,what:'Mary Colter’s 1930 masterpiece — the last great Harvey railroad hotel on Route 66; gardens and art-filled lobby.',why:'Ranked a top-3 remaining stop; park here, walk both Winslow stops, out by 1:10.'},
+ {t:'13:15',name:'Jack Rabbit Trading Post',type:'flex',addr:'3386 Historic Rt 66, Joseph City (exit 269)',lat:34.9682,lon:-110.4305,z:PHX,min:10,flex:1,what:'The giant crouching jackrabbit and the 1949 “HERE IT IS” billboard — the payoff to a hundred miles of teaser signs.',why:'FLEX — only if ahead of the sheet; the first thing cut to protect Paloma.'},
+ {t:'13:40',name:'Holbrook Supercharger',type:'charger',addr:'2096 Navajo Blvd, Holbrook (Burger King lot, exit 286)',lat:34.9232,lon:-110.1455,z:PHX,min:30,target:80,what:'12 stalls, 250 kW — the day’s anchor plug.',why:'Arriving ~20% (at the floor, by design); charge to 80%. Normal speeds resume after. Out by 2:10–2:20.',speed:1},
+ {t:'14:05',name:'Wigwam Motel',type:'photo',addr:'811 W Hopi Dr, Holbrook',lat:34.9026,lon:-110.1688,z:PHX,min:8,what:'1950 sleep-in-a-teepee motel with vintage cars parked nose-in — inspiration for the Cozy Cone in Cars.',why:'Kid photo on the way out of the charge.'},
+ {name:'Petrified Forest NP — CUT',type:'flex',addr:'I-40 exit 311',lat:35.0658,lon:-109.7809,z:PHX,min:0,flex:1,cut:1,what:'The only national park containing a piece of Route 66, plus the Painted Desert rim.',why:'CUT midday Aug 18 by my call to make Paloma: the north loop was 40 min + $25 for a two-overlook taste (Blue Mesa was already off). Painted-desert color is free from I-40 east of Holbrook. Banked.'},
+ {t:'16:35',name:'Gallup Supercharger',type:'charger',addr:'111 Twin Buttes Rd, Gallup',lat:35.5053,lon:-108.8281,z:DEN,min:40,target:92,what:'8 stalls, 250 kW.',why:'Charge to 92% (raised from 90 to pay for the Walt’s-house loop) — covers Gallup→Santa Fe including the BrBa tour, no ABQ splash. Times are MDT from here. Out by 5:15.'},
+ {t:'17:15',name:'El Rancho Hotel (peek)',type:'flex',addr:'1000 E Hwy 66, Gallup',lat:35.5296,lon:-108.7281,z:DEN,min:5,flex:1,what:'1937 “Home of the Movie Stars” — John Wayne, Bogart, Hepburn stayed during Western shoots; log-and-stone lobby.',why:'On the way out of the charge; if not plugged in by 4:45 these 5 min convert to Walt’s-house budget.'},
+ {t:'19:05',name:'Dog House Drive In',type:'brba',addr:'1216 Central Ave NW, Albuquerque',lat:35.0876,lon:-106.6616,z:DEN,min:12,what:'The neon wagging-dachshund drive-in — Jesse buys his gun here on screen; real green-chile cheese dogs.',why:'Most filmable Breaking Bad location, and Central Ave IS old Route 66.'},
+ {t:'19:25',name:'Crossroads Motel',type:'brba',addr:'1001 Central Ave NE, Albuquerque',lat:35.0828,lon:-106.6355,z:DEN,min:4,what:'“The Crystal Palace” — where Hank shows Walt Jr. the other end of meth.',why:'Exterior photo from the lot edge; it’s a working motel.'},
+ {t:'19:35',name:'Walt’s house (drive-by)',type:'brba',addr:'3828 Piermont Dr NE, Albuquerque',lat:35.1261,lon:-106.5366,z:DEN,min:15,what:'The White residence — a private home, famously fenced against pizza-throwers.',why:'RESTORED by the 8:45 booking (was cut at 8:15). Slow roll, photo out the window, zero lingering, never knock. Rejoin I-25 N right after; rolling by 7:50.'},
+ {t:'20:40',name:'PALOMA — dinner (BOOKED 8:45)',type:'food',addr:'401 S Guadalupe St, Santa Fe',lat:35.6803,lon:-105.9497,z:DEN,min:75,what:'Modern-Mexican in the Railyard district — the mole and the mezcal list are the reputation; closes 9 PM.',why:'BOOKED 8:45 for 2, last seating — go STRAIGHT here (Railyard parking adjacent), hotel after. Replaces La Plazuela. Slipping? (505) 467-8624.'},
+ {t:'22:15',name:'La Fonda on the Plaza',type:'hotel',addr:'100 E San Francisco St, Santa Fe',lat:35.6865,lon:-105.9378,z:DEN,min:0,what:'1922 grande dame ON the 1926–37 alignment — the most Route-66-correct night of the trip.',why:'Night 2 — valet after dinner (0.6 mi from Paloma); confirm Amanda’s 9:15 AM car at the desk.'}
 ]},
-{n:2.5,date:'2026-08-18',dow:'Tue',title:'Breaking Bad — cut but listed (optional)',tzNote:'MDT',cutlist:1,stops:[
- {name:'Walt’s house',type:'brba',addr:'3828 Piermont Dr NE, Albuquerque',lat:35.1261,lon:-106.5366,z:DEN,min:5,flex:1,cut:1,what:'The White residence — private home, famously fenced against pizza-throwers.',why:'CUT: 25 min off the line = dinner-killer; drive-by only, ever.'},
- {name:'Los Pollos Hermanos (Twisters)',type:'brba',addr:'4257 Isleta Blvd SW, Albuquerque',lat:35.0147,lon:-106.6864,z:DEN,min:5,flex:1,cut:1,what:'Real Twisters burrito shop wearing the Pollos interior sets.',why:'CUT: 30+ min into the South Valley; banked.'},
- {name:'A1A Car Wash (Mister)',type:'brba',addr:'9516 Snow Heights Cir NE, Albuquerque',lat:35.1093,lon:-106.5354,z:DEN,min:5,flex:1,cut:1,what:'Walt & Skyler’s money-laundry car wash.',why:'CUT twice: off-line AND it’s a brush tunnel — the scrape rule bans it as a wash too.'}
+{n:2.5,date:'2026-08-18',dow:'Tue',title:'Breaking Bad — still cut (optional)',tzNote:'MDT',cutlist:1,stops:[
+ {name:'Los Pollos Hermanos (Twisters)',type:'brba',addr:'4257 Isleta Blvd SW, Albuquerque',lat:35.0147,lon:-106.6864,z:DEN,min:5,flex:1,cut:1,what:'Real Twisters burrito shop wearing the Pollos interior sets.',why:'STAYS CUT: 30+ min into the South Valley would eat the 8:45 reservation; banked for any future ABQ day.'},
+ {name:'A1A Car Wash (Mister)',type:'brba',addr:'9516 Snow Heights Cir NE, Albuquerque',lat:35.1093,lon:-106.5354,z:DEN,min:5,flex:1,cut:1,what:'Walt & Skyler’s money-laundry car wash.',why:'STRETCH ONLY if miraculously early into ABQ — same NE-heights loop as Walt’s house, +10 min. Never as an actual wash: brush tunnel, the scrape rule bans it.'}
 ]},
 {n:3,date:'2026-08-19',dow:'Wed',title:'Santa Fe → Panhandle icons → OKC',tzNote:'MDT, then CDT at the TX line',stops:[
  {t:'07:15',name:'Santa Fe Supercharger',type:'charger',addr:'southside retail corridor (nav) — 8380 Cerrillos Rd, Fashion Outlets, I-25 exit 278',lat:35.6102,lon:-106.0320,z:DEN,min:10,target:90,what:'Morning top-up.',why:'Longest opening leg of the trip follows (117 mi).'},
@@ -283,14 +285,14 @@ function computeDay(day,now){
   return Object.assign({},s,{A,D:A!=null?A+(s.min||0)*60000:null,arr,dep,skip});});
  const timed=st.filter(s=>s.A!=null);
  const live=timed.length>0&&now>=timed[0].A-3*3600e3&&now<=timed[timed.length-1].D+8*3600e3;
- let cur=st.findIndex(s=>!s.dep&&!s.skip);if(cur<0)cur=st.length;
+ let cur=st.findIndex(s=>!s.dep&&!s.skip&&!(s.cut&&s.A==null));if(cur<0)cur=st.length;
  const mode=cur>=st.length?'done':((st[cur].arr||st[cur].origin)?'here':'driving');
  const target=mode==='here'?cur+1:cur;
  const eta=live?etaTo(st[target]):null;
- let prevDep=null;
+ let prevDep=null,prevD=null;
  st.forEach((s,i)=>{
   if(s.A==null){s.status=s.dep?'done':s.skip?'skipped':'future';s.pa=s.pd=s.due=null;s.delta=0;s.depDelta=0;return;}
-  const L=(i>0&&prevDep!=null&&st[i-1].D!=null)?s.A-st[i-1].D:0;
+  const L=(prevDep!=null&&prevD!=null)?s.A-prevD:0;prevD=s.D;
   let pa;
   if(s.skip&&!s.arr&&!s.dep){pa=prevDep!=null?prevDep+L:s.A;s.pa=pa;s.pd=pa;s.due=pa;s.delta=Math.round((pa-s.A)/60000);s.depDelta=s.delta;s.status='skipped';prevDep=pa;return;}
   if(s.arr)pa=s.arr;
@@ -370,6 +372,7 @@ function render(){
  const day=dayByN(selDay);const c=computeDay(day,now);
  $('dayTitle').textContent=`Day ${day.n} · ${day.dow} ${day.date.slice(5).replace('-','/')}`;
  $('daySub').textContent=day.title+(day.tzNote?' · '+day.tzNote:'');
+ const g=$('gates');if(day.gates){g.innerHTML='<b>Gates — live decisions</b>'+esc(day.gates);g.style.display='block';}else g.style.display='none';
  cardEls={};
  const list=$('list');list.innerHTML='';
  c.st.forEach(s=>{const el=document.createElement('div');el.className=statusClass(s,c,true);el.dataset.key=s.key;el.innerHTML=cardHTML(s,c,true);wireCard(el);list.appendChild(el);cardEls[s.key]={el,proj:el.querySelector('[data-f=proj]'),mi:el.querySelector('[data-f=mi]')};});
