@@ -144,10 +144,10 @@ const GEO={
  oxford_sc:[33.6100,-85.7821], macon_sc:[32.8973,-83.6894], tifton_sc:[31.4490,-83.5283],
  lakecity_sc:[30.2465,-82.6766], ocala_sc:[29.1739,-82.1581], ritz_orlando:[28.4052,-81.4295],
  fortdrum_sc:[27.6014,-80.8222], onehotel:[25.7991,-80.1273],
- jackrabbit:[34.9575,-110.3245], contdivide:[35.4275,-108.3040], abq_sc:[35.1111,-106.6559],
- twisters:[35.0325,-106.6790], jesse:[35.0830,-106.6620], javajoes:[35.0837,-106.6598], crossroads:[35.0828,-106.6355],
- wwhouse:[35.1261,-106.5367], a1a:[35.1085,-106.5330], saul:[35.1300,-106.5250],
- russells:[35.1808,-103.0620], driller:[36.1318,-95.9333]
+ jackrabbit:[34.9682,-110.4305], contdivide:[35.4195,-108.3061], abq_sc:[35.1114,-106.6580],
+ twisters:[35.0147,-106.6864], jesse:[35.0876,-106.6656], javajoes:[35.0852,-106.6580], crossroads:[35.0828,-106.6355],
+ wwhouse:[35.1261,-106.5366], a1a:[35.1093,-106.5354], saul:[35.1293,-106.5325],
+ russells:[35.1795,-103.0530], driller:[36.1338,-95.9311], suds:[34.9254,-110.1438]
 };
 
 // t: planned arrive (or depart for origin, o:1) as HH:MM in zone z (HH may exceed 24 = after midnight)
@@ -160,11 +160,12 @@ const DAYS=[
   {t:'10:35',d:60,n:'Meteor Crater',g:'meteorcrater',z:PHX,note:'Exit 233, 6 mi S. Rim + museum. Open 8–5, ~$29.'},
   {t:'12:00',d:40,n:'Winslow',g:'winslow_corner',z:PHX,note:'Standin’ on the Corner (Kinsley & E 2nd, 25 min) · La Posada 303 E 2nd St (15 min).',sc:'Winslow SC (in town nr I-40; nav) top to 75% — ⚠︎ one database shows it as PLANNED; if the nav doesn’t list it, splash at Holbrook instead.'},
   {t:'12:58',d:5,n:'Jack Rabbit Trading Post',g:'jackrabbit',z:PHX,flex:1,note:'“HERE IT IS” — 3386 Historic Rt 66, Joseph City, exit 269, 200 yds off the ramp.'},
-  {t:'13:10',d:10,n:'Wigwam Motel · Holbrook',g:'wigwam',z:PHX,note:'811 W Hopi Dr — 1950 teepees & classic cars, photo only.',sc:'Holbrook SC 2096 Navajo Blvd — 10-min splash if Winslow was a miss.'},
-  {t:'13:35',d:55,n:'Petrified Forest (north)',g:'petrified_n',z:PHX,note:'Enter I-40 exit 311 (Painted Desert VC). Painted Desert Inn · Studebaker marker · Newspaper Rock · Blue Mesa · exit US-180 back to Holbrook/I-40. $25.'},
-  {t:'15:50',d:30,n:'Gallup',g:'gallup_sc',z:PHX,note:'El Rancho 1000 E Hwy 66 — walk the lobby. Local clock = MDT (+1h) from here.',sc:'Gallup SC 111 Twin Buttes Rd — to 85–90% (covers 200 mi to Santa Fe).'},
-  {t:'18:00',d:5,n:'Continental Divide',g:'contdivide',z:DEN,flex:1,note:'I-40 exit 47, elev 7,275 ft — sign photo. (Grants SC exit 85 = spare.)'},
-  {t:'19:05',d:10,n:'ABQ ⚡ SC · 12th St',g:'abq_sc',z:DEN,note:'2510 12th St NW at I-40 exit 159A — 24 stalls.',sc:'Splash to ~55% (spare: 2600 Menaul NE).'},
+  {t:'13:10',d:10,n:'Wigwam Motel · Holbrook',g:'wigwam',z:PHX,note:'811 W Hopi Dr — 1950 teepees & classic cars, photo only.',sc:'Holbrook SC 2096 Navajo Blvd (Burger King lot, exit 286) — 10-min splash if Winslow was a miss.'},
+  {t:'13:22',d:10,n:'🚿 Touchless wash · Bucket of Suds',g:'suds',z:PHX,flex:1,note:'2118 Navajo Blvd, Holbrook (1 block N of the Holbrook SC, off exit 286) — in-bay touch-free LaserWash, Tesla-safe. Set Car Wash Mode. (928) 421-1861. Backup: Premier Car Wash Gallup, 1115 W Hwy 66, touchless option, 7a–9p.'},
+  {t:'13:45',d:55,n:'Petrified Forest (north)',g:'petrified_n',z:PHX,note:'Enter I-40 exit 311 (Painted Desert VC). Painted Desert Inn · Studebaker marker · Newspaper Rock · Blue Mesa · exit US-180 back to Holbrook/I-40. $25.'},
+  {t:'15:50',d:30,n:'Gallup',g:'gallup_sc',z:PHX,note:'El Rancho 1000 E Hwy 66 — walk the lobby. Local clock = MDT (+1h) from here. Backup touchless wash: Premier Car Wash 1115 W Hwy 66 (7a–9p).',sc:'Gallup SC 111 Twin Buttes Rd — to 85–90% (covers 200 mi to Santa Fe).'},
+  {t:'18:00',d:5,n:'Continental Divide',g:'contdivide',z:DEN,flex:1,note:'I-40 exit 47, elev 7,275 ft — sign photo. (Grants/Milan SC, 1500 Willow Dr, exit 79 = spare.)'},
+  {t:'19:05',d:10,n:'ABQ ⚡ SC · 12th St',g:'abq_sc',z:DEN,note:'2510 12th St NW at I-40 exit 157B — 24 stalls.',sc:'Splash to ~55% (spare: 2600 Menaul NE).'},
   {t:'19:20',d:15,n:'Dog House Drive In',g:'doghouse',z:DEN,bb:1,note:'1216 Central Ave NW — Jesse’s chili dogs; the neon dachshund.'},
   {t:'19:40',d:5,n:'Los Pollos Hermanos · Twisters',g:'twisters',z:DEN,bb:1,flex:1,note:'4257 Isleta Blvd SW — the real Twisters; ~10 min south, ~10 back. Photo.'},
   {t:'19:55',d:3,n:'Jesse Pinkman’s house',g:'jesse',z:DEN,bb:1,flex:1,note:'322 16th St SW — private home, drive-by only.'},
@@ -172,12 +173,12 @@ const DAYS=[
   {t:'20:08',d:7,n:'Crossroads Motel',g:'crossroads',z:DEN,bb:1,note:'1001 Central Ave NE at I-25 — Wendy’s motel. Photo from the lot.'},
   {t:'20:27',d:5,n:'Walter White’s house',g:'wwhouse',z:DEN,bb:1,flex:1,note:'3828 Piermont Dr NE — PRIVATE, fenced; slow roll only, no stopping/pizza. Via I-40 E → Eubank.'},
   {t:'20:35',d:5,n:'A1A Car Wash · Mister Car Wash',g:'a1a',z:DEN,bb:1,flex:1,note:'9516 Snow Heights Cir NE (Menaul & Eubank) — photo. Soft-cloth wash, not touchless.'},
-  {t:'20:43',d:3,n:'Saul Goodman’s office',g:'saul',z:DEN,bb:1,flex:1,note:'9800 Montgomery Blvd NE — drive-by, then Montgomery W → I-25 N.'},
-  {t:'21:45',d:0,n:'La Fonda · Santa Fe',g:'lafonda',z:DEN,note:'100 E San Francisco St — valet, on the 1926–37 alignment. (Was 8:45p before the ABQ loop — skip FLEX stops to claw it back.)',sc:'Santa Fe SC (southside, 10 min from plaza) top to 90% tonight or 7:10 tomorrow.'},
+  {t:'20:43',d:3,n:'Saul Goodman’s office',g:'saul',z:DEN,bb:1,flex:1,note:'9800 Montgomery Blvd NE — drive-by, then Montgomery W → I-25 N. (Also in town: Hank & Marie’s 4901 Cumbre del Sur Ct NE — far NE; Candy Lady / BB Store in Old Town — closed by evening.)'},
+  {t:'21:45',d:0,n:'La Fonda · Santa Fe',g:'lafonda',z:DEN,note:'100 E San Francisco St — valet, on the 1926–37 alignment. (Was 8:45p before the ABQ loop — skip FLEX stops to claw it back.)',sc:'Santa Fe SC 8380 Cerrillos Rd (Fashion Outlets, I-25 exit 278; ~15 min from plaza) — top to 90% tonight or on the way out tomorrow.'},
   {t:'21:55',d:65,n:'La Plazuela dinner',g:'lafonda',z:DEN,note:'At La Fonda — call ahead to move the ~8:45 seating; fallback La Fiesta lounge (late).'}
  ]},
  {n:3,dow:'Wed',stops:[
-  {t:'07:30',d:0,n:'Depart Santa Fe',g:'lafonda',z:DEN,o:1,note:'Amanda car 9:15 · WN1371 12:00. US-285 S to Clines Corners → I-40.',sc:'Leave at 90% — 117 mi to the first plug. Santa Fe SC 10 min from plaza if not topped last night (leave 7:20).'},
+  {t:'07:30',d:0,n:'Depart Santa Fe',g:'lafonda',z:DEN,o:1,note:'Amanda car 9:15 · WN1371 12:00. US-285 S to Clines Corners → I-40.',sc:'Leave at 90% — 117 mi to the first plug. Santa Fe SC 8380 Cerrillos Rd is on the way to I-25 if not topped last night (leave 7:15).'},
   {t:'09:10',d:50,n:'Blue Hole · Santa Rosa',g:'bluehole',z:DEN,note:'Blue Hole Rd off Rt 66 (signed from exit 275). Swim 35 min. Trunks in frunk.',sc:'Santa Rosa SC 2516 Historic Rt 66 — 15 min.'},
   {t:'11:05',d:55,n:'Blue Swallow · Tucumcari',g:'blueswallow',z:DEN,note:'815 E Rt 66 Blvd · Tee Pee Curios 924 E Rt 66 Blvd · murals.',sc:'Tucumcari SC 2624 S Adams St — 15 min.'},
   {t:'12:35',d:12,n:'Russell’s car museum',g:'russells',z:DEN,flex:1,note:'Russell’s Travel Center, I-40 exit 369 — free classic cars. GATE 12:35 MDT.'},
@@ -186,26 +187,26 @@ const DAYS=[
   {t:'15:10',d:35,n:'Cadillac Ranch',g:'cadillac',z:CHI,note:'13651 I-40 Frontage Rd, exit 60 S frontage — spray your mark.'},
   {t:'16:00',d:70,n:'Big Texan',g:'bigtexan',z:CHI,note:'7701 I-40 E Frontage — early steak; Slug Bug Ranch VWs on the lot.',sc:'Amarillo SC 8507 I-40 E (next door) — to 85% during dinner.'},
   {t:'17:40',d:10,n:'Groom double',g:'groom',z:CHI,note:'Leaning water tower (exit 114) + 19-story Giant Cross (exit 112).'},
-  {t:'18:35',d:25,n:'U-Drop Inn · Shamrock',g:'udropinn',z:CHI,note:'105 E 12th St — Ramone’s (Cars photo #2) at golden hour.',sc:'SC ON SITE under the neon — to 90% (covers 150 mi to OKC). Spares: Elk City ex 41, Weatherford ex 80A.'},
+  {t:'18:35',d:25,n:'U-Drop Inn · Shamrock',g:'udropinn',z:CHI,note:'105 E 12th St — Ramone’s (Cars photo #2) at golden hour.',sc:'SC ON SITE under the neon — to 90% (covers 150 mi to OKC). Spare: Weatherford SC, Lucille’s Roadhouse 1301 N Airport Rd (ex 80). Elk City SC may not be open yet.'},
   {t:'20:00',d:8,n:'Lucille’s · Hydro',g:'lucilles',z:CHI,flex:1,note:'1929 two-story station, I-40 exit 88. GATE 20:00 & still light.'},
-  {t:'21:15',d:0,n:'The National · OKC',g:'national_okc',z:CHI,note:'120 N Robinson Ave. Room service, done.',sc:'OKC downtown SC 2 blocks from hotel — top to 90% tonight or 10 min in the morning.'}
+  {t:'21:15',d:0,n:'The National · OKC',g:'national_okc',z:CHI,note:'120 N Robinson Ave. Room service, done.',sc:'No SC downtown — nearest is 625 NE 36th St (Homeland, ~4 mi N). Top to 90% tonight or 10 min in the morning; hotel valet charging if offered.'}
  ]},
  {n:4,dow:'Thu',stops:[
-  {t:'08:15',d:35,n:'OKC National Memorial',g:'okc_memorial',z:CHI,note:'620 N Harvey Ave — walk from hotel. Gates of Time, Field of Chairs, Survivor Tree.',sc:'If not charged overnight: 10 min at the downtown SC before rolling.'},
+  {t:'08:15',d:35,n:'OKC National Memorial',g:'okc_memorial',z:CHI,note:'620 N Harvey Ave — walk from hotel. Gates of Time, Field of Chairs, Survivor Tree.',sc:'If not charged overnight: 10 min at 625 NE 36th St SC before rolling (on the way to Arcadia).'},
   {t:'09:00',d:10,n:'Milk Bottle + Gold Dome',g:'milkbottle',z:CHI,note:'2426 N Classen Blvd · 1112 NW 23rd St — drive-bys.'},
   {t:'09:35',d:35,n:'Round Barn + POPS · Arcadia',g:'roundbarn',z:CHI,note:'Round Barn 107 OK-66 (climb the loft) · POPS 660 W Hwy 66 (soda wall).'},
   {t:'10:50',d:20,n:'Rock Café · Stroud',g:'rockcafe',z:CHI,note:'114 W Main St — Sally’s diner (Cars photo #3). Coffee.'},
   {t:'12:10',d:20,n:'Tulsa 11th St',g:'tulsa11th',z:CHI,note:'Meadow Gold neon + Buck Atom’s space cowboy, 1300 block E 11th.'},
   {t:'12:35',d:15,n:'Golden Driller',g:'driller',z:CHI,flex:1,note:'4145 E 21st St, Expo Square. GATE 12:35.'},
   {t:'13:05',d:25,n:'Blue Whale · Catoosa',g:'bluewhale',z:CHI,note:'2600 N Hwy 66 — Route 66 ends here (~1,150 mi).'},
-  {t:'13:50',d:25,n:'Tulsa ⚡ SC',g:'tulsa_sc',z:CHI,note:'5726 E 41st St, then Muskogee Tpk → I-40 E.',sc:'To 85%+ — next leg is the trip’s longest (~163 mi). Sallisaw / Fort Smith SCs mid-leg = insurance.'},
+  {t:'13:50',d:25,n:'Tulsa ⚡ SC',g:'tulsa_sc',z:CHI,note:'5726 E 41st St, then Muskogee Tpk → I-40 E.',sc:'To 85%+ — next leg is the trip’s longest (~163 mi). Mid-leg insurance: Van Buren AR 500 Pointer Trail (I-40 ex 5) or Alma AR 106 US-64 E.'},
   {t:'16:35',d:25,n:'Russellville ⚡',g:'russellville',z:CHI,note:'⚠︎ NO Tesla SC in Russellville per supercharge.info. Use Ozark AR 3202 Pence Ln (ex 37, before) or Conway AR 975 S Amity Rd (ex 125, after).',sc:'25 min wherever you plug — lands ~25% from Tulsa 85%.'},
   {t:'18:20',d:20,n:'N. Little Rock ⚡ SC',g:'nlr_sc',z:CHI,note:'3101 Springhill Dr, I-40 exit 156.',sc:'20-min top. Memphis BBQ 2 h out — stay hungry.'},
-  {t:'20:00',d:0,n:'Peabody · Memphis',g:'peabody',z:CHI,note:'149 Union Ave — valet.',sc:'Downtown Memphis SCs (nav) — charge tonight or at dawn to 80%.'},
+  {t:'20:00',d:0,n:'Peabody · Memphis',g:'peabody',z:CHI,note:'149 Union Ave — valet.',sc:'No SC downtown — nearest 6073 Park Ave (12 mi E) or 2765 N Germantown Pkwy. Plan the dawn top-up or hotel valet charging.'},
   {t:'20:45',d:90,n:'Rendezvous + Beale',g:'rendezvous',z:CHI,note:'52 S 2nd St (alley) — ribs, dry rub. Then one lap of Beale.'}
  ]},
  {n:5,dow:'Fri',stops:[
-  {t:'07:40',d:0,n:'Checkout Peabody',g:'peabody',z:CHI,o:1,note:'Bags load, roll.',sc:'Car at 80% (dawn top-up near hotel).'},
+  {t:'07:40',d:0,n:'Checkout Peabody',g:'peabody',z:CHI,o:1,note:'Bags load, roll.',sc:'Car at 80% — nearest SC 6073 Park Ave (12 mi E); if no overnight charge, top up in Tupelo instead (104 mi).'},
   {t:'07:50',d:8,n:'Sun Studio',g:'sunstudio',z:CHI,note:'706 Union Ave — photo only.'},
   {t:'08:10',d:20,n:'Lorraine Motel',g:'lorraine',z:CHI,note:'450 Mulberry St — Room 306 balcony.'},
   {t:'09:00',d:150,n:'Graceland UVIP',g:'graceland',z:CHI,note:'3717 Elvis Presley Blvd — park & badge by 8:50. Ultimate VIP first tour; out by 11:30.'},
@@ -214,13 +215,13 @@ const DAYS=[
   {t:'19:20',d:15,n:'Oxford ⚡ SC',g:'oxford_sc',z:NYC,note:'1105 Oxford Exchange Blvd, I-20 exit 188. Times from here in Eastern.',sc:'15 min.'},
   {t:'21:40',d:20,n:'Macon ⚡ SC',g:'macon_sc',z:NYC,note:'265 Tom Hill Sr Rd, I-75 exit 169. Last full-strength coffee. (Atlanta bypassed on I-285 S ~20:50.)',sc:'20 min — longest night leg lands ~35%.'},
   {t:'23:25',d:25,n:'Tifton ⚡ SC',g:'tifton_sc',z:NYC,note:'708 US-319, I-75 exit 62. Two laps of the car.',sc:'25 min to 85%.'},
-  {t:'25:30',d:20,n:'Lake City ⚡ SC',g:'lakecity_sc',z:NYC,note:'4772 US-41, I-75 exit 435 (1:30a Sat). BAIL #1: Gainesville 45 min ahead.',sc:'20 min.'},
+  {t:'25:30',d:20,n:'Lake City ⚡ SC',g:'lakecity_sc',z:NYC,note:'4772 US-41, I-75 exit 435 (1:30a Sat). BAIL #1: Gainesville 45 min ahead (SC 3217 SW 35th Blvd, exit 384).',sc:'20 min.'},
   {t:'26:35',d:10,n:'Ocala ⚡ splash',g:'ocala_sc',z:NYC,note:'2000 SW College Rd, exit 350 (2:35a Sat). BAIL #2: The Equestrian Hotel 5 min off exit.',sc:'10-min splash to ~65%.'},
   {t:'27:40',d:0,n:'Ritz-Carlton Grande Lakes',g:'ritz_orlando',z:NYC,note:'4012 Central Florida Pkwy — night valet, late arrival flagged. Plug in overnight.'}
  ]},
  {n:6,dow:'Sat',stops:[
-  {t:'08:30',d:0,n:'Depart Orlando',g:'ritz_orlando',z:NYC,o:1,note:'FL Turnpike S.',sc:'Car at 90% off the Ritz plugs; if taken → Turkey Lake plaza SC (mile 263, 10 min away).'},
-  {t:'10:15',d:25,n:'Fort Drum plaza ⚡ SC',g:'fortdrum_sc',z:NYC,note:'Turnpike mile 184 — cafecito.',sc:'25 min to 80%; Miami 130 mi → arrive ~25%. West Palm plaza (mile 94) = spare.'},
+  {t:'08:30',d:0,n:'Depart Orlando',g:'ritz_orlando',z:NYC,o:1,note:'FL Turnpike S.',sc:'Car at 90% off the Ritz plugs; if taken → Turkey Lake plaza SC (Turnpike MM 263, 10 min away).'},
+  {t:'10:15',d:25,n:'Fort Drum plaza ⚡ SC',g:'fortdrum_sc',z:NYC,note:'Turnpike mile 184 — cafecito.',sc:'25 min to 80%; Miami 130 mi → arrive ~25%. West Palm Beach plaza SC (MM 94) = spare.'},
   {t:'12:00',d:0,n:'South Beach — 1 Hotel',g:'onehotel',z:NYC,note:'2341 Collins Ave — valet, shoes off, walk out. 🏁'}
  ]}
 ];
