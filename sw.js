@@ -1,5 +1,5 @@
 // Route 66 Copilot service worker — app shell cached for offline use.
-const VERSION = 'rt66-v61';
+const VERSION = 'rt66-v82';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
