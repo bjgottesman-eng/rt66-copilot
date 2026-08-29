@@ -1,0 +1,41 @@
+{
+  "name": "@benhealth/db",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ben Health OS database: numbered SQL migrations, migration runner, RLS integration tests (PostgreSQL 16)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "migrations",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "migrate": "tsx src/migrate.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.10",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0",
+    "vitest": "^3.0.0"
+  }
+}
