@@ -44,7 +44,8 @@ public enum Freshness {
 
     /// Pure function; no wall clock inside — `inputs.now` is the only "now".
     public static func compute(_ inputs: FreshnessInputs) -> FreshnessStatus {
-        if inputs.connectionStatus == .notConnected {
+        if inputs.connectionStatus == .notConnected || inputs.connectionStatus == .revoked {
+            // revoked = the user disconnected the source; the UI offers Connect
             return .notConnected
         }
         if inputs.connectionStatus == .error {

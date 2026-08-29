@@ -39,10 +39,10 @@ final class FreshnessTests: XCTestCase {
                  connectionStatus: .connected, lastSuccessAgo: 60,
                  latestMeasuredAgo: nil, expectedLatencySeconds: 300,
                  expected: .insufficientData),
-            Case(name: "revoked falls through to the age logic (no data)",
+            Case(name: "revoked maps to NOT_CONNECTED (no data)",
                  connectionStatus: .revoked, lastSuccessAgo: nil,
                  latestMeasuredAgo: nil, expectedLatencySeconds: 300,
-                 expected: .insufficientData),
+                 expected: .notConnected),
 
             // CURRENT bound = max(2 * latency, 15 min)
             Case(name: "10 min old, small latency -> CURRENT (15 min floor)",
@@ -94,11 +94,12 @@ final class FreshnessTests: XCTestCase {
                  latestMeasuredAgo: 72 * 3600 + 1, expectedLatencySeconds: 300,
                  expected: .stale),
 
-            // revoked with data falls through (only not_connected/error branch)
-            Case(name: "revoked with fresh data falls through to CURRENT",
+            // revoked always reads NOT_CONNECTED, even with fresh data:
+            // the user disconnected the source and the UI offers Connect
+            Case(name: "revoked with fresh data still NOT_CONNECTED",
                  connectionStatus: .revoked, lastSuccessAgo: 60,
                  latestMeasuredAgo: 60, expectedLatencySeconds: 300,
-                 expected: .current)
+                 expected: .notConnected)
         ]
     }
 

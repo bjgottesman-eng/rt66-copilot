@@ -141,6 +141,7 @@ Inputs: `connectionStatus`, `lastSuccessAt`, `latestMeasuredAt`,
 
 ```
 if connectionStatus == 'not_connected'            -> NOT_CONNECTED
+if connectionStatus == 'revoked'                  -> NOT_CONNECTED   # user disconnected; UI offers Connect
 if connectionStatus == 'error'                    -> SYNC_ERROR
 if latestMeasuredAt == null                       -> INSUFFICIENT_DATA
 age = now - latestMeasuredAt
