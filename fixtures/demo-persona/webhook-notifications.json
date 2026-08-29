@@ -1,0 +1,40 @@
+{
+  "notifications": [
+    {
+      "userid": "demo-withings-user",
+      "appli": 4,
+      "startdate": 1787742774,
+      "enddate": 1787742982
+    },
+    {
+      "userid": "demo-withings-user",
+      "appli": 4,
+      "startdate": 1787792122,
+      "enddate": 1787792271
+    },
+    {
+      "userid": "demo-withings-user",
+      "appli": 4,
+      "startdate": 1787879032,
+      "enddate": 1787879199
+    },
+    {
+      "userid": "demo-withings-user",
+      "appli": 4,
+      "startdate": 1787917045,
+      "enddate": 1787917314
+    },
+    {
+      "userid": "demo-withings-user",
+      "appli": 4,
+      "startdate": 1787967430,
+      "enddate": 1787967573
+    },
+    {
+      "userid": "demo-withings-user",
+      "appli": 4,
+      "startdate": 1787967430,
+      "enddate": 1787967573
+    }
+  ]
+}

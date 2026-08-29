@@ -1,0 +1,56 @@
+{
+  "entries": [
+    {
+      "systolic": 132,
+      "diastolic": 79,
+      "pulse": 64,
+      "measuredAt": "2026-07-20T01:30:47Z",
+      "measuredTz": "America/New_York",
+      "arm": "left",
+      "bodyPosition": "seated",
+      "seatedRestMinutes": 5,
+      "readingNumberInSession": 1,
+      "note": "Typed in from the cuff display before sync (dup of Withings reading)",
+      "saveToAppleHealth": false
+    },
+    {
+      "systolic": 120,
+      "diastolic": 77,
+      "pulse": 63,
+      "measuredAt": "2026-06-22T16:45:09Z",
+      "measuredTz": "America/New_York",
+      "arm": "left",
+      "bodyPosition": "seated",
+      "seatedRestMinutes": 5,
+      "readingNumberInSession": 1,
+      "note": "Pharmacy machine reading, entered by hand",
+      "saveToAppleHealth": true
+    },
+    {
+      "systolic": 125,
+      "diastolic": 84,
+      "pulse": 64,
+      "measuredAt": "2026-07-18T16:45:27Z",
+      "measuredTz": "America/New_York",
+      "arm": "left",
+      "bodyPosition": "seated",
+      "seatedRestMinutes": 5,
+      "readingNumberInSession": 1,
+      "note": "Pharmacy machine reading, entered by hand",
+      "saveToAppleHealth": true
+    },
+    {
+      "systolic": 115,
+      "diastolic": 75,
+      "pulse": 67,
+      "measuredAt": "2026-08-14T16:46:23Z",
+      "measuredTz": "America/New_York",
+      "arm": "right",
+      "bodyPosition": "seated",
+      "seatedRestMinutes": 3,
+      "readingNumberInSession": 1,
+      "note": "Pharmacy machine reading, entered by hand",
+      "saveToAppleHealth": true
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "user": "demo",
+  "timezone": "America/New_York",
+  "groups": [
+    {
+      "grpid": 500342,
+      "attrib": 0,
+      "date": 1786496857,
+      "created": 1786496888,
+      "modified": 1786504088,
+      "deviceid": "wbp-demo-device-001",
+      "category": 1,
+      "measures": [
+        {
+          "value": 111,
+          "type": 10,
+          "unit": 0
+        },
+        {
+          "value": 77,
+          "type": 9,
+          "unit": 0
+        },
+        {
+          "value": 68,
+          "type": 11,
+          "unit": 0
+        }
+      ]
+    }
+  ]
+}

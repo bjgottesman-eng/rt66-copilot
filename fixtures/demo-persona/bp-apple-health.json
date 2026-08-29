@@ -1,0 +1,1374 @@
+{
+  "samples": [
+    {
+      "hkUuid": "78a529aa-a601-463c-ad83-8e8d3f9fd933",
+      "measuredAt": "2026-05-31T07:28:51-04:00",
+      "systolic": 119,
+      "diastolic": 77,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "82688a43-4017-44de-b986-4362fc880431",
+      "measuredAt": "2026-05-31T21:29:31-04:00",
+      "systolic": 139,
+      "diastolic": 84,
+      "pulse": 58,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "cb02b261-09d6-47c1-9a1b-cbad63ea7a70",
+      "measuredAt": "2026-06-01T07:32:09-04:00",
+      "systolic": 131,
+      "diastolic": 85,
+      "pulse": 56,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "ae9df14f-4aeb-4f84-bd78-b82e3c3133b5",
+      "measuredAt": "2026-06-02T07:40:23-04:00",
+      "systolic": 122,
+      "diastolic": 81,
+      "pulse": 56,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "d628a94b-5b13-45ec-b84d-cb67bc95117d",
+      "measuredAt": "2026-06-03T07:10:44-04:00",
+      "systolic": 133,
+      "diastolic": 76,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "0ff7e3e0-07c5-4ea8-9f98-167b2a0d8638",
+      "measuredAt": "2026-06-03T21:11:41-04:00",
+      "systolic": 140,
+      "diastolic": 76,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "0e1b8f0f-1b67-440c-9cf8-0914707f04f3",
+      "measuredAt": "2026-06-04T21:21:48-04:00",
+      "systolic": 125,
+      "diastolic": 81,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "69ad82de-f83a-4fe6-8ce4-1f91c03525c2",
+      "measuredAt": "2026-06-05T07:46:11-04:00",
+      "systolic": 126,
+      "diastolic": 85,
+      "pulse": 58,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "b938cea4-5f52-4b45-bf9d-cc102bd40d45",
+      "measuredAt": "2026-06-05T21:05:54-04:00",
+      "systolic": 120,
+      "diastolic": 77,
+      "pulse": 56,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "a49ac84d-01c5-46cd-a796-42f01f333b28",
+      "measuredAt": "2026-06-07T20:53:15-04:00",
+      "systolic": 128,
+      "diastolic": 83,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "df9ea6fd-36bd-4751-88db-797486d133dd",
+      "measuredAt": "2026-06-08T07:32:32-04:00",
+      "systolic": 130,
+      "diastolic": 78,
+      "pulse": 64,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "c5925945-d0d7-47ce-aca6-16274bf0ff37",
+      "measuredAt": "2026-06-08T21:29:44-04:00",
+      "systolic": 139,
+      "diastolic": 80,
+      "pulse": 65,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "3df814f7-fb2a-4447-903f-c8ff4cbe54b4",
+      "measuredAt": "2026-06-09T21:26:45-04:00",
+      "systolic": 126,
+      "diastolic": 76,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "628876b8-95be-4e5f-9567-0d915595ca2d",
+      "measuredAt": "2026-06-10T07:52:21-04:00",
+      "systolic": 129,
+      "diastolic": 80,
+      "pulse": 65,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "7a64b318-56d4-4c72-8b1b-73846b50b9d1",
+      "measuredAt": "2026-06-10T21:04:06-04:00",
+      "systolic": 126,
+      "diastolic": 74,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "dedba7c1-5d21-47d7-8900-c4e035f0d76e",
+      "measuredAt": "2026-06-11T20:51:51-04:00",
+      "systolic": 133,
+      "diastolic": 87,
+      "pulse": 64,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "5d0acc90-11c0-4bc9-98d5-bf79ee151c4c",
+      "measuredAt": "2026-06-12T07:29:51-04:00",
+      "systolic": 129,
+      "diastolic": 84,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "777114d9-aa1f-435f-b72e-f0bcbe44f8d1",
+      "measuredAt": "2026-06-13T07:50:58-04:00",
+      "systolic": 131,
+      "diastolic": 88,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "1b1eeda6-26b5-42de-aef5-7332847679bf",
+      "measuredAt": "2026-06-13T21:11:14-04:00",
+      "systolic": 124,
+      "diastolic": 82,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "d33c5a6e-4c34-4e3b-b03d-054778d88420",
+      "measuredAt": "2026-06-14T07:46:01-04:00",
+      "systolic": 124,
+      "diastolic": 95,
+      "pulse": 67,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "e222d818-c9ed-4873-b934-070db837bdf0",
+      "measuredAt": "2026-06-14T21:08:46-04:00",
+      "systolic": 120,
+      "diastolic": 84,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "919b5a08-039c-486b-bafc-820b7ac9e8aa",
+      "measuredAt": "2026-06-15T07:27:13-04:00",
+      "systolic": 119,
+      "diastolic": 77,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "9660ffc6-d2af-4a3a-8606-00d20902511f",
+      "measuredAt": "2026-06-16T07:10:42-04:00",
+      "systolic": 139,
+      "diastolic": 77,
+      "pulse": 67,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "4754f14f-8f7d-40b9-a085-5a836954880a",
+      "measuredAt": "2026-06-16T21:22:38-04:00",
+      "systolic": 123,
+      "diastolic": 82,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "2d8d01ae-011d-4bc1-901d-6b13e5ebdd6a",
+      "measuredAt": "2026-06-17T07:54:06-04:00",
+      "systolic": 115,
+      "diastolic": 74,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "b9dc5ec2-9125-4338-9403-a63b1b55d823",
+      "measuredAt": "2026-06-18T07:20:06-04:00",
+      "systolic": 136,
+      "diastolic": 83,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "f0e7ce17-4ff5-43f5-81f1-6ea05af3632a",
+      "measuredAt": "2026-06-18T21:29:13-04:00",
+      "systolic": 129,
+      "diastolic": 85,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "db2c2c36-66ac-4ba6-9a82-008f8fd95e95",
+      "measuredAt": "2026-06-19T07:18:24-04:00",
+      "systolic": 134,
+      "diastolic": 82,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "6c25d057-3578-40df-883f-4bf26f8dab46",
+      "measuredAt": "2026-06-20T07:14:56-04:00",
+      "systolic": 122,
+      "diastolic": 78,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "6f78f852-26fc-4d7d-ab6f-f2f80409925f",
+      "measuredAt": "2026-06-20T21:16:42-04:00",
+      "systolic": 129,
+      "diastolic": 82,
+      "pulse": 57,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "25329eab-cef8-4bcf-bbbf-49fb2e30de3a",
+      "measuredAt": "2026-06-21T21:29:52-04:00",
+      "systolic": 128,
+      "diastolic": 77,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "08d05ec9-7fd8-4fdf-a0b4-4b0a94b8ccf8",
+      "measuredAt": "2026-06-22T07:10:07-04:00",
+      "systolic": 131,
+      "diastolic": 76,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "ff231379-1bc3-4821-8385-af1dc9395a8e",
+      "measuredAt": "2026-06-23T07:35:37-04:00",
+      "systolic": 128,
+      "diastolic": 82,
+      "pulse": 67,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "f1dd1c4d-17c2-4397-beb6-6e47832031bc",
+      "measuredAt": "2026-06-23T21:01:18-04:00",
+      "systolic": 130,
+      "diastolic": 76,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "f8b3c1cf-29ec-4a11-a213-3d02c174f6d5",
+      "measuredAt": "2026-06-24T07:44:38-04:00",
+      "systolic": 130,
+      "diastolic": 76,
+      "pulse": 58,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "63b9894f-2b15-4eca-90e4-0ac4ecc308a1",
+      "measuredAt": "2026-06-24T21:20:02-04:00",
+      "systolic": 131,
+      "diastolic": 79,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "bcbbe852-f047-427b-978e-a89d131ec1b4",
+      "measuredAt": "2026-06-26T07:18:40-04:00",
+      "systolic": 129,
+      "diastolic": 89,
+      "pulse": 67,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "0e2288a2-04f6-4556-901a-ebb822eadd42",
+      "measuredAt": "2026-06-26T21:37:40-04:00",
+      "systolic": 116,
+      "diastolic": 78,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "27d376ab-64bc-4403-a8a0-b629e5d90fe7",
+      "measuredAt": "2026-06-27T07:27:01-04:00",
+      "systolic": 116,
+      "diastolic": 73,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "9084c3f2-f5ea-4ee5-b0ce-18fcbd62aace",
+      "measuredAt": "2026-06-27T20:57:52-04:00",
+      "systolic": 134,
+      "diastolic": 78,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "5714698f-94b5-4e71-bad9-690dd92e5f14",
+      "measuredAt": "2026-06-28T07:21:13-04:00",
+      "systolic": 126,
+      "diastolic": 70,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "64c6354a-75d3-496a-8ce8-092778c77f7b",
+      "measuredAt": "2026-06-29T07:42:38-04:00",
+      "systolic": 138,
+      "diastolic": 82,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "7e9db6ca-3b06-4220-81ec-da975b70a895",
+      "measuredAt": "2026-06-30T07:22:10-04:00",
+      "systolic": 132,
+      "diastolic": 79,
+      "pulse": 65,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "0bbf4029-fbe6-42f4-9fd1-96ada3e2a438",
+      "measuredAt": "2026-06-30T20:54:22-04:00",
+      "systolic": 126,
+      "diastolic": 84,
+      "pulse": 69,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "5ec681d0-8937-4db7-a161-8cae193fba80",
+      "measuredAt": "2026-07-01T20:55:47-04:00",
+      "systolic": 143,
+      "diastolic": 81,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "7f34b994-9cda-4fd3-8e9c-4bf6ce956104",
+      "measuredAt": "2026-07-02T20:56:41-04:00",
+      "systolic": 130,
+      "diastolic": 74,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "54a257da-ba33-4882-9a88-786e03070937",
+      "measuredAt": "2026-07-03T07:41:01-04:00",
+      "systolic": 124,
+      "diastolic": 77,
+      "pulse": 68,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "c0a034b4-111a-4a13-95d7-a6b8c6cc6a18",
+      "measuredAt": "2026-07-04T07:20:18-04:00",
+      "systolic": 132,
+      "diastolic": 83,
+      "pulse": 58,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "4964e5a0-c090-43bc-8eec-4cf645581533",
+      "measuredAt": "2026-07-04T21:01:22-04:00",
+      "systolic": 124,
+      "diastolic": 81,
+      "pulse": 64,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "1f6859ad-9e71-4ef9-adc6-e10f261d6abf",
+      "measuredAt": "2026-07-05T07:24:19-04:00",
+      "systolic": 115,
+      "diastolic": 82,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "a0d9cddb-ad01-4384-aea1-e763ee2e621c",
+      "measuredAt": "2026-07-05T21:35:10-04:00",
+      "systolic": 123,
+      "diastolic": 85,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "37f17bbf-82af-4ae2-88e4-a49d9f5933da",
+      "measuredAt": "2026-07-06T21:22:10-04:00",
+      "systolic": 120,
+      "diastolic": 77,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "dcedcc49-7cd6-4e4a-8652-7a5ce09f6a03",
+      "measuredAt": "2026-07-07T07:34:09-04:00",
+      "systolic": 137,
+      "diastolic": 79,
+      "pulse": 55,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "65692d77-c414-4484-8bf8-250cc15ad24f",
+      "measuredAt": "2026-07-07T21:26:23-04:00",
+      "systolic": 136,
+      "diastolic": 81,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "b4e8b33e-a52b-4791-81b2-31b3bd8b4313",
+      "measuredAt": "2026-07-08T07:15:32-04:00",
+      "systolic": 127,
+      "diastolic": 70,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "8d0d5cc1-4bb2-4922-b115-b64c3385a5d0",
+      "measuredAt": "2026-07-09T07:28:16-04:00",
+      "systolic": 137,
+      "diastolic": 81,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "11b26725-de4d-40c8-ac89-267b3486d036",
+      "measuredAt": "2026-07-09T21:35:31-04:00",
+      "systolic": 131,
+      "diastolic": 79,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "1f17668e-bc1f-41c2-b38d-59c620e5687f",
+      "measuredAt": "2026-07-10T07:40:53-04:00",
+      "systolic": 139,
+      "diastolic": 79,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "f88d01d8-b0ec-47a0-874d-c57189f48daa",
+      "measuredAt": "2026-07-10T21:37:51-04:00",
+      "systolic": 121,
+      "diastolic": 81,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "a2f4211b-9c4b-476b-ac5d-5bb2a7113fac",
+      "measuredAt": "2026-07-11T21:04:40-04:00",
+      "systolic": 138,
+      "diastolic": 85,
+      "pulse": 65,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "ce530e04-5f67-4232-b398-42c190ef346f",
+      "measuredAt": "2026-07-12T21:36:22-04:00",
+      "systolic": 136,
+      "diastolic": 81,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "9da17190-af07-4efc-a89b-360a292ff746",
+      "measuredAt": "2026-07-13T07:52:23-04:00",
+      "systolic": 119,
+      "diastolic": 80,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "55ad4c5a-77f1-4d20-905b-83553fa30ab8",
+      "measuredAt": "2026-07-13T20:55:42-04:00",
+      "systolic": 128,
+      "diastolic": 73,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "1d801221-e4f6-497b-928f-38a3a5e7a3b0",
+      "measuredAt": "2026-07-14T21:10:40-04:00",
+      "systolic": 132,
+      "diastolic": 87,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "415486a0-85d1-4e66-9209-7f6f9ed6f67b",
+      "measuredAt": "2026-07-15T07:29:15-04:00",
+      "systolic": 126,
+      "diastolic": 85,
+      "pulse": 64,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "b4699916-b44c-4906-a306-e939b2ad018e",
+      "measuredAt": "2026-07-16T07:50:16-04:00",
+      "systolic": 126,
+      "diastolic": 80,
+      "pulse": 67,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "386dd509-6d55-4a09-90fe-8d1d09bc567f",
+      "measuredAt": "2026-07-16T21:24:31-04:00",
+      "systolic": 132,
+      "diastolic": 81,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "5460adaa-7e3a-47e1-ab50-ba97625cf06a",
+      "measuredAt": "2026-07-17T07:41:22-04:00",
+      "systolic": 133,
+      "diastolic": 76,
+      "pulse": 64,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "69c39840-d459-4b31-9a38-92e155a5cc4d",
+      "measuredAt": "2026-07-18T07:46:13-04:00",
+      "systolic": 135,
+      "diastolic": 83,
+      "pulse": 58,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "96753cfa-01a1-4d07-a863-52a891f408ff",
+      "measuredAt": "2026-07-18T21:33:40-04:00",
+      "systolic": 127,
+      "diastolic": 81,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "a985e234-10fa-4ebd-bfdb-9ee24889c449",
+      "measuredAt": "2026-07-19T07:21:27-04:00",
+      "systolic": 125,
+      "diastolic": 82,
+      "pulse": 55,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "fc337594-240b-4b8b-b87b-8db54ff7615f",
+      "measuredAt": "2026-07-20T07:38:39-04:00",
+      "systolic": 131,
+      "diastolic": 76,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "2a3c13cf-477b-40fe-93ab-e6d01481f15a",
+      "measuredAt": "2026-07-20T21:29:17-04:00",
+      "systolic": 135,
+      "diastolic": 79,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "1008915d-ef47-4378-9f86-27a2442b51d1",
+      "measuredAt": "2026-07-21T07:26:08-04:00",
+      "systolic": 137,
+      "diastolic": 83,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "9fc7ad85-ee0b-4caa-99d6-071ab954a4e0",
+      "measuredAt": "2026-07-21T21:23:28-04:00",
+      "systolic": 126,
+      "diastolic": 77,
+      "pulse": 64,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "52f74352-a95b-493f-91b0-8e6797137739",
+      "measuredAt": "2026-07-22T20:55:02-04:00",
+      "systolic": 125,
+      "diastolic": 74,
+      "pulse": 58,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "d51b8b61-f117-4ca8-88c5-e6333319190f",
+      "measuredAt": "2026-07-23T07:18:38-04:00",
+      "systolic": 119,
+      "diastolic": 77,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "f8b94252-2b29-4a41-87ef-d3c41690d299",
+      "measuredAt": "2026-07-23T21:35:23-04:00",
+      "systolic": 119,
+      "diastolic": 75,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "f153989e-caaf-4501-a70c-3167dc66c052",
+      "measuredAt": "2026-07-25T07:23:26-04:00",
+      "systolic": 121,
+      "diastolic": 86,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "2722b187-9c9e-4cda-a8c8-fcfbd8cef7bb",
+      "measuredAt": "2026-07-26T07:15:16-04:00",
+      "systolic": 133,
+      "diastolic": 73,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "ff9c7c41-06c3-41b1-9d5c-3b6b2e76c5ff",
+      "measuredAt": "2026-07-26T21:06:22-04:00",
+      "systolic": 145,
+      "diastolic": 77,
+      "pulse": 56,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "3e886d68-3525-4d2b-bd97-e4ff88cb9b82",
+      "measuredAt": "2026-07-27T07:14:37-04:00",
+      "systolic": 128,
+      "diastolic": 79,
+      "pulse": 66,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "923e7765-d520-424e-b395-77f360d79ef4",
+      "measuredAt": "2026-07-27T21:06:21-04:00",
+      "systolic": 114,
+      "diastolic": 79,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "0f340563-fc32-46b9-85b4-52ffeb97a44e",
+      "measuredAt": "2026-07-28T21:17:14-04:00",
+      "systolic": 134,
+      "diastolic": 78,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "9eafefa4-a5cc-4b66-b435-1a997964a734",
+      "measuredAt": "2026-07-29T21:24:48-04:00",
+      "systolic": 125,
+      "diastolic": 83,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "6c986b56-c496-432e-bc58-88a08a71b9e2",
+      "measuredAt": "2026-07-30T07:19:37-04:00",
+      "systolic": 117,
+      "diastolic": 82,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "d41425b3-67c6-4863-8f7a-18c42f908d21",
+      "measuredAt": "2026-07-31T07:40:36-04:00",
+      "systolic": 131,
+      "diastolic": 83,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "51446410-90c0-44e0-8eec-0127fab2a49a",
+      "measuredAt": "2026-07-31T20:57:45-04:00",
+      "systolic": 124,
+      "diastolic": 78,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "8e2a98e2-4190-4ed1-af47-f7f2dcfd1e57",
+      "measuredAt": "2026-08-01T07:39:23-04:00",
+      "systolic": 124,
+      "diastolic": 75,
+      "pulse": 56,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "9b8977a1-109a-42b5-aed0-ad1015e43877",
+      "measuredAt": "2026-08-02T07:44:12-04:00",
+      "systolic": 133,
+      "diastolic": 96,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "4ae44769-e0b8-45a3-9c4a-410f3ff5fb73",
+      "measuredAt": "2026-08-03T07:35:54-04:00",
+      "systolic": 134,
+      "diastolic": 86,
+      "pulse": 66,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "345c1105-cb87-4055-87a6-0a5e86702701",
+      "measuredAt": "2026-08-03T21:07:11-04:00",
+      "systolic": 129,
+      "diastolic": 78,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "a6ad4baf-b242-4cca-8714-c61569fb246f",
+      "measuredAt": "2026-08-04T07:33:47-04:00",
+      "systolic": 131,
+      "diastolic": 86,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "91c8e3d0-af56-4ea5-8746-0f7103ad36e0",
+      "measuredAt": "2026-08-05T07:27:47-04:00",
+      "systolic": 119,
+      "diastolic": 74,
+      "pulse": 58,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "fb92878f-4b11-4665-9788-fa136b4e9045",
+      "measuredAt": "2026-08-05T21:15:19-04:00",
+      "systolic": 126,
+      "diastolic": 80,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "2afad644-0627-45bc-a908-2ca037b8ad3e",
+      "measuredAt": "2026-08-06T21:28:16-04:00",
+      "systolic": 133,
+      "diastolic": 78,
+      "pulse": 65,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "96945719-20a2-4b8b-a6d9-1b192a03185c",
+      "measuredAt": "2026-08-07T07:33:50-04:00",
+      "systolic": 120,
+      "diastolic": 78,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "91c67430-5575-4e6d-b274-a9e1db6e17f4",
+      "measuredAt": "2026-08-08T07:18:03-04:00",
+      "systolic": 141,
+      "diastolic": 82,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "d1c4783b-4f9e-4a59-8a8a-de638c81834e",
+      "measuredAt": "2026-08-08T20:58:28-04:00",
+      "systolic": 147,
+      "diastolic": 80,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "cecb1d6a-0383-4319-95f7-92a549570aa8",
+      "measuredAt": "2026-08-09T21:00:18-04:00",
+      "systolic": 145,
+      "diastolic": 89,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "3312d08b-db63-4018-ad04-74e618c80101",
+      "measuredAt": "2026-08-10T07:29:10-04:00",
+      "systolic": 136,
+      "diastolic": 73,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "11588026-ede0-4898-9db6-f64736cfe0ef",
+      "measuredAt": "2026-08-11T07:11:43-04:00",
+      "systolic": 142,
+      "diastolic": 85,
+      "pulse": 68,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "cbefc5d8-da8f-431f-a570-c4092a245954",
+      "measuredAt": "2026-08-11T21:06:02-04:00",
+      "systolic": 126,
+      "diastolic": 82,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "922a2315-487b-4eb6-a9d3-a984d268adb2",
+      "measuredAt": "2026-08-12T07:39:15-04:00",
+      "systolic": 130,
+      "diastolic": 82,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "08aa65ac-d86d-4a9d-8ae2-d34c113300c1",
+      "measuredAt": "2026-08-12T21:42:47-04:00",
+      "systolic": 128,
+      "diastolic": 83,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "d8825565-7660-405f-a8e1-996aef3eae17",
+      "measuredAt": "2026-08-13T21:23:53-04:00",
+      "systolic": 121,
+      "diastolic": 68,
+      "pulse": 65,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "8eadae88-7c12-4a97-b267-1d09cab6f2df",
+      "measuredAt": "2026-08-14T21:38:35-04:00",
+      "systolic": 131,
+      "diastolic": 85,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "6114f5e4-3e21-44ae-b61b-095f379ecd0b",
+      "measuredAt": "2026-08-15T07:22:38-04:00",
+      "systolic": 117,
+      "diastolic": 81,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "3e41991e-e20c-47e1-bada-8f8771a74a04",
+      "measuredAt": "2026-08-15T20:57:01-04:00",
+      "systolic": 123,
+      "diastolic": 78,
+      "pulse": 57,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "d36ef069-3dc5-4420-bb71-1be783d0701a",
+      "measuredAt": "2026-08-16T07:22:48-04:00",
+      "systolic": 121,
+      "diastolic": 71,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "20dc6aed-67f3-4528-b489-c61befd3a1e9",
+      "measuredAt": "2026-08-16T21:25:18-04:00",
+      "systolic": 123,
+      "diastolic": 80,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "9c256522-e509-48fd-9497-aa6911609550",
+      "measuredAt": "2026-08-17T20:59:15-04:00",
+      "systolic": 131,
+      "diastolic": 78,
+      "pulse": 66,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "03c8af46-b618-4bcb-b14f-f2331c5edecf",
+      "measuredAt": "2026-08-18T07:33:04-04:00",
+      "systolic": 128,
+      "diastolic": 75,
+      "pulse": 61,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "620e368c-a397-4800-89c3-108e0f70558c",
+      "measuredAt": "2026-08-18T21:20:30-04:00",
+      "systolic": 131,
+      "diastolic": 74,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "4d49a02b-d29a-4380-ba54-ae17b5b2ef12",
+      "measuredAt": "2026-08-19T21:07:14-04:00",
+      "systolic": 135,
+      "diastolic": 85,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "96ab780d-e50f-4e77-8066-fdd192fbc6a8",
+      "measuredAt": "2026-08-20T07:25:35-04:00",
+      "systolic": 124,
+      "diastolic": 80,
+      "pulse": 57,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "4b45ba20-1b5a-4004-848f-5ce3abddb6e7",
+      "measuredAt": "2026-08-20T21:05:20-04:00",
+      "systolic": 134,
+      "diastolic": 79,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "b422cceb-d44f-4e17-b5ec-711f6f450cc6",
+      "measuredAt": "2026-08-21T20:52:54-04:00",
+      "systolic": 134,
+      "diastolic": 83,
+      "pulse": 60,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "099b6760-9cc3-4957-a749-80b493ac56a0",
+      "measuredAt": "2026-08-22T07:20:58-04:00",
+      "systolic": 119,
+      "diastolic": 75,
+      "pulse": 64,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "23a863db-5381-4300-8c2f-685be551382c",
+      "measuredAt": "2026-08-22T21:42:24-04:00",
+      "systolic": 131,
+      "diastolic": 81,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "f2c25f70-bb93-41a6-a9f1-c1884a240ad5",
+      "measuredAt": "2026-08-23T07:49:27-04:00",
+      "systolic": 123,
+      "diastolic": 79,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "76e3c034-23af-4e88-a04b-1ef39d89c128",
+      "measuredAt": "2026-08-24T07:46:12-04:00",
+      "systolic": 145,
+      "diastolic": 78,
+      "pulse": 67,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "3767fbfa-554b-4380-a787-c76ceaf26473",
+      "measuredAt": "2026-08-24T21:13:17-04:00",
+      "systolic": 133,
+      "diastolic": 77,
+      "pulse": 62,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "703fdbe2-81d2-401e-a817-1ab8cd001e9c",
+      "measuredAt": "2026-08-25T07:41:55-04:00",
+      "systolic": 135,
+      "diastolic": 77,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "4bd475e0-a1be-475b-81e1-8fa48b928b5b",
+      "measuredAt": "2026-08-25T20:59:18-04:00",
+      "systolic": 127,
+      "diastolic": 75,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "2e588edc-194e-4e56-8880-370437dbfa1d",
+      "measuredAt": "2026-08-26T07:13:56-04:00",
+      "systolic": 140,
+      "diastolic": 81,
+      "pulse": 59,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "e64d0a78-7015-4922-9b45-10a31597b8c7",
+      "measuredAt": "2026-08-27T21:03:52-04:00",
+      "systolic": 145,
+      "diastolic": 78,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "760afb40-dece-4206-9381-80bfd6d8fb1f",
+      "measuredAt": "2026-08-28T07:39:05-04:00",
+      "systolic": 122,
+      "diastolic": 82,
+      "pulse": 63,
+      "sourceApp": "Health Mate",
+      "sourceDevice": "BPM Connect",
+      "sourceBundleId": "com.withings.wiScaleNG"
+    },
+    {
+      "hkUuid": "8626077b-afb4-44ec-83e8-b03e60e15912",
+      "measuredAt": "2026-06-05T14:02:27-04:00",
+      "systolic": 118,
+      "diastolic": 76,
+      "pulse": 69,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "396d914c-7eb6-4366-b67a-7fc6a8b721c3",
+      "measuredAt": "2026-06-18T14:36:46-04:00",
+      "systolic": 131,
+      "diastolic": 77,
+      "pulse": 60,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "05f7c46a-b31c-4c35-aafb-2f0abd3c63e7",
+      "measuredAt": "2026-07-01T14:31:20-04:00",
+      "systolic": 127,
+      "diastolic": 82,
+      "pulse": 65,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "0faf5dfe-dd7b-4315-8f56-087d6de419f1",
+      "measuredAt": "2026-07-14T14:37:08-04:00",
+      "systolic": 121,
+      "diastolic": 82,
+      "pulse": 65,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "4ff22a53-b4e3-45e7-adc8-57ee864cbcdf",
+      "measuredAt": "2026-07-27T14:39:34-04:00",
+      "systolic": 118,
+      "diastolic": 80,
+      "pulse": 68,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "fd7fb4eb-400c-4ef6-909f-b227b73ad1a8",
+      "measuredAt": "2026-08-09T14:41:19-04:00",
+      "systolic": 136,
+      "diastolic": 77,
+      "pulse": 68,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "d2b11f5f-e6e2-4da4-af98-8883e6b27ed7",
+      "measuredAt": "2026-06-12T14:07:25-04:00",
+      "systolic": 122,
+      "diastolic": 86,
+      "pulse": null,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "182469c4-26f1-4276-9227-093082aa8b0a",
+      "measuredAt": "2026-07-09T14:25:10-04:00",
+      "systolic": 136,
+      "diastolic": 85,
+      "pulse": null,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    },
+    {
+      "hkUuid": "f250631c-0299-409d-9554-6da2c6420c57",
+      "measuredAt": "2026-08-05T14:20:11-04:00",
+      "systolic": 134,
+      "diastolic": 82,
+      "pulse": null,
+      "sourceApp": "Qardio",
+      "sourceDevice": "QardioArm",
+      "sourceBundleId": "com.getqardio.QardioArm"
+    }
+  ]
+}
