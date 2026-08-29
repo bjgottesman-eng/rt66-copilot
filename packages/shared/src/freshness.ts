@@ -3,6 +3,7 @@
  *
  * ```
  * if connectionStatus == 'not_connected'            -> NOT_CONNECTED
+ * if connectionStatus == 'revoked'                  -> NOT_CONNECTED  (user disconnected; UI offers Connect)
  * if connectionStatus == 'error'                    -> SYNC_ERROR
  * if latestMeasuredAt == null                       -> INSUFFICIENT_DATA
  * age = now - latestMeasuredAt
@@ -39,7 +40,10 @@ const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 function computeStatus(input: FreshnessInput): FreshnessStatus {
   const { connectionStatus, lastSuccessAt, latestMeasuredAt, expectedLatencySeconds, now } = input;
 
-  if (connectionStatus === 'not_connected') return 'NOT_CONNECTED';
+  if (connectionStatus === 'not_connected' || connectionStatus === 'revoked') {
+    // revoked = the user disconnected the source; the UI offers Connect again
+    return 'NOT_CONNECTED';
+  }
   if (connectionStatus === 'error') return 'SYNC_ERROR';
   if (latestMeasuredAt === null) return 'INSUFFICIENT_DATA';
 

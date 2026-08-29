@@ -97,9 +97,9 @@ const cases: Case[] = [
     expected: 'CURRENT',
   },
   {
-    name: "'revoked' has no dedicated branch in the contract: falls through to age logic",
+    name: "'revoked' maps to NOT_CONNECTED even with fresh data (user disconnected; UI offers Connect)",
     input: connected({ connectionStatus: 'revoked', latestMeasuredAt: ago(60) }),
-    expected: 'CURRENT',
+    expected: 'NOT_CONNECTED',
   },
 
   // --- RECENT: age <= 24 h ---
