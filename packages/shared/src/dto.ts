@@ -136,9 +136,22 @@ export interface HealthKitBpSample {
   sourceApp: string;
   sourceDevice: string;
   sourceBundleId: string;
+  /**
+   * HealthKit metadata HKMetadataKeySyncIdentifier, when present. The platform
+   * writes its own manual readings back to HealthKit with identifiers prefixed
+   * `benhealthos.`; samples carrying that prefix are our own write-backs and
+   * are skipped on ingest to avoid a manual→HealthKit→platform echo loop.
+   */
+  syncIdentifier?: string | null;
 }
 
 export interface HealthKitBpBatch {
   deviceAnchor?: string;
   samples: HealthKitBpSample[];
+  /**
+   * HealthKit correlation UUIDs deleted on-device since the last anchor.
+   * The platform soft-deletes the matching readings (deleted_at) — raw ingest
+   * events are immutable and are never removed.
+   */
+  deletedHkUuids?: string[];
 }

@@ -1,0 +1,38 @@
+{
+  "name": "@benhealth/platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ben Health OS platform service: auth, Withings connector, webhooks, ingestion, normalization, dedup, BP API (Fastify 5, Node 22)",
+  "type": "module",
+  "main": "./dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "demo:seed": "tsx src/demo/seed.ts"
+  },
+  "dependencies": {
+    "@benhealth/db": "workspace:*",
+    "@benhealth/shared": "workspace:*",
+    "@fastify/cors": "^11.0.0",
+    "@fastify/rate-limit": "^10.2.1",
+    "argon2": "^0.41.1",
+    "fastify": "^5.1.0",
+    "jose": "^5.9.6",
+    "pg": "^8.13.1",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.10",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0",
+    "vitest": "^3.0.0"
+  }
+}
