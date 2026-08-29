@@ -1,1 +1,16 @@
 .DS_Store
+
+# Ben Health OS
+node_modules/
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+apps/ios/BenHealthOS.xcodeproj/
+apps/ios/build/
+apps/ios/DerivedData/
+*.log

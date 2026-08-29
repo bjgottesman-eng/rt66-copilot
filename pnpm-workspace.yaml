@@ -1,0 +1,5 @@
+packages:
+  - apps/web
+  - services/platform
+  - packages/db
+  - packages/shared
