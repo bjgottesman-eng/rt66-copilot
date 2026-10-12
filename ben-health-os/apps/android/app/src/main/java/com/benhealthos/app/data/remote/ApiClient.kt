@@ -58,6 +58,8 @@ class ApiClient(
     suspend fun refreshSource(connector: String): IngestResultDto = postRaw("/v1/sources/$connector/refresh", "{}", IngestResultDto.serializer())
     suspend fun disconnectSource(connector: String) = postNoContent("/v1/sources/$connector/disconnect", "{}")
     suspend fun bloodPressureSummary(days: Int = 30): BpSummaryDto = get("/v1/blood-pressure/summary?days=$days", BpSummaryDto.serializer())
+    suspend fun nutritionDays(fromDate: String, toDate: String): NutritionDaysDto = get("/v1/nutrition/days?from=$fromDate&to=$toDate", NutritionDaysDto.serializer())
+    suspend fun glucoseDay(date: String?): GlucoseDayDto = get("/v1/glucose/day" + (date?.let { "?date=$it" } ?: ""), GlucoseDayDto.serializer())
 
     suspend fun seedDemo(days: Int): JsonObject = postRaw("/v1/demo/seed", """{"days":$days,"replace":true}""", JsonObject.serializer())
     suspend fun clearDemo() = deleteNoContent("/v1/demo")

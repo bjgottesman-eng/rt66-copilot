@@ -1,7 +1,7 @@
 import type pg from 'pg';
 import { randomUUID } from 'node:crypto';
 import type { ExternalRecordInput, HealthConnectIngestBatch, HealthConnectRecord, IngestResult, NormalizedRecord } from '@bho/contracts';
-import { DEDUP_WINDOWS, HEALTH_CONNECT_ORIGINS, metricById } from '@bho/shared-config';
+import { DEDUP_WINDOWS, HEALTH_CONNECT_ORIGINS, metricById, priorityRank } from '@bho/shared-config';
 import { findIntervalDuplicate, findPointDuplicate, payloadHash, resolveDailySteps } from '@bho/analytics';
 import { withUser, type Tx } from '../db/pool.js';
 import { normalizeHealthConnectRecord } from './normalize.js';
@@ -27,6 +27,8 @@ export interface PersistContext {
   nowIso: string;
   counters: IngestCounters;
   affectedDates: Set<string>;
+  /** Local dates whose meals changed: same-day nutrition dedup + nutrition_days rollup run afterwards. */
+  mealDates: Set<string>;
   deviceCache: Map<string, string>;
 }
 
@@ -203,15 +205,21 @@ export async function persistRecord(ctx: PersistContext, rec: ExternalRecordInpu
     if (n.meal) {
       const m = n.meal;
       const res = await tx.query<{ id: string }>(
-        `insert into public.meals (user_id, eaten_at, end_at, local_date, meal_type, name, energy_kcal, protein_g, carbs_g, fat_g, saturated_fat_g, fiber_g, sodium_mg, potassium_mg, sugar_g, nutrients, connector, data_origin, external_id, raw_event_id)
-         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+        `insert into public.meals (user_id, eaten_at, end_at, local_date, meal_type, name, energy_kcal, protein_g, carbs_g, fat_g, saturated_fat_g, fiber_g, sodium_mg, potassium_mg, sugar_g, nutrients, connector, data_origin, external_id, raw_event_id, food_items, quality_flags)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
          on conflict (user_id, connector, external_id) do update set eaten_at = excluded.eaten_at, end_at = excluded.end_at, local_date = excluded.local_date, meal_type = excluded.meal_type, name = excluded.name, energy_kcal = excluded.energy_kcal, protein_g = excluded.protein_g,
            carbs_g = excluded.carbs_g, fat_g = excluded.fat_g, saturated_fat_g = excluded.saturated_fat_g, fiber_g = excluded.fiber_g, sodium_mg = excluded.sodium_mg, potassium_mg = excluded.potassium_mg, sugar_g = excluded.sugar_g, nutrients = excluded.nutrients,
-           data_origin = excluded.data_origin, raw_event_id = excluded.raw_event_id, deleted_at = null
-         returning id`,
-        [userId, m.eatenAt, m.endAt, m.localDate, m.mealType, m.name, m.energyKcal, m.proteinG, m.carbsG, m.fatG, m.saturatedFatG, m.fiberG, m.sodiumMg, m.potassiumMg, m.sugarG, JSON.stringify(m.nutrients), connector, rec.dataOrigin, m.externalId, rawId],
+           data_origin = excluded.data_origin, raw_event_id = excluded.raw_event_id, food_items = excluded.food_items, quality_flags = excluded.quality_flags, deleted_at = null
+         returning id, (xmax = 0) as inserted`,
+        [userId, m.eatenAt, m.endAt, m.localDate, m.mealType, m.name, m.energyKcal, m.proteinG, m.carbsG, m.fatG, m.saturatedFatG, m.fiberG, m.sodiumMg, m.potassiumMg, m.sugarG, JSON.stringify(m.nutrients), connector, rec.dataOrigin, m.externalId, rawId, JSON.stringify(m.foodItems ?? []), m.qualityFlags ?? []],
       );
       groupId = res.rows[0]!.id;
+      ctx.mealDates.add(m.localDate);
+      if (prev) {
+        // a re-import may move a meal to another day: that day's rollup must be recomputed too
+        const moved = await tx.query<{ local_date: string }>(`select distinct local_date::text as local_date from public.nutrition_days where user_id = $1 and local_date <> $2 and local_date in (select local_date from public.meals where id = $3)`, [userId, m.localDate, groupId]);
+        for (const row of moved.rows) ctx.mealDates.add(row.local_date);
+      }
       await tx.query('delete from public.nutrient_observations where meal_id = $1', [groupId]);
       for (const [nutrient, value] of Object.entries(m.nutrients)) await tx.query('insert into public.nutrient_observations (user_id, meal_id, local_date, nutrient, value, unit) values ($1, $2, $3, $4, $5, $6)', [userId, groupId, m.localDate, nutrient, value, 'unknown']);
     }
@@ -265,7 +273,8 @@ export async function softDelete(ctx: PersistContext, externalId: string): Promi
   const r1 = await tx.query<{ local_date: Date; metric_id: string }>(`update public.observations set deleted_at = now() where user_id = $1 and connector = $2 and deleted_at is null and (external_id = $3 or external_id like $3 || '#%') returning local_date, metric_id`, [userId, connector, externalId]);
   for (const row of r1.rows) if (ACTIVITY_METRICS.has(row.metric_id)) ctx.affectedDates.add(new Date(row.local_date).toISOString().slice(0, 10));
   for (const table of ['blood_pressure_readings', 'sleep_sessions', 'workouts', 'meals', 'glucose_samples']) {
-    await tx.query(`update public.${table} set deleted_at = now() where user_id = $1 and connector = $2 and external_id = $3 and deleted_at is null`, [userId, connector, externalId]);
+    const r = await tx.query<{ local_date: Date }>(`update public.${table} set deleted_at = now() where user_id = $1 and connector = $2 and external_id = $3 and deleted_at is null returning local_date`, [userId, connector, externalId]);
+    if (table === 'meals') for (const row of r.rows) ctx.mealDates.add(new Date(row.local_date).toISOString().slice(0, 10));
   }
   const r2 = await tx.query(`update public.raw_ingest_events set processing_status = 'DELETED' where user_id = $1 and connector = $2 and external_id = $3 and processing_status <> 'SUPERSEDED' returning id`, [userId, connector, externalId]);
   return (r1.rowCount ?? 0) > 0 || (r2.rowCount ?? 0) > 0;
@@ -319,6 +328,78 @@ export async function recomputeDailyActivity(tx: Tx, userId: string, dates: Set<
   }
 }
 
+/**
+ * Same-day nutrition dedup across sources. Two apps describing the same diary (Cronometer CSV and the
+ * Cronometer app via Health Connect) are never summed: the highest-priority source for the local day is
+ * canonical and every other source's meals are linked as duplicates. A daily-summary row from the same
+ * source as itemised meals is likewise linked rather than added. Nothing is deleted.
+ */
+export async function dedupMealsByDay(tx: Tx, userId: string, dates: Set<string>): Promise<number> {
+  let linked = 0;
+  for (const date of dates) {
+    const rows = await tx.query<{ id: string; connector: string; data_origin: string | null; meal_type: string | null; canonical: boolean; duplicate_of: string | null; duplicate_reason: string | null }>(
+      'select id, connector, data_origin, meal_type, canonical, duplicate_of, duplicate_reason from public.meals where user_id = $1 and local_date = $2 and deleted_at is null order by eaten_at, id',
+      [userId, date],
+    );
+    if (rows.rows.length === 0) continue;
+    const ranked = rows.rows.map((r) => ({ ...r, rank: priorityRank('nutrition', r.connector, r.data_origin) }));
+    const best = Math.min(...ranked.map((r) => r.rank));
+    const winners = ranked.filter((r) => r.rank === best);
+    const itemised = winners.find((r) => r.meal_type !== 'DAILY_SUMMARY');
+    for (const r of ranked) {
+      let canonical = true;
+      let reason: string | null = null;
+      let dupOf: string | null = null;
+      if (r.rank > best) {
+        canonical = false;
+        dupOf = winners[0]!.id;
+        reason = `SAME_DAY_NUTRITION_SOURCE:${winners[0]!.connector}${winners[0]!.data_origin ? `:${winners[0]!.data_origin}` : ''}`;
+      } else if (r.meal_type === 'DAILY_SUMMARY' && itemised) {
+        canonical = false;
+        dupOf = itemised.id;
+        reason = 'DAILY_SUMMARY_OF_ITEMISED_MEALS';
+      }
+      if (r.canonical === canonical && (r.duplicate_reason ?? null) === reason && (r.duplicate_of ?? null) === dupOf) continue;
+      await tx.query('update public.meals set canonical = $2, duplicate_of = $3, duplicate_reason = $4 where id = $1', [r.id, canonical, dupOf, reason]);
+      await tx.query('update public.observations set canonical = $2, duplicate_of = null, duplicate_reason = $3 where user_id = $4 and group_id = $1', [r.id, canonical, reason, userId]);
+      if (!canonical) linked++;
+    }
+  }
+  return linked;
+}
+
+/** nutrition_days rollup (algorithm_version 1): sums of canonical meals per local day; absent when nothing was logged. */
+export async function recomputeNutritionDays(tx: Tx, userId: string, dates: Set<string>): Promise<void> {
+  for (const date of dates) {
+    const agg = await tx.query<{ meals_count: number; energy_kcal: number | null; protein_g: number | null; carbs_g: number | null; fat_g: number | null; saturated_fat_g: number | null; fiber_g: number | null; sodium_mg: number | null; potassium_mg: number | null; source: string | null; complete: boolean | null }>(
+      `select count(*)::int as meals_count, sum(energy_kcal)::float8 as energy_kcal, sum(protein_g)::float8 as protein_g, sum(carbs_g)::float8 as carbs_g, sum(fat_g)::float8 as fat_g,
+              sum(saturated_fat_g)::float8 as saturated_fat_g, sum(fiber_g)::float8 as fiber_g, sum(sodium_mg)::float8 as sodium_mg, sum(potassium_mg)::float8 as potassium_mg,
+              string_agg(distinct connector || coalesce(':' || data_origin, ''), ',') as source, bool_or('DAY_MARKED_COMPLETE' = any(quality_flags)) as complete
+       from public.meals where user_id = $1 and local_date = $2 and canonical and deleted_at is null`,
+      [userId, date],
+    );
+    const a = agg.rows[0]!;
+    if (!a.meals_count) {
+      await tx.query('delete from public.nutrition_days where user_id = $1 and local_date = $2', [userId, date]);
+      continue;
+    }
+    await tx.query(
+      `insert into public.nutrition_days (user_id, local_date, energy_kcal, protein_g, carbs_g, fat_g, saturated_fat_g, fiber_g, sodium_mg, potassium_mg, meals_count, source, complete, algorithm_version, computed_at)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 1, now())
+       on conflict (user_id, local_date) do update set energy_kcal = excluded.energy_kcal, protein_g = excluded.protein_g, carbs_g = excluded.carbs_g, fat_g = excluded.fat_g, saturated_fat_g = excluded.saturated_fat_g,
+         fiber_g = excluded.fiber_g, sodium_mg = excluded.sodium_mg, potassium_mg = excluded.potassium_mg, meals_count = excluded.meals_count, source = excluded.source, complete = excluded.complete, algorithm_version = 1, computed_at = now()`,
+      [userId, date, a.energy_kcal, a.protein_g, a.carbs_g, a.fat_g, a.saturated_fat_g, a.fiber_g, a.sodium_mg, a.potassium_mg, a.meals_count, a.source, a.complete ?? false],
+    );
+  }
+}
+
+/** Post-persist nutrition housekeeping shared by every ingest path. */
+export async function finalizeMeals(ctx: PersistContext): Promise<void> {
+  if (ctx.mealDates.size === 0) return;
+  ctx.counters.crossSourceDuplicates += await dedupMealsByDay(ctx.tx, ctx.userId, ctx.mealDates);
+  await recomputeNutritionDays(ctx.tx, ctx.userId, ctx.mealDates);
+}
+
 export interface ConnectorIngestOptions {
   mode: string;
   /** Records to persist (already normalized by the connector). */
@@ -347,11 +428,12 @@ export async function ingestConnectorRecords(pool: pg.Pool, userId: string, conn
     );
     const connectionId = conn.rows[0]!.id;
     await tx.query(`insert into public.sync_runs (id, user_id, connection_id, connector, mode, started_at, status, records_received) values ($1, $2, $3, $4, $5, $6, 'RUNNING', $7)`, [batchId, userId, connectionId, connector, opts.mode, nowIso, opts.records.length]);
-    const ctx: PersistContext = { tx, userId, connector, connectionId, runId: batchId, nowIso, counters, affectedDates: new Set(), deviceCache: new Map() };
+    const ctx: PersistContext = { tx, userId, connector, connectionId, runId: batchId, nowIso, counters, affectedDates: new Set(), mealDates: new Set(), deviceCache: new Map() };
     await persistRecords(ctx, opts.records);
     for (const id of opts.deletions ?? []) if (await softDelete(ctx, id)) counters.deleted++;
     await attachCuffPulse(tx, userId);
     await recomputeDailyActivity(tx, userId, ctx.affectedDates);
+    await finalizeMeals(ctx);
     for (const [scope, cursor] of Object.entries(opts.cursors ?? {})) {
       await tx.query(
         `insert into public.sync_cursors (user_id, connection_id, scope, cursor, cursor_time) values ($1, $2, $3, $4, now())
@@ -415,7 +497,7 @@ export async function ingestHealthConnectBatch(pool: pg.Pool, userId: string, ba
     );
     const connectionId = conn.rows[0]!.id;
     await tx.query(`insert into public.sync_runs (id, user_id, connection_id, connector, mode, started_at, status, records_received) values ($1, $2, $3, $4, $5, $6, 'RUNNING', $7)`, [batchId, userId, connectionId, HC, batch.mode, nowIso, batch.records.length]);
-    const ctx: PersistContext = { tx, userId, connector: HC, connectionId, runId: batchId, nowIso, counters, affectedDates: new Set(), deviceCache: new Map() };
+    const ctx: PersistContext = { tx, userId, connector: HC, connectionId, runId: batchId, nowIso, counters, affectedDates: new Set(), mealDates: new Set(), deviceCache: new Map() };
     await upsertDevice(tx, userId, connectionId, HC, `phone:${batch.deviceInstanceId}`, batch.deviceLabel ?? 'Android phone', { type: 'PHONE', manufacturer: null, model: batch.deviceLabel ?? null }, nowIso, ctx.deviceCache);
 
     const records = batch.records.map((r) => hcToExternal(r, timeZone, nowIso));
@@ -423,6 +505,7 @@ export async function ingestHealthConnectBatch(pool: pg.Pool, userId: string, ba
     for (const del of batch.deletions) if (await softDelete(ctx, del.hcId)) counters.deleted++;
     await attachCuffPulse(tx, userId);
     await recomputeDailyActivity(tx, userId, ctx.affectedDates);
+    await finalizeMeals(ctx);
 
     if (batch.changeTokens) {
       for (const [recordType, token] of Object.entries(batch.changeTokens)) {

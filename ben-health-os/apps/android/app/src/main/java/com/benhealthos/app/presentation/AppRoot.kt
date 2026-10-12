@@ -32,6 +32,7 @@ import com.benhealthos.app.presentation.screens.ManualBpScreen
 import com.benhealthos.app.presentation.screens.MoreScreen
 import com.benhealthos.app.presentation.screens.NotImplementedScreen
 import com.benhealthos.app.presentation.screens.OnboardingScreen
+import com.benhealthos.app.presentation.screens.NutritionScreen
 import com.benhealthos.app.presentation.screens.SettingsScreen
 import com.benhealthos.app.presentation.screens.SourcesScreen
 import com.benhealthos.app.presentation.screens.TodayScreen
@@ -85,6 +86,7 @@ private fun MainScaffold(onSignOut: () -> Unit) {
             composable("sources") { SourcesScreen() }
             composable("more") { MoreScreen(onNavigate = { nav.navigate(it) }) }
             composable("settings") { SettingsScreen(onSignOut = onSignOut) }
+            composable("nutrition") { NutritionScreen() }
             composable("placeholder/{name}/{phase}") { entry ->
                 NotImplementedScreen(entry.arguments?.getString("name") ?: "", entry.arguments?.getString("phase")?.toIntOrNull() ?: 0)
             }

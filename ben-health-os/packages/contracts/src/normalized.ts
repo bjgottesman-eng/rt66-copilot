@@ -86,6 +86,8 @@ export interface NormalizedMeal {
   potassiumMg: number | null;
   sugarG: number | null;
   nutrients: Record<string, number>;
+  foodItems?: unknown[];
+  qualityFlags?: string[];
 }
 
 export interface NormalizedGlucose {

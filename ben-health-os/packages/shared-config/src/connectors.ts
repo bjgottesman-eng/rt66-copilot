@@ -110,8 +110,8 @@ export const CONNECTORS: ConnectorDefinition[] = [
     expectedSyncIntervalHours: 48,
     metrics: ['calories', 'protein_g', 'carbs_g', 'fat_g', 'saturated_fat_g', 'fiber_g', 'sodium_mg', 'potassium_mg'],
     phase: 4,
-    implementationStatus: 'NOT_IMPLEMENTED',
-    notes: 'CSV export import; Health Connect nutrition used when the Cronometer app shares it.',
+    implementationStatus: 'TESTED_WITH_MOCK_DATA',
+    notes: 'CSV export import (daily summary or servings layout, header-mapped with review). When the Cronometer app also shares meals through Health Connect, the CSV is canonical for that day and the Health Connect meals are linked, never summed.',
   },
   {
     id: 'function_health',

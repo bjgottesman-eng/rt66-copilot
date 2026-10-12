@@ -23,6 +23,20 @@ and marks the old one SUPERSEDED.
 - Derived-per-day tables: `daily_activity` (steps from the highest-priority origin with the
   alternates recorded, distance, active calories, exercise minutes, resistance sessions) and
   `nutrition_days`.
+- **Nutrition and glucose (Phase 4).** `meals` carry `food_items`, `quality_flags`
+  (`DAY_MARKED_COMPLETE`, `MEAL_TIME_ASSUMED`) and the usual `canonical`/`duplicate_of`/
+  `duplicate_reason`. Nutrition is deduplicated per local day: the highest-priority source for that day
+  (`cronometer` CSV > Cronometer via Health Connect > other Health Connect apps > manual) is canonical,
+  the rest are linked (`SAME_DAY_NUTRITION_SOURCE:*`), and a daily-summary row from the same source as
+  itemised meals is linked as `DAILY_SUMMARY_OF_ITEMISED_MEALS`; observations mirror the meal's
+  canonical flag through `group_id`. `nutrition_days` (algorithm_version 1) sums canonical meals per
+  day and is absent when nothing was logged. CSV meals use stable external ids
+  (`cronometer-csv:<day>:<group>` / `cronometer-csv:day:<day>`) so a newer export supersedes changed
+  days only; the file hash is kept in `sync_runs.details` and `sync_cursors`. `profiles.glucose_range`
+  and `profiles.nutrition_targets` are user/clinician-set JSON (defaults are labelled placeholders).
+  `annotations` (MEAL/EXERCISE/NOTE/MEDICATION_TAKEN/TAG) are user markers that feed the glucose day
+  view; glucose statistics are computed on request from canonical `glucose_samples` excluding
+  `IMPLAUSIBLE_VALUE`/`FUTURE_TIMESTAMP` rows (algorithms `glucose_day` v1, `meal_excursion` v1).
 - Sources: `source_connections` (status, encrypted tokens, permissions, sync health),
   `source_devices`, `sync_cursors` (change tokens / lastupdate), `sync_runs`.
 - Clinical and intelligence entities (schema in place, features in later phases): `documents`,

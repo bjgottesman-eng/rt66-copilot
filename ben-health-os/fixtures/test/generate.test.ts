@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { HealthConnectIngestBatchSchema } from '@bho/contracts';
-import { generateDemoDataset } from '../src/generate.js';
+import { parseCronometerCsv, rowsToMeals } from '@bho/analytics';
+import { generateCronometerCsv, generateDemoDataset } from '../src/generate.js';
 
 describe('synthetic demo dataset', () => {
   it('is deterministic for a seed and validates against the ingest contract', () => {
@@ -22,5 +23,16 @@ describe('synthetic demo dataset', () => {
     // ring-off days produce no RHR
     const rhrDates = new Set(ds.batches.flatMap((b) => b.records.filter((r) => r.recordType === 'RestingHeartRate').map((r) => r.hcId)));
     expect(rhrDates.size).toBe(60 - 4);
+  });
+  it('emits a Cronometer-style servings CSV that maps back to the same meals as the Health Connect diary', () => {
+    const ds = generateDemoDataset({ days: 20, detailedDays: 5, glucoseDays: 3 });
+    const csv = generateCronometerCsv(ds);
+    const { mapping, rows, warnings } = parseCronometerCsv(csv);
+    expect(mapping.format).toBe('SERVINGS');
+    expect(mapping.metricColumns).toMatchObject({ calories: 'Energy (kcal)', protein_g: 'Protein (g)', sodium_mg: 'Sodium (mg)' });
+    expect(warnings).toEqual([]);
+    const meals = rowsToMeals(rows, mapping);
+    expect(meals.length).toBe(ds.summary.meals_cronometer);
+    expect(meals.every((m) => m.time !== null && m.foodItems.length >= 2)).toBe(true);
   });
 });

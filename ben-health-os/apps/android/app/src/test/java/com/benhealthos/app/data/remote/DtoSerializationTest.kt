@@ -34,4 +34,24 @@ class DtoSerializationTest {
         assertEquals(null, t.domains[0].metrics[0].latest)
         assertEquals(null, t.domains[0].metrics[0].sparkline[0].value)
     }
+
+    @Test
+    fun glucoseDayDtoDecodesContractShapeWithNullStats() {
+        val body = """{"date":"2026-10-11","timeZone":"America/New_York","range":{"lowMgDl":70,"highMgDl":140,"source":"test"},
+          "samples":[{"t":"2026-10-11T12:00:00Z","mgDl":95,"source":"health_connect:com.dexcom.stelo"}],
+          "stats":{"n":1,"mean":95,"sd":null,"cvPct":null,"min":95,"max":95,"timeInRangePct":100,"timeBelowPct":0,"timeAbovePct":0,"overnightMean":null,"coverageHours":0,"intervalMinutes":null},
+          "meals":[{"at":"2026-10-11T12:30:00Z","label":"Lunch","source":"cronometer"}],"workouts":[],"annotations":[],
+          "excursions":[{"mealAt":"2026-10-11T12:30:00Z","label":"Lunch","baselineMgDl":95,"peakMgDl":null,"peakDeltaMgDl":null,"minutesToPeak":null,"iAuc2h":null,"samplesIn2h":1,"confidence":"LOW"}],
+          "freshness":{"latestSampleAt":"2026-10-11T12:00:00Z","expectedSourceLatencyHours":3,"note":"n"},"datesWithData":["2026-10-11"],"disclaimer":"d","unknownField":true}"""
+        val g = json.decodeFromString(GlucoseDayDto.serializer(), body)
+        assertEquals(1, g.samples.size)
+        assertEquals(null, g.stats.sd)
+        assertEquals("LOW", g.excursions[0].confidence)
+        assertEquals(12 * 60 + 30 - 4 * 60, minutesOfDayForTest(g.meals[0].at, "America/New_York"))
+        val days = json.decodeFromString(NutritionDaysDto.serializer(), """{"from":"2026-10-01","to":"2026-10-11","days":[],"mean7d":{"calories":null},"daysWithData7d":0,"targets":{"protein_g":150,"source":"me"},"notes":[]}""")
+        assertEquals(150.0, days.targets.protein_g)
+        assertEquals(null, days.mean7d.calories)
+    }
+
+    private fun minutesOfDayForTest(iso: String, zone: String): Int = com.benhealthos.app.presentation.screens.minutesOfDay(iso, java.time.ZoneId.of(zone))
 }

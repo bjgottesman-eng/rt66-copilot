@@ -43,8 +43,9 @@ export async function listSources(pool: pg.Pool, userId: string, now: Date = new
       if (def.integrationClass === 'VERIFIED_DIRECT_API' || def.integrationClass === 'CLINICAL_FHIR') {
         if (def.implementationStatus !== 'NOT_IMPLEMENTED' && serverConfigured) actions.push(c && c.status !== 'DISCONNECTED' ? 'reconnect' : 'connect');
       }
-      if (c && c.status !== 'DISCONNECTED' && def.id !== 'manual' && def.id !== 'demo') actions.push('refresh');
-      if (c && c.status !== 'DISCONNECTED' && def.id !== 'manual' && def.id !== 'demo') actions.push('disconnect');
+      const syncable = c && c.status !== 'DISCONNECTED' && def.id !== 'manual' && def.id !== 'demo' && def.integrationClass !== 'FILE_IMPORT';
+      if (syncable) actions.push('refresh', 'disconnect');
+      if (def.integrationClass === 'FILE_IMPORT' && def.implementationStatus !== 'NOT_IMPLEMENTED') notes.push(c ? `Last file import ${c.last_successful_sync_at ? new Date(c.last_successful_sync_at).toISOString() : 'never'}; import a newer export any time, unchanged days are skipped.` : 'No file imported yet. Import a Cronometer CSV export from the Nutrition page.');
       if (s) actions.push('export', 'delete');
       return {
         connectorId: def.id,

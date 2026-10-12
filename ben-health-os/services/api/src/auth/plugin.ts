@@ -20,6 +20,8 @@ export interface ProfileRow {
   created_at: string;
   birth_date: Date | string | null;
   max_heart_rate: number | null;
+  glucose_range: { lowMgDl: number; highMgDl: number; source?: string } | null;
+  nutrition_targets: Record<string, unknown> | null;
 }
 
 /** Ensures auth.users (local mode only) and profiles rows exist for a verified user. */
@@ -30,10 +32,10 @@ export async function ensureProfile(pool: pg.Pool, cfg: AppConfig, user: Authent
     });
   }
   return withUser(pool, user.userId, async (tx) => {
-    const existing = await tx.query<ProfileRow>('select id, email, display_name, time_zone, demo_mode, ai_sharing, created_at, birth_date, max_heart_rate from public.profiles where id = $1', [user.userId]);
+    const existing = await tx.query<ProfileRow>('select id, email, display_name, time_zone, demo_mode, ai_sharing, created_at, birth_date, max_heart_rate, glucose_range, nutrition_targets from public.profiles where id = $1', [user.userId]);
     if (existing.rows[0]) return existing.rows[0];
     const inserted = await tx.query<ProfileRow>(
-      'insert into public.profiles (id, email) values ($1, $2) on conflict (id) do update set email = coalesce(excluded.email, public.profiles.email) returning id, email, display_name, time_zone, demo_mode, ai_sharing, created_at, birth_date, max_heart_rate',
+      'insert into public.profiles (id, email) values ($1, $2) on conflict (id) do update set email = coalesce(excluded.email, public.profiles.email) returning id, email, display_name, time_zone, demo_mode, ai_sharing, created_at, birth_date, max_heart_rate, glucose_range, nutrition_targets',
       [user.userId, user.email],
     );
     return inserted.rows[0]!;

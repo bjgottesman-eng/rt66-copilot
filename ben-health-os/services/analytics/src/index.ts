@@ -11,3 +11,6 @@ export * from './domains.js';
 export * from './exercise.js';
 export * from './signals.js';
 export * from './zones.js';
+export * from './csv.js';
+export * from './nutrition.js';
+export * from './glucose.js';

@@ -43,6 +43,21 @@ test('login, load demo data, and walk the Phase 1 screens', async ({ page }) => 
   await expect(page.getByText(/^connected$/i).first()).toBeVisible();
   await page.screenshot({ path: '../../screenshots/web-sources.png', fullPage: true });
 
+  // Nutrition + glucose (Phase 4): demo data includes a Cronometer CSV import and Stelo glucose
+  await page.goto('/nutrition');
+  await expect(page.getByTestId('nutrition-days')).toContainText('cronometer');
+  await expect(page.getByTestId('glucose-chart')).toBeVisible();
+  await expect(page.getByTestId('glucose-stats')).toContainText('mg/dL');
+  await page.getByTestId('csv-text').fill('Day,Group,Food Name,Amount,Energy (kcal),Protein (g)\n2026-01-15,Lunch,Lentil soup,1 bowl,320,18\n');
+  await page.getByTestId('csv-review').click();
+  await expect(page.getByTestId('csv-mapping')).toContainText('SERVINGS');
+  await page.getByTestId('csv-import').click();
+  await expect(page.getByTestId('csv-result')).toContainText('1 inserted');
+  await page.getByTestId('annotation-label').fill('Evening walk');
+  await page.getByTestId('annotation-save').click();
+  await expect(page.getByText('Evening walk').first()).toBeVisible();
+  await page.screenshot({ path: '../../screenshots/web-nutrition.png', fullPage: true });
+
   // Honest placeholders
   await page.goto('/labs');
   await expect(page.getByText('Not implemented')).toBeVisible();

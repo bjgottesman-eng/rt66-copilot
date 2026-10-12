@@ -1,5 +1,5 @@
 import type { HealthConnectIngestBatch, HealthConnectRecord, ManualBloodPressureInput } from '@bho/contracts';
-import { addDays, dayStartMs, formatOffset, offsetMinutes } from '@bho/analytics';
+import { addDays, dayStartMs, formatOffset, offsetMinutes, parseOffset } from '@bho/analytics';
 import { Prng } from './prng.js';
 
 export const ORIGINS = {
@@ -317,4 +317,41 @@ export function generateDemoDataset(opts: DemoOptions = {}): DemoDataset {
   summary.total_records = records.length;
   summary.batches = batches.length;
   return { options, batches, manualBloodPressure, summary, scenario };
+}
+
+const CSV_FOODS: Record<string, Array<[string, string]>> = {
+  Breakfast: [['Oats', '80 g'], ['Greek yogurt', '170 g'], ['Blueberries', '100 g']],
+  Lunch: [['Chicken breast', '180 g'], ['Rice', '150 g'], ['Mixed salad', '1 bowl']],
+  Dinner: [['Salmon', '200 g'], ['Potatoes', '250 g'], ['Broccoli', '150 g']],
+  Snack: [['Almonds', '30 g'], ['Apple', '1 medium']],
+};
+
+/**
+ * A Cronometer-style servings export describing the same synthetic diary as the Health Connect
+ * Nutrition records (origin com.cronometer.android.gold), so the CSV import exercises same-day dedup.
+ * Totals per meal are split across foods and rounded, as a real export would be.
+ */
+export function generateCronometerCsv(ds: DemoDataset): string {
+  const header = ['Day', 'Time', 'Group', 'Food Name', 'Amount', 'Energy (kcal)', 'Protein (g)', 'Carbs (g)', 'Fat (g)', 'Saturated (g)', 'Fiber (g)', 'Sodium (mg)', 'Potassium (mg)', 'Sugars (g)', 'Vitamin C (mg)'];
+  const lines = [header.join(',')];
+  const r1 = (v: number | null | undefined) => (v == null ? '' : (Math.round(v * 10) / 10).toString());
+  for (const batch of ds.batches) {
+    for (const r of batch.records) {
+      if (r.recordType !== 'Nutrition' || r.dataOrigin !== ORIGINS.cronometer || !r.startTime) continue;
+      const p = r.payload as { name?: string | null; energyKcal?: number | null; proteinG?: number | null; carbsG?: number | null; totalFatG?: number | null; saturatedFatG?: number | null; fiberG?: number | null; sodiumMg?: number | null; potassiumMg?: number | null; sugarG?: number | null };
+      const localMs = Date.parse(r.startTime) + (parseOffset(r.startZoneOffset ?? 'Z') ?? 0) * 60_000;
+      const local = new Date(localMs).toISOString();
+      const day = local.slice(0, 10);
+      const time = local.slice(11, 16);
+      const group = p.name ?? 'Meal';
+      const items = CSV_FOODS[group] ?? [['Meal', '1 serving']];
+      const shares = items.length === 3 ? [0.5, 0.3, 0.2] : items.length === 2 ? [0.7, 0.3] : [1];
+      items.forEach(([food, amount], i) => {
+        const sh = shares[i]!;
+        const vitC = group === 'Breakfast' && i === 2 ? 10 : group === 'Dinner' && i === 2 ? 60 : 0;
+        lines.push([day, time, group, food, amount, r1((p.energyKcal ?? 0) * sh), r1((p.proteinG ?? 0) * sh), r1((p.carbsG ?? 0) * sh), r1((p.totalFatG ?? 0) * sh), r1((p.saturatedFatG ?? 0) * sh), r1((p.fiberG ?? 0) * sh), r1((p.sodiumMg ?? 0) * sh), r1((p.potassiumMg ?? 0) * sh), r1((p.sugarG ?? 0) * sh), String(vitC)].join(','));
+      });
+    }
+  }
+  return lines.join('\n') + '\n';
 }

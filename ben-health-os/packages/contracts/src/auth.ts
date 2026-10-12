@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { GlucoseRangeSchema, NutritionTargetsSchema } from './nutrition.js';
 import { IsoDateTimeSchema } from './common.js';
 
 export const MeResponseSchema = z.object({
@@ -11,6 +12,8 @@ export const MeResponseSchema = z.object({
   createdAt: IsoDateTimeSchema.nullable(),
   birthDate: z.string().nullable().optional(),
   maxHeartRate: z.number().int().nullable().optional(),
+  glucoseRange: GlucoseRangeSchema.optional(),
+  nutritionTargets: NutritionTargetsSchema.optional(),
 });
 export type MeResponse = z.infer<typeof MeResponseSchema>;
 
@@ -32,6 +35,8 @@ export const ProfileUpdateSchema = z.object({
   /** YYYY-MM-DD; used only for the Tanaka max-heart-rate estimate when no measured max HR is set. */
   birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
   maxHeartRate: z.number().int().min(100).max(230).nullable().optional(),
+  glucoseRange: GlucoseRangeSchema.optional(),
+  nutritionTargets: NutritionTargetsSchema.optional(),
   aiSharing: z
     .object({
       enabled: z.boolean().optional(),

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { generateDemoDataset } from '@bho/fixtures';
+import { generateCronometerCsv, generateDemoDataset } from '@bho/fixtures';
 import type { AppContext } from '../app.js';
 import { ensureProfile, requireUser } from '../auth/plugin.js';
 import { withUser } from '../db/pool.js';
@@ -8,6 +8,7 @@ import { deleteAllData } from '../services/account.js';
 import { createManualBloodPressure } from '../services/bp.js';
 import { ingestHealthConnectBatch } from '../services/ingest.js';
 import { deriveForUser } from '../services/derived.js';
+import { importCronometerCsv } from '../services/nutrition.js';
 import { localDateOf, addDays } from '@bho/analytics';
 
 const SeedBody = z.object({
@@ -47,9 +48,11 @@ export async function demoRoutes(app: FastifyInstance, ctx: AppContext): Promise
       totals.rejected += r.rejected.length;
     }
     for (const m of ds.manualBloodPressure) await createManualBloodPressure(ctx.pool, user.userId, m);
+    // The same synthetic diary as a Cronometer CSV export: exercises the importer and same-day dedup against Health Connect.
+    const csv = await importCronometerCsv(ctx.pool, user.userId, { csv: generateCronometerCsv(ds), fileName: 'cronometer-demo.csv', dryRun: false });
     await withUser(ctx.pool, user.userId, (tx) => tx.query('update public.profiles set demo_mode = true, birth_date = coalesce(birth_date, $2::date) where id = $1', [user.userId, '1986-06-15']));
     const derived = await deriveForUser(ctx.pool, user.userId);
-    return { seeded: true, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, derived };
+    return { seeded: true, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, cronometerCsv: { meals: csv.meals, days: csv.days, inserted: csv.ingest?.inserted ?? 0, healthConnectDuplicatesLinked: csv.healthConnectDuplicatesLinked }, derived };
   });
 
   app.delete('/v1/demo', async (request, reply) => {

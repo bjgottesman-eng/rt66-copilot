@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
-import { DevLoginRequestSchema, ProfileUpdateSchema, type MeResponse } from '@bho/contracts';
+import { DevLoginRequestSchema, ProfileUpdateSchema, type MeResponse, GlucoseRangeSchema, NutritionTargetsSchema } from '@bho/contracts';
 import { isValidTimeZone } from '@bho/analytics';
 import type { AppContext } from '../app.js';
 import { ensureProfile, requireUser } from '../auth/plugin.js';
@@ -45,6 +45,8 @@ export async function authRoutes(app: FastifyInstance, ctx: AppContext): Promise
       createdAt: profile.created_at ? new Date(profile.created_at).toISOString() : null,
       birthDate: profile.birth_date ? new Date(profile.birth_date).toISOString().slice(0, 10) : null,
       maxHeartRate: profile.max_heart_rate ?? null,
+      glucoseRange: GlucoseRangeSchema.safeParse(profile.glucose_range).success ? GlucoseRangeSchema.parse(profile.glucose_range) : undefined,
+      nutritionTargets: NutritionTargetsSchema.safeParse(profile.nutrition_targets ?? {}).success ? NutritionTargetsSchema.parse(profile.nutrition_targets ?? {}) : {},
     };
     return res;
   });
@@ -61,6 +63,8 @@ export async function authRoutes(app: FastifyInstance, ctx: AppContext): Promise
       if (body.data.timeZone) await tx.query('update public.profiles set time_zone = $2 where id = $1', [user.userId, body.data.timeZone]);
       if (body.data.birthDate !== undefined) await tx.query('update public.profiles set birth_date = $2 where id = $1', [user.userId, body.data.birthDate]);
       if (body.data.maxHeartRate !== undefined) await tx.query('update public.profiles set max_heart_rate = $2 where id = $1', [user.userId, body.data.maxHeartRate]);
+      if (body.data.glucoseRange) await tx.query('update public.profiles set glucose_range = $2::jsonb where id = $1', [user.userId, JSON.stringify(body.data.glucoseRange)]);
+      if (body.data.nutritionTargets) await tx.query('update public.profiles set nutrition_targets = $2::jsonb where id = $1', [user.userId, JSON.stringify(body.data.nutritionTargets)]);
       if (body.data.aiSharing) {
         await tx.query(`update public.profiles set ai_sharing = ai_sharing || $2::jsonb where id = $1`, [user.userId, JSON.stringify(body.data.aiSharing)]);
       }

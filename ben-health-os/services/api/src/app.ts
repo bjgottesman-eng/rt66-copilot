@@ -17,6 +17,7 @@ import { oauthRoutes } from './routes/oauth.js';
 import { webhookRoutes } from './routes/webhooks.js';
 import { jobRoutes } from './routes/jobs.js';
 import { analyticsRoutes } from './routes/analytics.js';
+import { nutritionRoutes } from './routes/nutrition.js';
 import { createConnectorRuntime, type ConnectorRuntime } from './services/connectors.js';
 
 export interface AppContext {
@@ -72,6 +73,7 @@ export async function buildApp(overrides: Partial<NodeJS.ProcessEnv> = {}): Prom
   await app.register(async (instance) => webhookRoutes(instance, ctx));
   await app.register(async (instance) => jobRoutes(instance, ctx));
   await app.register(async (instance) => analyticsRoutes(instance, ctx));
+  await app.register(async (instance) => nutritionRoutes(instance, ctx));
 
   app.addHook('onClose', async () => {
     await pool.end();

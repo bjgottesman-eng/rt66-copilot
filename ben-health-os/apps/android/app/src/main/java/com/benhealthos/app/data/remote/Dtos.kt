@@ -173,3 +173,33 @@ data class BpSummaryDto(
 @Serializable data class ZoneInfoDto(val maxHeartRate: Int? = null, val source: String? = null, val zone2: List<Int>? = null)
 @Serializable data class TrendsDto(val metricId: String, val label: String, val unit: String, val asOfDate: String, val windows: List<TrendWindowDto> = emptyList(), val comparison: ComparisonDto? = null, val percentile365: Double? = null, val daily: List<SparkDto> = emptyList(), val signals: List<SignalDto> = emptyList(), val zone: ZoneInfoDto? = null)
 @Serializable data class ProfileUpdateDto(val displayName: String? = null, val timeZone: String? = null, val birthDate: String? = null, val maxHeartRate: Int? = null)
+
+// ---- Phase 4: nutrition days and glucose day (rendered only; all math is server-side) ----
+@Serializable data class NutritionTotalsDto(val calories: Double? = null, val protein_g: Double? = null, val carbs_g: Double? = null, val fat_g: Double? = null, val saturated_fat_g: Double? = null, val fiber_g: Double? = null, val sodium_mg: Double? = null, val potassium_mg: Double? = null)
+@Serializable data class NutritionMealDto(val id: String, val eatenAt: String, val name: String? = null, val mealType: String? = null, val calories: Double? = null, val protein_g: Double? = null, val source: String, val canonical: Boolean)
+@Serializable data class NutritionDayDto(val date: String, val totals: NutritionTotalsDto, val mealsCount: Int, val sources: List<String> = emptyList(), val meals: List<NutritionMealDto> = emptyList())
+@Serializable data class NutritionTargetsDto(val calories: Double? = null, val protein_g: Double? = null, val carbs_g: Double? = null, val fat_g: Double? = null, val saturated_fat_g_max: Double? = null, val fiber_g: Double? = null, val sodium_mg_max: Double? = null, val potassium_mg: Double? = null, val source: String? = null)
+@Serializable data class NutritionDaysDto(val from: String, val to: String, val days: List<NutritionDayDto> = emptyList(), val mean7d: NutritionTotalsDto = NutritionTotalsDto(), val daysWithData7d: Int = 0, val targets: NutritionTargetsDto = NutritionTargetsDto(), val notes: List<String> = emptyList())
+@Serializable data class GlucoseSampleDto(val t: String, val mgDl: Double, val source: String)
+@Serializable data class GlucoseRangeDto(val lowMgDl: Double, val highMgDl: Double, val source: String? = null)
+@Serializable data class GlucoseStatsDto(val n: Int, val mean: Double? = null, val sd: Double? = null, val cvPct: Double? = null, val min: Double? = null, val max: Double? = null, val timeInRangePct: Double? = null, val timeBelowPct: Double? = null, val timeAbovePct: Double? = null, val overnightMean: Double? = null, val coverageHours: Double = 0.0, val intervalMinutes: Double? = null)
+@Serializable data class GlucoseMealDto(val at: String, val label: String, val source: String)
+@Serializable data class GlucoseWorkoutDto(val startAt: String, val endAt: String, val label: String)
+@Serializable data class GlucoseAnnotationDto(val id: String, val kind: String, val at: String, val label: String)
+@Serializable data class GlucoseExcursionDto(val mealAt: String, val label: String, val baselineMgDl: Double? = null, val peakMgDl: Double? = null, val peakDeltaMgDl: Double? = null, val minutesToPeak: Double? = null, val iAuc2h: Double? = null, val samplesIn2h: Int = 0, val confidence: String = "LOW")
+@Serializable data class GlucoseFreshnessDto(val latestSampleAt: String? = null, val expectedSourceLatencyHours: Double = 3.0, val note: String = "")
+@Serializable
+data class GlucoseDayDto(
+    val date: String,
+    val timeZone: String,
+    val range: GlucoseRangeDto,
+    val samples: List<GlucoseSampleDto> = emptyList(),
+    val stats: GlucoseStatsDto,
+    val meals: List<GlucoseMealDto> = emptyList(),
+    val workouts: List<GlucoseWorkoutDto> = emptyList(),
+    val annotations: List<GlucoseAnnotationDto> = emptyList(),
+    val excursions: List<GlucoseExcursionDto> = emptyList(),
+    val freshness: GlucoseFreshnessDto = GlucoseFreshnessDto(),
+    val datesWithData: List<String> = emptyList(),
+    val disclaimer: String = "",
+)
