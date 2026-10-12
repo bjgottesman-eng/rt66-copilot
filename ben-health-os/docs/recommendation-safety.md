@@ -51,3 +51,16 @@ exploratory longevity interventions.
   the dismissal), the three-priority re-ranking, `recommendation_outcome/v1` (7 days before vs 7 days
   after acceptance, descriptive only).
 - See ADR 0008 for the packet, provider and validator design.
+
+## Experiments (Phase 7)
+- One intervention per experiment, a stated hypothesis and outcome metric, and phases with dates.
+  Medication changes are never experiments here.
+- `experiment_evaluation/v1` pools baseline days and intervention days and applies the same change
+  classifier and coverage gates as the trend engine; adherence below 60% of logged intervention days
+  forces RETEST; a running experiment is always marked preliminary.
+- Verdicts are ADOPT / REJECT / RETEST / INCONCLUSIVE / INSUFFICIENT EVIDENCE, each with reasons and
+  limitations ("before/after design cannot separate the intervention from time trends", user-listed
+  confounders, "one person, one period"). NOISE means "no detectable effect at this sample size",
+  never "no effect". The decision is the user's and is recorded as a derived-calculation memory.
+- Alternating designs report block consistency; before/after designs never reach HIGH confidence
+  unless the effect size is at least 1.

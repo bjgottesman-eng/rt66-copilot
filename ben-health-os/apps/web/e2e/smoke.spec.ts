@@ -108,9 +108,32 @@ test('login, load demo data, and walk the Phase 1 screens', async ({ page }) => 
   await expect(page.getByTestId('memory-list')).toContainText('Prefers morning training sessions');
   await page.screenshot({ path: '../../screenshots/web-inbox.png', fullPage: true });
 
-  // Honest placeholders
+  // Experiments (Phase 7): the seed created one finished experiment with an honest verdict; a new one can be designed
   await page.goto('/experiments');
-  await expect(page.getByText('Not implemented')).toBeVisible();
+  await expect(page.getByTestId('experiment-card').first()).toBeVisible();
+  await expect(page.getByTestId('experiment-evaluation').first()).toContainText(/Verdict/);
+  await page.getByTestId('exp-title').fill('Magnesium before bed');
+  await page.getByTestId('exp-question').fill('Does magnesium improve my sleep quality rating?');
+  await page.getByTestId('exp-hypothesis').fill('Perceived sleep quality rises by 1 point.');
+  await page.getByTestId('exp-intervention').fill('300 mg magnesium glycinate after dinner (supplement, not a prescription)');
+  await page.getByTestId('exp-metric').selectOption('checkin:perceivedSleepQuality');
+  await page.getByTestId('exp-save').click();
+  await expect(page.getByTestId('exp-msg')).toContainText('Experiment created');
+  await expect(page.getByText('Magnesium before bed')).toBeVisible();
+  await page.screenshot({ path: '../../screenshots/web-experiments.png', fullPage: true });
+
+  // Training: seeded sets and progression; log a set; save a check-in
+  await page.goto('/training');
+  await expect(page.getByTestId('progression-list')).toContainText('Back squat');
+  await page.getByTestId('set-exercise').fill('Romanian deadlift');
+  await page.getByTestId('set-load-1').fill('100');
+  await page.getByTestId('set-save').click();
+  await expect(page.getByTestId('set-msg')).toContainText('Saved 1 set');
+  await expect(page.getByTestId('recent-sets')).toContainText('Romanian deadlift');
+  await page.getByTestId('checkin-note').fill('Slept well');
+  await page.getByTestId('checkin-save').click();
+  await expect(page.getByTestId('checkin-msg')).toContainText('Check-in saved');
+  await page.screenshot({ path: '../../screenshots/web-training.png', fullPage: true });
 
   // Settings + export link
   await page.goto('/settings');

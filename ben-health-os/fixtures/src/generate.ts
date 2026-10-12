@@ -385,3 +385,50 @@ export function generateLabCsv(ds: DemoDataset): string {
   return lines.join('\n') + '\n';
 }
 
+// ---------------------------------------------------------------------------------------------
+// Phase 7: synthetic training sets and subjective check-ins derived from the same dataset
+// ---------------------------------------------------------------------------------------------
+const localDay = (iso: string, offset: string): string => new Date(Date.parse(iso) + (parseOffset(offset) ?? 0) * 60_000).toISOString().slice(0, 10);
+const clamp10 = (v: number) => Math.max(1, Math.min(10, Math.round(v)));
+
+/** One logged strength session per STRENGTH_TRAINING exercise record: three lifts × three sets of five, +2.5 kg every fourth session. Deterministic. */
+export function generateTrainingSets(ds: DemoDataset): Array<{ localDate: string; exercise: string; setIndex: number; reps: number; loadKg: number; rpe: number }> {
+  const dates = [...new Set(ds.batches.flatMap((b) => b.records.filter((r) => r.recordType === 'ExerciseSession' && (r.payload as { exerciseTypeName?: string }).exerciseTypeName === 'STRENGTH_TRAINING' && r.startTime && r.startZoneOffset).map((r) => localDay(r.startTime!, r.startZoneOffset!))))].sort();
+  const lifts: Array<[string, number]> = [['Back squat', 90], ['Bench press', 70], ['Barbell row', 60]];
+  const out: Array<{ localDate: string; exercise: string; setIndex: number; reps: number; loadKg: number; rpe: number }> = [];
+  dates.forEach((localDate, i) => {
+    for (const [exercise, base] of lifts) for (let setIndex = 1; setIndex <= 3; setIndex++) out.push({ localDate, exercise, setIndex, reps: 5, loadKg: base + Math.floor(i / 4) * 2.5, rpe: setIndex === 3 ? 8 : 7 });
+  });
+  return out;
+}
+
+/** Morning check-ins for the last 28 days: a little more energy in the training block, soreness the day after lifting. Deterministic. */
+export function generateCheckIns(ds: DemoDataset): Array<{ at: string; energy: number; mood: number; stress: number; soreness: number; fatigue: number; focus: number; pain: number; perceivedSleepQuality: number; subjectiveRecovery: number; illnessSymptoms: string[]; note: string | null }> {
+  const end = ds.options.endDate;
+  const tz = ds.options.timeZone;
+  const liftDays = new Set(generateTrainingSets(ds).map((s) => s.localDate));
+  const days = Math.min(28, ds.options.days);
+  const out: ReturnType<typeof generateCheckIns> = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const date = addDays(end, -i);
+    const inBlock = i < 21;
+    const afterLift = liftDays.has(addDays(date, -1));
+    const wobble = (i % 3) - 1;
+    const at = dayStartMs(date, tz) + 7.5 * 3_600_000;
+    out.push({
+      at: `${date}T07:30:00${formatOffset(offsetMinutes(at, tz))}`,
+      energy: clamp10(6 + (inBlock ? 1 : 0) + wobble),
+      mood: clamp10(7 + wobble),
+      stress: clamp10(4 - wobble),
+      soreness: clamp10(afterLift ? 5 : 3),
+      fatigue: clamp10(4 + (afterLift ? 1 : 0)),
+      focus: clamp10(7 + wobble),
+      pain: 0,
+      perceivedSleepQuality: clamp10(7 + wobble),
+      subjectiveRecovery: clamp10(6 + (inBlock ? 1 : 0) - (afterLift ? 1 : 0)),
+      illnessSymptoms: [],
+      note: i === 0 ? 'Synthetic demo check-in.' : null,
+    });
+  }
+  return out;
+}

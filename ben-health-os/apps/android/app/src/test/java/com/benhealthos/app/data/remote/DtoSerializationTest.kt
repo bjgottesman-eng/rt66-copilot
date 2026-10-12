@@ -69,4 +69,18 @@ class DtoSerializationTest {
         assertEquals(1, rec.evidence.size)
         assertEquals(null, rec.outcome)
     }
+
+    @Test
+    fun experimentAndTrainingDtosDecodeContractShapes() {
+        val exp = json.decodeFromString(ExperimentDto.serializer(), """{"id":"e1","title":"Walk","design":"BEFORE_AFTER","status":"ANALYSIS","decision":null,"phases":[{"id":"p1","phase":"BASELINE","sequence":1,"startDate":"2026-09-01","endDate":"2026-09-14","adherence":[],"notes":null}],
+          "evaluation":{"algorithm":"experiment_evaluation","version":1,"verdict":"RETEST","confidence":"LOW","changeClass":"DIRECTIONAL","delta":-2.1,"preliminary":false,"complete":true,"unit":"bpm","phases":[],"reasons":["r"],"limitations":["l"],"summary":"s","evaluatedAt":"2026-10-12T00:00:00Z","unknown":1},"daily":[]}""")
+        assertEquals("RETEST", exp.evaluation?.verdict)
+        assertEquals(1, exp.phases.size)
+        val training = json.decodeFromString(TrainingOverviewDto.serializer(), """{"from":"2026-08-18","to":"2026-10-12","summary":{"algorithm":"training_summary","version":1,"weeks":[{"weekStart":"2026-10-06","weekEnd":"2026-10-12","sessions":2,"loggedSets":9,"volumeKg":4500,"minutes":90}],"sessionsPerWeek":2.5,"weeksWithoutSession":0,"progression":[{"exercise":"Back squat","sessions":[],"bestEstimatedOneRepMaxKg":137.1,"status":"PROGRESSING","note":"n"}],"notes":[]},"sessions":[],"recentSets":[],"zone2":{"minutes7d":null,"note":"x"},"recovery":{},"notes":[]}""")
+        assertEquals(null, training.zone2.minutes7d)
+        assertEquals("PROGRESSING", training.summary.progression[0].status)
+        val checkIn = json.decodeFromString(CheckInsDto.serializer(), """{"checkIns":[{"id":"c","at":"2026-10-12T07:30:00Z","localDate":"2026-10-12","energy":7}],"summary":{"algorithm":"checkin_summary","version":1,"asOfDate":"2026-10-12","daysLogged7d":1,"dimensions":[],"notes":[]},"notes":[]}""")
+        assertEquals(7, checkIn.checkIns[0].energy)
+        assertEquals(null, checkIn.checkIns[0].mood)
+    }
 }

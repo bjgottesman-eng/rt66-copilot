@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { HealthConnectIngestBatchSchema } from '@bho/contracts';
 import { parseCronometerCsv, parseLabCsv, rowsToMeals } from '@bho/analytics';
-import { generateCronometerCsv, generateDemoDataset, generateLabCsv } from '../src/generate.js';
+import { generateCronometerCsv, generateDemoDataset, generateLabCsv, generateCheckIns, generateTrainingSets } from '../src/generate.js';
 
 describe('synthetic demo dataset', () => {
   it('is deterministic for a seed and validates against the ingest contract', () => {
@@ -44,5 +44,21 @@ describe('synthetic demo dataset', () => {
     expect(rows.every((r) => r.analyteId !== null && r.collectedAt !== null)).toBe(true);
     expect(rows.filter((r) => r.abnormalFlag === 'H' || r.abnormalFlag === 'L').length).toBeGreaterThan(0);
     expect(new Set(rows.map((r) => r.collectedAt)).size).toBe(3);
+  });
+
+  it('derives deterministic training sets and check-ins from the same dataset', () => {
+    const ds = generateDemoDataset({ days: 60, seed: 3, endDate: '2026-10-11', timeZone: 'America/New_York' });
+    const sets = generateTrainingSets(ds);
+    const dates = [...new Set(sets.map((s) => s.localDate))];
+    expect(dates.length).toBeGreaterThan(20); // Mon/Wed/Fri over 60 days
+    expect(sets.length).toBe(dates.length * 9);
+    expect(sets.every((s) => s.reps === 5 && s.loadKg >= 60 && s.setIndex >= 1 && s.setIndex <= 3)).toBe(true);
+    expect(generateTrainingSets(ds)).toEqual(sets);
+    const squatLoads = sets.filter((s) => s.exercise === 'Back squat' && s.setIndex === 1).map((s) => s.loadKg);
+    expect(squatLoads[squatLoads.length - 1]!).toBeGreaterThan(squatLoads[0]!);
+    const checkIns = generateCheckIns(ds);
+    expect(checkIns).toHaveLength(28);
+    expect(checkIns.every((c) => c.energy >= 1 && c.energy <= 10 && c.pain === 0)).toBe(true);
+    expect(checkIns[checkIns.length - 1]!.at.startsWith('2026-10-11T07:30:00')).toBe(true);
   });
 });

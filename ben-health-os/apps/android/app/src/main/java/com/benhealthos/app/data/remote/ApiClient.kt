@@ -86,6 +86,27 @@ class ApiClient(
     suspend fun updateNotificationPrefs(prefs: NotificationPrefsDto): NotificationPrefsDto = patchRaw("/v1/notifications/prefs", json.encodeToString(NotificationPrefsDto.serializer(), prefs), NotificationPrefsDto.serializer())
     suspend fun aiStatus(): AiStatusDto = get("/v1/ai/status", AiStatusDto.serializer())
 
+    // Phase 7
+    suspend fun experiments(): ExperimentsDto = get("/v1/experiments", ExperimentsDto.serializer())
+    suspend fun experimentAction(id: String, action: String, decision: String? = null, note: String? = null): ExperimentDto {
+        val body = buildJsonObject {
+            put("action", action)
+            if (decision != null) put("decision", decision)
+            if (note != null) put("decisionNote", note)
+        }
+        return patchRaw("/v1/experiments/$id", json.encodeToString(JsonObject.serializer(), body), ExperimentDto.serializer())
+    }
+    suspend fun experimentAdherence(id: String, date: String, adhered: Boolean): ExperimentDto = postRaw("/v1/experiments/$id/adherence", json.encodeToString(JsonObject.serializer(), buildJsonObject { put("date", date); put("adhered", adhered) }), ExperimentDto.serializer())
+    suspend fun evaluateExperiment(id: String): ExperimentDto = postRaw("/v1/experiments/$id/evaluate", "{}", ExperimentDto.serializer())
+    suspend fun training(days: Int = 56): TrainingOverviewDto = get("/v1/training?days=$days", TrainingOverviewDto.serializer())
+    suspend fun addTrainingSet(localDate: String, exercise: String, setIndex: Int, reps: Int, loadKg: Double, rpe: Double?): JsonObject {
+        val set = buildJsonObject { put("localDate", localDate); put("exercise", exercise); put("setIndex", setIndex); put("reps", reps); put("loadKg", loadKg); if (rpe != null) put("rpe", rpe) }
+        val body = buildJsonObject { put("sets", kotlinx.serialization.json.JsonArray(listOf(set))) }
+        return postRaw("/v1/training/sets", json.encodeToString(JsonObject.serializer(), body), JsonObject.serializer())
+    }
+    suspend fun checkIns(): CheckInsDto = get("/v1/checkins", CheckInsDto.serializer())
+    suspend fun addCheckIn(input: CheckInInputDto): CheckInDto = postRaw("/v1/checkins", json.encodeToString(CheckInInputDto.serializer(), input), CheckInDto.serializer())
+
     suspend fun seedDemo(days: Int): JsonObject = postRaw("/v1/demo/seed", """{"days":$days,"replace":true}""", JsonObject.serializer())
     suspend fun clearDemo() = deleteNoContent("/v1/demo")
     suspend fun deleteAllData() = postOrDelete("DELETE", "/v1/me/data", """{"confirmation":"DELETE ALL MY HEALTH DATA"}""")

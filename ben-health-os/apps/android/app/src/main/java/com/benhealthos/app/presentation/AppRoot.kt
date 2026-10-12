@@ -32,6 +32,7 @@ import com.benhealthos.app.presentation.screens.ManualBpScreen
 import com.benhealthos.app.presentation.screens.MoreScreen
 import com.benhealthos.app.presentation.screens.NotImplementedScreen
 import com.benhealthos.app.presentation.screens.OnboardingScreen
+import com.benhealthos.app.presentation.screens.ExperimentsScreen
 import com.benhealthos.app.presentation.screens.HealthCeoScreen
 import com.benhealthos.app.presentation.screens.InboxScreen
 import com.benhealthos.app.presentation.screens.LabsScreen
@@ -41,6 +42,7 @@ import com.benhealthos.app.presentation.screens.PreventiveScreen
 import com.benhealthos.app.presentation.screens.SettingsScreen
 import com.benhealthos.app.presentation.screens.SourcesScreen
 import com.benhealthos.app.presentation.screens.TodayScreen
+import com.benhealthos.app.presentation.screens.TrainingScreen
 import com.benhealthos.app.presentation.screens.TrendsScreen
 
 private data class Tab(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
@@ -97,6 +99,8 @@ private fun MainScaffold(onSignOut: () -> Unit) {
             composable("preventive") { PreventiveScreen() }
             composable("health-ceo") { HealthCeoScreen() }
             composable("inbox") { InboxScreen() }
+            composable("experiments") { ExperimentsScreen() }
+            composable("training") { TrainingScreen() }
             composable("placeholder/{name}/{phase}") { entry ->
                 NotImplementedScreen(entry.arguments?.getString("name") ?: "", entry.arguments?.getString("phase")?.toIntOrNull() ?: 0)
             }

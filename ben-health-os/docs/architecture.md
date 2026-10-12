@@ -43,8 +43,8 @@ services/integrations (Oura/Withings OAuth + webhooks, Phase 2) → same persist
   components call `/api/proxy/v1/*`, a same-origin forwarder, so the token never reaches JS.
 - Screens: Today (five domains), Trends (daily + raw with duplicates hollow), Blood pressure,
   Data Sources, Settings, Nutrition (Phase 4), Labs / Medications / Preventive / Physician brief
-  (Phase 5), Health CEO reports and Inbox (recommendations, alerts, memory; Phase 6); Training /
-  Experiments are explicit NOT IMPLEMENTED pages until Phase 7.
+  (Phase 5), Health CEO reports and Inbox (recommendations, alerts, memory; Phase 6), Experiments and Training
+  with check-ins (Phase 7).
 - No health math in the browser; the dashboard renders exactly what the API computed.
 
 ### API service (`services/api`)

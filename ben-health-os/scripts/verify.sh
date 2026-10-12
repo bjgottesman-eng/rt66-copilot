@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 export DATABASE_URL="${DATABASE_URL:-postgres://bho:bho@127.0.0.1:5432/ben_health_os}"
 echo "== workspace install"; pnpm install --frozen-lockfile=false >/dev/null
-echo "== packages build + tests"; pnpm run build:packages && pnpm -r --filter './packages/**' --filter './services/analytics' --filter './services/integrations' --filter './fixtures' run test
+echo "== packages build + tests"; pnpm run build:packages && pnpm -r --filter './packages/**' --filter './services/analytics' --filter './services/integrations' --filter './services/ai' --filter './fixtures' run test
 echo "== migrations (local)"; node scripts/db-migrate.mjs
 echo "== api tests"; pnpm --filter @bho/api test
 echo "== web"; pnpm --filter @bho/web typecheck && pnpm --filter @bho/web test && pnpm --filter @bho/web build

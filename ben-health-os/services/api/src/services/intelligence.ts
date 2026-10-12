@@ -22,6 +22,7 @@ import { medicationsOverviewTx } from './medications.js';
 import { nutritionDays } from './nutrition.js';
 import { listPreventiveTx } from './preventive.js';
 import { listSources } from './sources.js';
+import { evaluateRunningExperiments, experimentsForReport } from './experiments.js';
 
 const iso = (d: Date | string | null | undefined) => (d ? new Date(d).toISOString() : null);
 const fmt = (v: number | null | undefined, digits = 1) => (v == null ? '—' : v.toLocaleString('en-US', { maximumFractionDigits: digits }));
@@ -380,7 +381,8 @@ export async function generateMonthlyReport(pool: pg.Pool, cfg: AppConfig, userI
   const report = await withUser(pool, userId, async (tx) => {
     await evaluateOutcomes(tx, userId, now);
     const recs = await loadRecommendations(tx, userId);
-    const content = assembleMonthlyReport({ packet: localPacket, recommendations: recs, narrative, experiments: { completed: [], current: [] }, dataThrough: inputs.period.to });
+    const experiments = await experimentsForReport(tx, userId, inputs.period.to);
+    const content = assembleMonthlyReport({ packet: localPacket, recommendations: recs, narrative, experiments, dataThrough: inputs.period.to });
     const generator = { algorithm: 'monthly_health_board', version: 1, packetHash: localPacket.hash, providerPacketHash: providerPacket.hash, ai: { status: narrative.status, provider: narrative.provider, model: narrative.model } };
     const r = await tx.query<{ id: string; generated_at: Date }>(
       `insert into public.monthly_health_reports (user_id, period_from, period_to, generator, content, status) values ($1, $2, $3, $4, $5, 'READY')
@@ -415,7 +417,8 @@ export async function getReport(pool: pg.Pool, userId: string, kind: 'weekly' | 
 
 /** Scheduled job: weekly reports when the latest complete week has none, monthly on the first days of a month, alerts for everyone with data. */
 export async function reportsJob(pool: pg.Pool, cfg: AppConfig, now: Date = new Date(), log?: (msg: string) => void): Promise<{ users: number; weekly: number; monthly: number; failed: number }> {
-  const users = await withService(pool, (tx) => tx.query<{ user_id: string; time_zone: string }>(`select p.id as user_id, p.time_zone from public.profiles p where exists (select 1 from public.observations o where o.user_id = p.id and o.deleted_at is null)`));
+  // Reports need observations; experiments and alerts are evaluated for anyone who has them.
+  const users = await withService(pool, (tx) => tx.query<{ user_id: string; time_zone: string; has_observations: boolean }>(`select p.id as user_id, p.time_zone, exists (select 1 from public.observations o where o.user_id = p.id and o.deleted_at is null) as has_observations from public.profiles p where exists (select 1 from public.observations o where o.user_id = p.id and o.deleted_at is null) or exists (select 1 from public.health_experiments e where e.user_id = p.id and e.status not in ('COMPLETED','ABANDONED','DRAFT'))`));
   let weekly = 0;
   let monthly = 0;
   let failed = 0;
@@ -424,11 +427,11 @@ export async function reportsJob(pool: pg.Pool, cfg: AppConfig, now: Date = new 
       const asOf = addDays(localDateOf(now.toISOString(), null, u.time_zone), -1);
       const latest = await withUser(pool, u.user_id, (tx) => tx.query<{ d: Date | null }>('select max(period_to) as d from public.weekly_health_reports where user_id = $1', [u.user_id]));
       const last = latest.rows[0]?.d ? new Date(latest.rows[0].d).toISOString().slice(0, 10) : null;
-      if (!last || Date.parse(asOf) - Date.parse(last) >= 7 * 86_400_000) {
+      if (u.has_observations && (!last || Date.parse(asOf) - Date.parse(last) >= 7 * 86_400_000)) {
         await generateWeeklyReport(pool, cfg, u.user_id, {}, now, log);
         weekly++;
       }
-      if (asOf.endsWith('-01') || asOf.endsWith('-02')) {
+      if (u.has_observations && (asOf.endsWith('-01') || asOf.endsWith('-02'))) {
         const lm = await withUser(pool, u.user_id, (tx) => tx.query<{ d: Date | null }>('select max(period_to) as d from public.monthly_health_reports where user_id = $1', [u.user_id]));
         const lastM = lm.rows[0]?.d ? new Date(lm.rows[0].d).toISOString().slice(0, 10) : null;
         if (!lastM || Date.parse(asOf) - Date.parse(lastM) >= 28 * 86_400_000) {
@@ -437,6 +440,7 @@ export async function reportsJob(pool: pg.Pool, cfg: AppConfig, now: Date = new 
         }
       }
       await refreshAlerts(pool, cfg, u.user_id, now);
+      await evaluateRunningExperiments(pool, u.user_id, now);
     } catch (e) {
       failed++;
       log?.(`reports job failed for a user: ${(e as Error).message}`);

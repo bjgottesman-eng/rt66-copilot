@@ -15,3 +15,6 @@ export * from './csv.js';
 export * from './nutrition.js';
 export * from './glucose.js';
 export * from './labs.js';
+export * from './experiments.js';
+export * from './training.js';
+export * from './checkins.js';

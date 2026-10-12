@@ -16,8 +16,8 @@ export function Chip({ tone = 'neutral', children, title }: { tone?: Tone; child
   );
 }
 
-export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <section className={clsx('rounded-2xl border border-line bg-surface p-5', className)}>{children}</section>;
+export function Card({ children, className, ...rest }: { children: React.ReactNode; className?: string } & React.HTMLAttributes<HTMLElement>) {
+  return <section className={clsx('rounded-2xl border border-line bg-surface p-5', className)} {...rest}>{children}</section>;
 }
 
 export function PageHeader({ title, subtitle, children }: { title: string; subtitle?: string; children?: React.ReactNode }) {

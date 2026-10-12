@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.benhealthos.app.presentation.components.SectionCard
 import com.benhealthos.app.presentation.components.StatusChip
 
-private val PLANNED = listOf(Triple("Training", 7, "Strength module, progression, Zone 2 minutes."), Triple("Experiments", 7, "N-of-1 experiment engine."))
+private val PLANNED = emptyList<Triple<String, Int, String>>()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +29,8 @@ fun MoreScreen(onNavigate: (String) -> Unit) {
             listOf(
                 Triple("health-ceo", "Health CEO", "Weekly Health CEO and monthly Health Board reports: 7 days vs the preceding 28, three priorities, labelled claims."),
                 Triple("inbox", "Inbox", "Recommendations with evidence, alerts, and the health memory."),
+                Triple("experiments", "Experiments", "N-of-1 experiments: baseline vs intervention with honest verdicts; log adherence and decisions."),
+                Triple("training", "Training & check-ins", "Resistance sessions, logged sets and progression; daily how-do-I-feel check-ins."),
                 Triple("labs", "Labs", "Confirmed laboratory results with the lab’s ranges and flags; imports are reviewed on the web dashboard."),
                 Triple("medications", "Medications & allergies", "Medication list with statuses, supplements, allergies, records waiting for reconciliation."),
                 Triple("preventive", "Preventive care", "Items with guideline sources; due / due soon / completed from your own intervals."),

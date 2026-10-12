@@ -60,7 +60,11 @@ and marks the old one SUPERSEDED.
   `medication_source_records`, `medication_reconciliations`, `supplements`, `symptoms`,
   `journal_entries`, `health_goals`, `health_experiments`, `experiment_phases`,
   `recommendations`, `recommendation_evidence`, `alerts`, `preventive_care_items`,
-  `weekly_health_reports`, `monthly_health_reports`, `physician_briefs`, `health_memories`.
+  `weekly_health_reports`, `monthly_health_reports`, `physician_briefs`, `health_memories`,
+  `training_sets` (Phase 7: logged set/rep/load per exercise, unique per user/day/exercise/set, optional
+  link to the deduplicated `workouts` row). `health_experiments` carries planned phase lengths, the
+  start date, the stored `evaluation` snapshot (`experiment_evaluation/v1`) and the decision;
+  `experiment_phases.adherence` holds per-day adherence entries; `symptoms` rows are the check-ins.
 - Operational: `webhook_events` (replay-safe by (connector, dedupe_key)), `oauth_states`,
   `audit_log` (append-only, service-written), `schema_migrations`.
 

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { generateCronometerCsv, generateDemoDataset, generateLabCsv } from '@bho/fixtures';
+import { generateCheckIns, generateCronometerCsv, generateDemoDataset, generateLabCsv, generateTrainingSets } from '@bho/fixtures';
 import type { AppContext } from '../app.js';
 import { ensureProfile, requireUser } from '../auth/plugin.js';
 import { withUser } from '../db/pool.js';
@@ -14,6 +14,8 @@ import { createAllergy, createMedication, createSupplement } from '../services/m
 import { createCondition } from '../services/clinicalRecords.js';
 import { createPreventive } from '../services/preventive.js';
 import { generateWeeklyReport, refreshAlerts } from '../services/intelligence.js';
+import { createExperiment, evaluateExperimentNow, recordAdherence } from '../services/experiments.js';
+import { addTrainingSets, createCheckIn } from '../services/training.js';
 import { localDateOf, addDays } from '@bho/analytics';
 
 const SeedBody = z.object({
@@ -71,10 +73,24 @@ export async function demoRoutes(app: FastifyInstance, ctx: AppContext): Promise
     await createPreventive(ctx.pool, user.userId, { title: 'Colorectal cancer screening', category: 'CANCER_SCREENING', guidelineSource: 'USPSTF — verify eligibility with your clinician', status: 'DISCUSS_WITH_CLINICIAN' });
     await withUser(ctx.pool, user.userId, (tx) => tx.query('update public.profiles set demo_mode = true, birth_date = coalesce(birth_date, $2::date) where id = $1', [user.userId, '1986-06-15']));
     const derived = await deriveForUser(ctx.pool, user.userId);
+    // Phase 7: logged sets for every synthetic strength session, four weeks of morning check-ins, and one finished N-of-1 experiment
+    // aligned with the dataset's Zone 2 training block (last 21 days) against the 28 days before it; verdict computed, decision left to the user.
+    const trainingSets = await addTrainingSets(ctx.pool, user.userId, generateTrainingSets(ds));
+    let checkIns = 0;
+    for (const c of generateCheckIns(ds)) {
+      await createCheckIn(ctx.pool, user.userId, c);
+      checkIns++;
+    }
+    const experiment = await createExperiment(ctx.pool, user.userId, { title: 'Add a Saturday Zone 2 session', researchQuestion: 'Does a third weekly Zone 2 session lower my resting heart rate within three weeks?', hypothesis: 'Resting heart rate falls by at least 2 bpm versus the four weeks before.', intervention: 'One extra 50-minute Zone 2 run every Saturday (synthetic demo)', primaryOutcomeMetric: 'resting_heart_rate', secondaryOutcomeMetrics: ['hrv_rmssd', 'zone2_minutes'], adherenceMeasure: 'Saturday run recorded', confounders: ['sleep debt', 'travel'], exclusionCriteria: ['illness days'], design: 'BEFORE_AFTER', plannedBaselineDays: 28, plannedInterventionDays: 21, plannedBlocks: 1, plannedWashoutDays: 0, startDate: addDays(endDate, -48) });
+    for (let i = 0; i < 21; i++) {
+      const date = addDays(endDate, -20 + i);
+      if (new Date(`${date}T12:00:00Z`).getUTCDay() === 6) await recordAdherence(ctx.pool, user.userId, experiment.id, { date, adhered: true, note: 'Saturday run' });
+    }
+    const evaluatedExperiment = await evaluateExperimentNow(ctx.pool, user.userId, experiment.id);
     // Phase 6: the first Weekly Health CEO report (rules engine; AI narrative only if sharing is on and a provider is configured) and the alert inbox
     const report = await generateWeeklyReport(ctx.pool, ctx.config, user.userId, { force: true }, new Date(), (m) => request.log.warn(m));
     await refreshAlerts(ctx.pool, ctx.config, user.userId);
-    return { seeded: true, weeklyReport: { id: report.id, periodTo: report.periodTo, priorities: report.content.priorities.length, ai: (report.generator as { ai?: { status?: string } }).ai?.status ?? 'DISABLED' }, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, cronometerCsv: { meals: csv.meals, days: csv.days, inserted: csv.ingest?.inserted ?? 0, healthConnectDuplicatesLinked: csv.healthConnectDuplicatesLinked }, labs: { staged: labs.staged, confirmed: confirmedLabs?.confirmed ?? 0, pendingReview: labs.staged - (confirmedLabs?.confirmed ?? 0) }, derived };
+    return { seeded: true, training: { sets: trainingSets.length, checkIns }, experiment: { id: experiment.id, verdict: evaluatedExperiment?.evaluation?.verdict ?? null, status: evaluatedExperiment?.status ?? null }, weeklyReport: { id: report.id, periodTo: report.periodTo, priorities: report.content.priorities.length, ai: (report.generator as { ai?: { status?: string } }).ai?.status ?? 'DISABLED' }, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, cronometerCsv: { meals: csv.meals, days: csv.days, inserted: csv.ingest?.inserted ?? 0, healthConnectDuplicatesLinked: csv.healthConnectDuplicatesLinked }, labs: { staged: labs.staged, confirmed: confirmedLabs?.confirmed ?? 0, pendingReview: labs.staged - (confirmedLabs?.confirmed ?? 0) }, derived };
   });
 
   app.delete('/v1/demo', async (request, reply) => {
