@@ -4,13 +4,13 @@ Private, connected personal health intelligence. One longitudinal record across 
 (Samsung Health, Withings, Stelo, Cronometer…), Withings, labs and clinical records, with honest
 freshness, provenance and deduplication — and no invented numbers.
 
-**Status (2026-10-12): Phases 0–2 implemented and tested with synthetic/mock data.** See
+**Status (2026-10-12): Phases 0–3 implemented and tested with synthetic/mock data.** See
 `docs/testing.md` for what has been verified and how, and `docs/roadmap.md` for phases.
 
 | Component | What works today | Status |
 |---|---|---|
 | Backend API (`services/api`) | Local/Supabase JWT auth, Health Connect ingest with provenance + dedup, Today dashboard, metric series, Data Sources status, manual BP, export-all, delete-all, demo seed | TESTED WITH MOCK DATA (11 integration tests on Postgres 16) |
-| Analytics (`services/analytics`) | Time zones/DST, units, stats, 7-day vs preceding 28-day baselines, freshness, dedup, BP sessions, domain status | TESTED WITH MOCK DATA (40 unit tests) |
+| Analytics (`services/analytics` + derive job) | Time zones/DST, units, stats, 7-day vs preceding 28-day baselines, freshness, dedup, BP sessions, domain status; Phase 3: versioned 7/28/90/365-day windows, signal engine, Zone 2 minutes, 365-day percentiles, domain dashboards | TESTED WITH MOCK DATA (44 unit + 2 API tests) |
 | Web dashboard (`apps/web`) | Login, Today (5 domains), Trends, Blood pressure, Data Sources, Settings, honest placeholders | TESTED WITH MOCK DATA (build + Playwright smoke) |
 | Android app (`apps/android`) | Onboarding, Health Connect availability/permissions, backfill + change-token sync, offline queue, Today/Trends/Sources/BP/Settings, biometric lock, Keystore-encrypted session | IMPLEMENTED; unit tests pass; **not yet run on a physical device** |
 | Oura + Withings connectors (`services/integrations`, API routes) | OAuth (PKCE), encrypted token storage with rotation, history import, incremental reconcile, HMAC-verified replay-safe webhooks, BP dashboard on web + Android | TESTED WITH MOCK DATA (13 connector + 8 API flow tests); live = BLOCKED BY CREDENTIALS |

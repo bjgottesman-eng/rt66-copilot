@@ -43,6 +43,8 @@ export async function authRoutes(app: FastifyInstance, ctx: AppContext): Promise
       demoMode: profile.demo_mode,
       authMode: ctx.config.AUTH_MODE,
       createdAt: profile.created_at ? new Date(profile.created_at).toISOString() : null,
+      birthDate: profile.birth_date ? new Date(profile.birth_date).toISOString().slice(0, 10) : null,
+      maxHeartRate: profile.max_heart_rate ?? null,
     };
     return res;
   });
@@ -57,6 +59,8 @@ export async function authRoutes(app: FastifyInstance, ctx: AppContext): Promise
     await withUser(ctx.pool, user.userId, async (tx) => {
       if (body.data.displayName) await tx.query('update public.profiles set display_name = $2 where id = $1', [user.userId, body.data.displayName]);
       if (body.data.timeZone) await tx.query('update public.profiles set time_zone = $2 where id = $1', [user.userId, body.data.timeZone]);
+      if (body.data.birthDate !== undefined) await tx.query('update public.profiles set birth_date = $2 where id = $1', [user.userId, body.data.birthDate]);
+      if (body.data.maxHeartRate !== undefined) await tx.query('update public.profiles set max_heart_rate = $2 where id = $1', [user.userId, body.data.maxHeartRate]);
       if (body.data.aiSharing) {
         await tx.query(`update public.profiles set ai_sharing = ai_sharing || $2::jsonb where id = $1`, [user.userId, JSON.stringify(body.data.aiSharing)]);
       }

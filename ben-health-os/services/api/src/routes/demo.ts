@@ -7,6 +7,7 @@ import { withUser } from '../db/pool.js';
 import { deleteAllData } from '../services/account.js';
 import { createManualBloodPressure } from '../services/bp.js';
 import { ingestHealthConnectBatch } from '../services/ingest.js';
+import { deriveForUser } from '../services/derived.js';
 import { localDateOf, addDays } from '@bho/analytics';
 
 const SeedBody = z.object({
@@ -46,8 +47,9 @@ export async function demoRoutes(app: FastifyInstance, ctx: AppContext): Promise
       totals.rejected += r.rejected.length;
     }
     for (const m of ds.manualBloodPressure) await createManualBloodPressure(ctx.pool, user.userId, m);
-    await withUser(ctx.pool, user.userId, (tx) => tx.query('update public.profiles set demo_mode = true where id = $1', [user.userId]));
-    return { seeded: true, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length };
+    await withUser(ctx.pool, user.userId, (tx) => tx.query('update public.profiles set demo_mode = true, birth_date = coalesce(birth_date, $2::date) where id = $1', [user.userId, '1986-06-15']));
+    const derived = await deriveForUser(ctx.pool, user.userId);
+    return { seeded: true, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, derived };
   });
 
   app.delete('/v1/demo', async (request, reply) => {

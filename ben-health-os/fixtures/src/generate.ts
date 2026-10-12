@@ -113,7 +113,10 @@ export function generateDemoDataset(opts: DemoOptions = {}): DemoDataset {
       const end = start + durationMin * 60_000 + (ill ? 30 : 15) * 60_000; // time in bed slightly longer
       const stages: Array<{ startTime: string; endTime: string; stage: number }> = [];
       let cursor = start;
-      const pattern = [1, 4, 5, 4, 6, 4, 5, 6, 4, 1]; // AWAKE, LIGHT, DEEP, LIGHT, REM...
+      // 24 segments (~20 min each): light/deep/REM cycles with 1–4 awake segments so efficiency varies night to night.
+      const pattern = [1, 4, 5, 5, 4, 6, 4, 5, 4, 6, 4, 4, 5, 4, 6, 6, 4, 4, 6, 4, 4, 6, 4, 1];
+      const awakeExtra = rng.int(0, 3) + (ill ? 2 : 0);
+      for (let k = 0; k < awakeExtra; k++) pattern[rng.int(2, pattern.length - 3)] = 1;
       const seg = (end - start) / pattern.length;
       for (const st of pattern) {
         stages.push({ startTime: iso(cursor), endTime: iso(cursor + seg), stage: st });

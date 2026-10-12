@@ -9,3 +9,5 @@ export * from './plausibility.js';
 export * from './bp.js';
 export * from './domains.js';
 export * from './exercise.js';
+export * from './signals.js';
+export * from './zones.js';

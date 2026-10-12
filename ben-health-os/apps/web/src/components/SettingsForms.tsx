@@ -8,6 +8,8 @@ export function SettingsForms({ me, aiSharing }: { me: MeResponse; aiSharing: { 
   const router = useRouter();
   const [displayName, setDisplayName] = useState(me.displayName);
   const [timeZone, setTimeZone] = useState(me.timeZone);
+  const [birthDate, setBirthDate] = useState(me.birthDate ?? '');
+  const [maxHr, setMaxHr] = useState(me.maxHeartRate ? String(me.maxHeartRate) : '');
   const [ai, setAi] = useState(aiSharing);
   const [confirm, setConfirm] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
@@ -15,7 +17,7 @@ export function SettingsForms({ me, aiSharing }: { me: MeResponse; aiSharing: { 
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
-    const res = await fetch('/api/proxy/v1/me', { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ displayName, timeZone, aiSharing: ai }) });
+    const res = await fetch('/api/proxy/v1/me', { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ displayName, timeZone, aiSharing: ai, birthDate: birthDate || null, maxHeartRate: maxHr ? Number(maxHr) : null }) });
     setMsg(res.ok ? 'Saved.' : (await res.json()).message ?? 'failed');
     router.refresh();
   }
@@ -33,6 +35,11 @@ export function SettingsForms({ me, aiSharing }: { me: MeResponse; aiSharing: { 
         <form onSubmit={saveProfile} className="mt-3 space-y-3">
           <label className="block text-xs text-muted">Display name<input className={input} value={displayName} onChange={(e) => setDisplayName(e.target.value)} /></label>
           <label className="block text-xs text-muted">Time zone (IANA)<input className={input} value={timeZone} onChange={(e) => setTimeZone(e.target.value)} /></label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block text-xs text-muted">Birth date (for max-HR estimate)<input className={input} type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} /></label>
+            <label className="block text-xs text-muted">Measured max heart rate (bpm)<input className={input} type="number" min={100} max={230} value={maxHr} onChange={(e) => setMaxHr(e.target.value)} /></label>
+          </div>
+          <p className="text-[11px] text-muted">Zone 2 minutes use your measured max heart rate when set, otherwise the Tanaka estimate (208 − 0.7 × age). Without either, Zone 2 is reported as insufficient data rather than guessed.</p>
           <fieldset className="rounded-lg border border-line p-3 text-xs">
             <legend className="px-1 text-muted">AI data sharing</legend>
             <label className="flex items-center gap-2"><input type="checkbox" checked={ai.enabled} onChange={(e) => setAi({ ...ai, enabled: e.target.checked })} /> Allow structured analysis packets to be sent to the configured AI provider (Phase 6).</label>

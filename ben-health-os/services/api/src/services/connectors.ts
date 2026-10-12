@@ -8,6 +8,7 @@ import { withService, withUser, type Tx } from '../db/pool.js';
 import { TokenCipher } from './crypto.js';
 import { audit } from './audit.js';
 import { ingestConnectorRecords } from './ingest.js';
+import { deriveForUser } from './derived.js';
 
 export type OAuthConnector = 'oura' | 'withings';
 export const OAUTH_CONNECTORS: OAuthConnector[] = ['oura', 'withings'];
@@ -179,6 +180,7 @@ export async function completeOAuth(pool: pg.Pool, rt: ConnectorRuntime, connect
     await withUser(pool, userId, (tx) => tx.query(`update public.source_connections set last_error = $3, last_sync_status = 'ERROR' where user_id = $1 and connector = $2`, [userId, connector, importError!.slice(0, 300)]));
   }
   const webhook = await ensureWebhooks(pool, rt, userId, connector).catch((e: Error) => `webhook setup failed: ${e.message}`);
+  if (importResult) await deriveForUser(pool, userId).catch(() => undefined);
   return { userId, connector, client: st.client === 'android' ? 'android' : 'web', returnTo: st.return_to, importResult, importError, webhook };
 }
 

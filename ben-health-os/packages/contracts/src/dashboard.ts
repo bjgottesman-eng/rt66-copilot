@@ -125,3 +125,52 @@ export const SeriesResponseSchema = z.object({
   daily: z.array(z.object({ date: IsoDateSchema, value: z.number().nullable(), n: z.number().int() })),
 });
 export type SeriesResponse = z.infer<typeof SeriesResponseSchema>;
+
+export const SignalSchema = z.object({
+  metricId: z.string(),
+  domain: DomainSchema,
+  kind: z.enum(['MEANINGFUL_CHANGE', 'DIRECTIONAL_CHANGE', 'NEW_365D_HIGH', 'NEW_365D_LOW', 'LOW_COVERAGE', 'STALE_SOURCE', 'SYNC_ERROR', 'IMPLAUSIBLE_VALUES']),
+  direction: z.enum(['favourable', 'unfavourable', 'neutral']).nullable(),
+  priority: z.number().int(),
+  delta: z.number().nullable(),
+  deltaPct: z.number().nullable(),
+  effectSize: z.number().nullable(),
+  explanation: z.string(),
+  evidence: z.record(z.string(), z.unknown()),
+  asOfDate: IsoDateSchema,
+  algorithmVersion: z.number().int(),
+});
+export type Signal = z.infer<typeof SignalSchema>;
+
+export const TrendWindowSchema = z.object({
+  days: z.number().int(),
+  stats: WindowStatsSchema,
+  confidence: z.enum(['LOW', 'MEDIUM', 'HIGH']),
+  algorithmVersion: z.number().int(),
+  computedAt: IsoDateTimeSchema,
+});
+
+export const TrendsResponseSchema = z.object({
+  metricId: z.string(),
+  label: z.string(),
+  unit: z.string(),
+  asOfDate: IsoDateSchema,
+  windows: z.array(TrendWindowSchema),
+  comparison: BaselineComparisonSchema.nullable(),
+  /** Percentile of the current 7-day mean within the trailing 365 days of daily values. */
+  percentile365: z.number().nullable(),
+  daily: z.array(z.object({ date: IsoDateSchema, value: z.number().nullable() })),
+  signals: z.array(SignalSchema),
+  zone: z.object({ maxHeartRate: z.number().nullable(), source: z.string().nullable(), zone2: z.tuple([z.number(), z.number()]).nullable() }).optional(),
+});
+export type TrendsResponse = z.infer<typeof TrendsResponseSchema>;
+
+export const DeriveResultSchema = z.object({
+  asOfDate: IsoDateSchema,
+  metricsComputed: z.number().int(),
+  windowsWritten: z.number().int(),
+  signals: z.number().int(),
+  zone2Workouts: z.number().int(),
+  durationMs: z.number(),
+});
+export type DeriveResult = z.infer<typeof DeriveResultSchema>;

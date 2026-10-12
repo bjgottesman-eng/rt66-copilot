@@ -80,7 +80,7 @@ data class SyncReportDto(
 @Serializable data class DevLoginResponseDto(val accessToken: String, val expiresAt: String, val userId: String)
 
 @Serializable
-data class MeDto(val userId: String, val email: String? = null, val displayName: String, val timeZone: String, val demoMode: Boolean, val authMode: String)
+data class MeDto(val userId: String, val email: String? = null, val displayName: String, val timeZone: String, val demoMode: Boolean, val authMode: String, val birthDate: String? = null, val maxHeartRate: Int? = null)
 
 @Serializable data class SparkDto(val date: String, val value: Double? = null)
 @Serializable data class FreshnessDto(val status: String, val reason: String, val measuredAt: String? = null, val sourceUpdatedAt: String? = null, val ingestedAt: String? = null, val expectedLatencyHours: Double, val ageHours: Double? = null)
@@ -167,3 +167,9 @@ data class BpSummaryDto(
     val targets: BpTargetsDto,
     val notes: List<String> = emptyList(),
 )
+
+@Serializable data class TrendWindowDto(val days: Int, val stats: WindowDto, val confidence: String, val algorithmVersion: Int, val computedAt: String)
+@Serializable data class SignalDto(val metricId: String, val domain: String, val kind: String, val direction: String? = null, val priority: Int, val delta: Double? = null, val deltaPct: Double? = null, val effectSize: Double? = null, val explanation: String, val asOfDate: String, val algorithmVersion: Int)
+@Serializable data class ZoneInfoDto(val maxHeartRate: Int? = null, val source: String? = null, val zone2: List<Int>? = null)
+@Serializable data class TrendsDto(val metricId: String, val label: String, val unit: String, val asOfDate: String, val windows: List<TrendWindowDto> = emptyList(), val comparison: ComparisonDto? = null, val percentile365: Double? = null, val daily: List<SparkDto> = emptyList(), val signals: List<SignalDto> = emptyList(), val zone: ZoneInfoDto? = null)
+@Serializable data class ProfileUpdateDto(val displayName: String? = null, val timeZone: String? = null, val birthDate: String? = null, val maxHeartRate: Int? = null)

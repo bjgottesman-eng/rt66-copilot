@@ -21,7 +21,7 @@
 | `WITHINGS_CLIENT_ID`, `WITHINGS_CLIENT_SECRET` | Phase 2 | from https://developer.withings.com/dashboard/; redirect URI `<PUBLIC_BASE_URL>/v1/oauth/withings/callback`; notification callback `<PUBLIC_BASE_URL>/v1/webhooks/withings` must be public HTTPS. |
 | `WITHINGS_HISTORY_DAYS` | optional | initial import depth (default 730). |
 | `WITHINGS_API_BASE`, `WITHINGS_ACCOUNT_BASE` | tests | override endpoints (mock servers). |
-| `JOB_SECRET` | Phase 2 | shared secret for `POST /internal/jobs/reconcile` (header `x-job-secret`); schedule hourly via pg_cron + pg_net or a container cron. |
+| `JOB_SECRET` | Phase 2/3 | shared secret for `POST /internal/jobs/reconcile` (hourly) and `POST /internal/jobs/derive` (nightly) via header `x-job-secret`; schedule with pg_cron + pg_net or a container cron. |
 | `PORT`, `HOST`, `LOG_LEVEL`, `NODE_ENV` | optional | defaults 8787 / 0.0.0.0 / info / development. |
 
 ## Web (`apps/web`)

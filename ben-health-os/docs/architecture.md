@@ -72,6 +72,17 @@ zone second, DST-safe), unit normalization (errors on incompatible units), stati
 stats and baseline classification, freshness, payload hashing and dedup matching, source
 priority, plausibility flags, blood-pressure sessions and morning/evening split, domain status.
 
+### Derived metrics and signals (Phase 3, `services/api/src/services/derived.ts`)
+`POST /v1/analytics/derive` (per user) and `POST /internal/jobs/derive` (all users, `JOB_SECRET`)
+persist, for the latest complete local day: window statistics for 7/28/90/365 days
+(`derived_metrics`, algorithm `window_stats` v1), the 7-vs-28-day baseline comparison
+(`baseline_7_vs_28` v1), deterministic signals (`signals`, `signal_engine` v1) and Zone 2 minutes
+per workout (`zone2_minutes` observations with `DERIVED:` quality flags, from heart-rate samples and
+the profile max HR or Tanaka estimate). Rows are keyed by algorithm version so a new version never
+overwrites history. `GET /v1/analytics/trends/:metric` returns the windows, confidence, 365-day
+percentile, series and signals; `GET /v1/analytics/signals` returns the latest persisted signals.
+The demo seed and connector imports trigger a derive run; schedule the job nightly in production.
+
 ## Freshness (ADR 0005)
 Every metric card carries measured-at, source-updated-at, ingested-at, expected latency and a
 status with a reason: CURRENT, RECENT, SOURCE_DELAYED, STALE, SYNC_ERROR, NOT_CONNECTED,

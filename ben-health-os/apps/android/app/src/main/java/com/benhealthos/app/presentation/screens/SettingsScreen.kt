@@ -53,6 +53,9 @@ fun SettingsScreen(onSignOut: () -> Unit) {
     val scope = rememberCoroutineScope()
     val biometric by container.settings.biometricLock.collectAsState(initial = true)
     var apiUrl by remember { mutableStateOf(container.settings.apiBaseUrlBlocking()) }
+    var birthDate by remember { mutableStateOf("") }
+    var maxHr by remember { mutableStateOf("") }
+    androidx.compose.runtime.LaunchedEffect(Unit) { runCatching { container.api.me() }.getOrNull()?.let { birthDate = it.birthDate ?: ""; maxHr = it.maxHeartRate?.toString() ?: "" } }
     var message by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
@@ -66,6 +69,12 @@ fun SettingsScreen(onSignOut: () -> Unit) {
                     OutlinedButton(onClick = { scope.launch { container.settings.setApiBaseUrl(apiUrl); message = "API URL saved." } }) { Text("Save URL") }
                     TextButton(onClick = onSignOut) { Text("Sign out") }
                 }
+            }
+            SectionCard("Physiology (for heart-rate zones)") {
+                OutlinedTextField(birthDate, { birthDate = it }, label = { Text("Birth date (YYYY-MM-DD)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(maxHr, { maxHr = it.filter(Char::isDigit) }, label = { Text("Measured max heart rate (bpm)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                Text("Zone 2 uses the measured max heart rate when set, otherwise the Tanaka estimate from your age; with neither it stays insufficient data.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                OutlinedButton(onClick = { scope.launch { message = runCatching { container.api.updateProfile(com.benhealthos.app.data.remote.ProfileUpdateDto(birthDate = birthDate.ifBlank { null }, maxHeartRate = maxHr.toIntOrNull())); "Physiology saved." }.getOrElse { "Save failed: ${it.message}" } } }) { Text("Save") }
             }
             SectionCard("Security") {
                 Row(verticalAlignment = Alignment.CenterVertically) {

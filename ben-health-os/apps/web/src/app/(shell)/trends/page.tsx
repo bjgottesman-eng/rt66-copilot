@@ -1,9 +1,10 @@
-import type { SeriesResponse } from '@bho/contracts';
+import type { SeriesResponse, TrendsResponse } from '@bho/contracts';
 import { METRIC_CATALOG, DOMAIN_LABELS, metricById } from '@bho/shared-config';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 import { Card, PageHeader } from '@/components/ui';
 import { TrendChart } from '@/components/TrendChart';
+import { TrendInsights } from '@/components/TrendInsights';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,10 @@ export default async function TrendsPage({ searchParams }: { searchParams: Promi
   const days = Math.min(365, Math.max(7, Number(sp.days ?? 90) || 90));
   const to = new Date();
   const from = new Date(to.getTime() - days * 86_400_000);
-  const series = await apiFetch<SeriesResponse>(`/v1/metrics/${metricId}/series?from=${from.toISOString()}&to=${to.toISOString()}&bucket=raw`);
+  const [series, trends] = await Promise.all([
+    apiFetch<SeriesResponse>(`/v1/metrics/${metricId}/series?from=${from.toISOString()}&to=${to.toISOString()}&bucket=raw`),
+    apiFetch<TrendsResponse>(`/v1/analytics/trends/${metricId}`),
+  ]);
   const def = metricById(metricId)!;
   const groups = new Map<string, typeof METRIC_CATALOG>();
   for (const m of METRIC_CATALOG) groups.set(m.domain, [...(groups.get(m.domain) ?? []), m]);
@@ -59,6 +63,9 @@ export default async function TrendsPage({ searchParams }: { searchParams: Promi
             {series.points.length} raw observation{series.points.length === 1 ? '' : 's'} ({series.points.filter((p) => !p.canonical).length} linked duplicates shown hollow), {series.daily.filter((d) => d.value !== null).length} of {series.daily.length} days with data.
           </p>
         </Card>
+      </div>
+      <div className="mt-5">
+        <TrendInsights t={trends} precision={def.precision} />
       </div>
     </>
   );

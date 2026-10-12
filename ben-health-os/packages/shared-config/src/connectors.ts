@@ -62,7 +62,7 @@ export const CONNECTORS: ConnectorDefinition[] = [
       'steps', 'distance_m', 'heart_rate', 'resting_heart_rate', 'hrv_rmssd', 'sleep_duration',
       'blood_pressure_systolic', 'blood_pressure_diastolic', 'pulse', 'weight', 'body_fat_pct',
       'blood_glucose', 'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'sodium_mg', 'potassium_mg',
-      'exercise_minutes', 'resistance_sessions', 'respiratory_rate', 'spo2', 'vo2_max', 'active_calories', 'total_calories',
+      'exercise_minutes', 'resistance_sessions', 'zone2_minutes', 'respiratory_rate', 'spo2', 'vo2_max', 'active_calories', 'total_calories',
       'body_temperature', 'sleep_efficiency', 'glucose_variability', 'saturated_fat_g', 'hydration_l', 'height_m', 'lean_mass_kg',
     ],
     phase: 1,
@@ -77,7 +77,7 @@ export const CONNECTORS: ConnectorDefinition[] = [
     metrics: [
       'sleep_duration', 'sleep_efficiency', 'sleep_score', 'readiness_score', 'activity_score', 'resting_heart_rate', 'hrv_rmssd',
       'respiratory_rate', 'spo2', 'skin_temperature_deviation', 'steps', 'active_calories', 'exercise_minutes',
-      'stress_high_minutes', 'vo2_max',
+      'stress_high_minutes', 'vo2_max', 'heart_rate', 'zone2_minutes',
     ],
     phase: 2,
     implementationStatus: 'TESTED_WITH_MOCK_DATA',

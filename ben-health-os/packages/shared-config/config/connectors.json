@@ -36,6 +36,7 @@
         "potassium_mg",
         "exercise_minutes",
         "resistance_sessions",
+        "zone2_minutes",
         "respiratory_rate",
         "spo2",
         "vo2_max",
@@ -73,7 +74,9 @@
         "active_calories",
         "exercise_minutes",
         "stress_high_minutes",
-        "vo2_max"
+        "vo2_max",
+        "heart_rate",
+        "zone2_minutes"
       ],
       "phase": 2,
       "implementationStatus": "TESTED_WITH_MOCK_DATA",

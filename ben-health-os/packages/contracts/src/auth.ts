@@ -9,6 +9,8 @@ export const MeResponseSchema = z.object({
   demoMode: z.boolean(),
   authMode: z.enum(['supabase', 'local']),
   createdAt: IsoDateTimeSchema.nullable(),
+  birthDate: z.string().nullable().optional(),
+  maxHeartRate: z.number().int().nullable().optional(),
 });
 export type MeResponse = z.infer<typeof MeResponseSchema>;
 
@@ -27,6 +29,9 @@ export const DevLoginResponseSchema = z.object({
 export const ProfileUpdateSchema = z.object({
   displayName: z.string().min(1).max(80).optional(),
   timeZone: z.string().min(1).max(64).optional(),
+  /** YYYY-MM-DD; used only for the Tanaka max-heart-rate estimate when no measured max HR is set. */
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+  maxHeartRate: z.number().int().min(100).max(230).nullable().optional(),
   aiSharing: z
     .object({
       enabled: z.boolean().optional(),

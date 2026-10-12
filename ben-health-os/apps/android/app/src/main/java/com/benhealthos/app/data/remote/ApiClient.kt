@@ -51,6 +51,9 @@ class ApiClient(
 
     suspend fun manualBloodPressureRaw(bodyJson: String): BpReadingDto = postRaw("/v1/measurements/blood-pressure", bodyJson, BpReadingDto.serializer())
 
+    suspend fun trends(metricId: String): TrendsDto = get("/v1/analytics/trends/$metricId", TrendsDto.serializer())
+    suspend fun updateProfile(update: ProfileUpdateDto) = patchNoContent("/v1/me", json.encodeToString(ProfileUpdateDto.serializer(), update))
+
     suspend fun oauthStart(connector: String): OAuthStartDto = get("/v1/oauth/$connector/start?client=android", OAuthStartDto.serializer())
     suspend fun refreshSource(connector: String): IngestResultDto = postRaw("/v1/sources/$connector/refresh", "{}", IngestResultDto.serializer())
     suspend fun disconnectSource(connector: String) = postNoContent("/v1/sources/$connector/disconnect", "{}")
@@ -75,6 +78,12 @@ class ApiClient(
 
     private suspend fun postNoContent(path: String, bodyJson: String) = withContext(Dispatchers.IO) {
         http.newCall(request(path).post(bodyJson.toRequestBody(jsonMedia)).build()).execute().use { res ->
+            if (!res.isSuccessful) throw ApiException(res.code, errorMessage(res.body?.string()))
+        }
+    }
+
+    private suspend fun patchNoContent(path: String, bodyJson: String) = withContext(Dispatchers.IO) {
+        http.newCall(request(path).patch(bodyJson.toRequestBody(jsonMedia)).build()).execute().use { res ->
             if (!res.isSuccessful) throw ApiException(res.code, errorMessage(res.body?.string()))
         }
     }

@@ -28,8 +28,14 @@ Data Sources · Settings. Items beyond Phase 1 are honest placeholders that name
   7-day vs 28-day delta and change class, 28-day sparkline with gaps, quality flags.
 
 ## Trends
-Metric picker across all catalog metrics, 30/90/365-day windows, daily values with gaps, raw
-observations with linked duplicates drawn hollow.
+Metric picker across all catalog metrics, 30/90/365-day chart windows, daily values with gaps, raw
+observations with linked duplicates drawn hollow, plus (Phase 3) the 7/28/90/365-day statistics
+table with coverage and confidence, the 7-vs-28-day comparison, the current week's percentile within
+the trailing 365 days, heart-rate zone information and persisted signals.
+
+## Domain dashboards (`/domains/{recovery|cardio|strength_body|metabolic_nutrition|clinical_preventive}`)
+Status and evidence for the domain, its metric tiles, and per metric the four window means with
+confidence and a 90-day daily chart.
 
 ## Blood pressure
 Latest reading, 7-/30-day averages, morning/evening split, sessions with the averaging rule

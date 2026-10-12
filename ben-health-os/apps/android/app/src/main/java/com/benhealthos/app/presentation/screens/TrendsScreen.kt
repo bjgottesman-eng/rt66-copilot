@@ -48,12 +48,14 @@ class TrendsViewModel(app: Application) : AndroidViewModel(app) {
     private val container = app.appContainer
     val config = container.sharedConfig
     val series = MutableStateFlow<Cached<SeriesDto>?>(null)
+    val trends = MutableStateFlow<com.benhealthos.app.data.remote.TrendsDto?>(null)
     val error = MutableStateFlow<String?>(null)
 
     fun load(metricId: String, days: Int) {
         viewModelScope.launch {
             error.value = null
             try { series.value = container.dashboard.series(metricId, days) } catch (e: Exception) { error.value = e.message; series.value = null }
+            trends.value = runCatching { container.api.trends(metricId) }.getOrNull()
         }
     }
 }
@@ -66,6 +68,7 @@ fun TrendsScreen(initialMetric: String? = null, vm: TrendsViewModel = viewModel(
     var days by remember { mutableStateOf(90) }
     var menuOpen by remember { mutableStateOf(false) }
     val series by vm.series.collectAsState()
+    val trends by vm.trends.collectAsState()
     val error by vm.error.collectAsState()
     LaunchedEffect(metricId, days) { vm.load(metricId, days) }
     val def = vm.config.metric(metricId)
@@ -108,6 +111,20 @@ fun TrendsScreen(initialMetric: String? = null, vm: TrendsViewModel = viewModel(
                         }
                         Spacer(Modifier.height(4.dp))
                         Text("${formatValue(values.min(), s.unit, def?.precision ?: 1)} – ${formatValue(values.max(), s.unit, def?.precision ?: 1)} · ${values.size} of ${daily.size} days with data · ${s.points.count { !it.canonical }} linked duplicates excluded", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                trends?.let { t ->
+                    SectionCard("Windows ending ${t.asOfDate}") {
+                        t.windows.forEach { w ->
+                            Row(Modifier.fillMaxWidth()) {
+                                Text("${w.days}-day", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                Text(formatValue(w.stats.mean, t.unit, def?.precision ?: 1), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                Text("${w.stats.daysWithData}/${w.stats.days} days · ${w.confidence.lowercase()}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1.4f))
+                            }
+                        }
+                        t.percentile365?.let { Text("Current week at the ${it.toInt()}th percentile of your trailing 365 days", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        t.zone?.let { z -> Text(if (z.maxHeartRate != null) "Max HR ${z.maxHeartRate} (${z.source}); Zone 2 ${z.zone2?.joinToString("–")} bpm" else "Set max heart rate or birth date in Settings for Zone 2.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        t.signals.take(5).forEach { sg -> Text("• ${sg.kind.replace('_', ' ').lowercase()}: ${sg.explanation}", style = MaterialTheme.typography.bodySmall) }
                     }
                 }
                 SectionCard("Latest raw observations") {

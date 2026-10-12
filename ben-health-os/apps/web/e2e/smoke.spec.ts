@@ -18,9 +18,15 @@ test('login, load demo data, and walk the Phase 1 screens', async ({ page }) => 
   await expect(page.getByTestId('metric-resting_heart_rate')).toContainText(/current|recent/i);
   await page.screenshot({ path: '../../screenshots/web-today.png', fullPage: true });
 
-  // Trends
+  // Trends with 7/28/90/365-day windows
   await page.goto('/trends?metric=hrv_rmssd&days=90');
   await expect(page.getByTestId('trend-chart')).toBeVisible();
+  await expect(page.getByTestId('trend-windows')).toContainText('365 days');
+
+  // Domain dashboard
+  await page.goto('/domains/recovery');
+  await expect(page.getByText('Open in Trends').first()).toBeVisible();
+  await page.screenshot({ path: '../../screenshots/web-domain-recovery.png', fullPage: true });
   await page.screenshot({ path: '../../screenshots/web-trends.png', fullPage: true });
 
   // Blood pressure + manual entry

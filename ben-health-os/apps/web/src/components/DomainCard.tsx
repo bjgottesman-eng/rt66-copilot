@@ -1,5 +1,6 @@
 import type { DomainCard as DomainCardT } from '@bho/contracts';
 import { domainTone } from '@/lib/format';
+import Link from 'next/link';
 import { Card, Chip } from './ui';
 import { MetricTile } from './MetricTile';
 
@@ -8,7 +9,7 @@ export function DomainCard({ domain }: { domain: DomainCardT }) {
     <Card>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold" data-testid={`domain-${domain.domain}`}>
-          {domain.label}
+          <Link href={`/domains/${domain.domain}`} className="hover:text-accent">{domain.label} →</Link>
         </h2>
         <Chip tone={domainTone(domain.status)}>{domain.status.replace(/_/g, ' ').toLowerCase()}</Chip>
       </div>

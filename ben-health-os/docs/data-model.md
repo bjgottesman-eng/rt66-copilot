@@ -36,7 +36,11 @@ and marks the old one SUPERSEDED.
 - Operational: `webhook_events` (replay-safe by (connector, dedupe_key)), `oauth_states`,
   `audit_log` (append-only, service-written), `schema_migrations`.
 
-## Layer 3 — analytics (`derived_metrics`, `algorithm_versions`)
+## Layer 3 — analytics (`derived_metrics`, `signals`, `algorithm_versions`)
+`signals` holds the deterministic signal engine output per as-of day (kind, direction, priority,
+delta, effect size, explanation, evidence jsonb, algorithm version); unique per (user, day, metric,
+kind, version). Phase 3 persists window stats, baselines and Zone 2 minutes (see architecture.md).
+
 Each derived value stores algorithm, version, window, computed_at, coverage, observation count,
 value/unit, result jsonb, confidence, quality flags and input references. Unique per
 (user, metric, algorithm, version, window), so recomputation under a new version never overwrites

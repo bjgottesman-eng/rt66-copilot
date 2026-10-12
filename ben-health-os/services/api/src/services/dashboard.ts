@@ -1,12 +1,12 @@
 import type pg from 'pg';
 import type { DomainCard, MetricCard, SeriesResponse, TodayResponse } from '@bho/contracts';
 import { CONNECTORS, DOMAINS, DOMAIN_LABELS, HEALTH_CONNECT_ORIGINS, metricById, type Domain } from '@bho/shared-config';
-import { addDays, coefficientOfVariationPct, compareBaseline, computeFreshness, dailyAggregate, domainStatus, localDateOf, resolveDailySteps, sparkline, type ConnectionHealth, type DailyPoint } from '@bho/analytics';
+import { addDays, coefficientOfVariationPct, compareBaseline, computeFreshness, dailyAggregate, detectSignals, domainStatus, estimateMaxHeartRate, localDateOf, rankSignals, resolveDailySteps, sparkline, type ConnectionHealth, type DailyPoint } from '@bho/analytics';
 import { withUser, type Tx } from '../db/pool.js';
 
 export const DASHBOARD_METRICS: Record<Domain, string[]> = {
   recovery: ['sleep_duration', 'sleep_efficiency', 'hrv_rmssd', 'resting_heart_rate', 'respiratory_rate', 'spo2'],
-  cardio: ['blood_pressure_systolic', 'pulse', 'steps', 'exercise_minutes', 'active_calories', 'vo2_max'],
+  cardio: ['blood_pressure_systolic', 'pulse', 'steps', 'exercise_minutes', 'zone2_minutes', 'active_calories', 'vo2_max'],
   strength_body: ['weight', 'body_fat_pct', 'resistance_sessions'],
   metabolic_nutrition: ['blood_glucose', 'glucose_variability', 'calories', 'protein_g', 'fiber_g', 'saturated_fat_g', 'sodium_mg', 'potassium_mg'],
   clinical_preventive: ['lab_result'],
@@ -264,7 +264,8 @@ function domainSummary(status: DomainCard['status'], label: string, evidence: st
 export async function buildToday(pool: pg.Pool, userId: string, now: Date = new Date()): Promise<TodayResponse> {
   const nowIso = now.toISOString();
   return withUser(pool, userId, async (tx) => {
-    const prof = await tx.query<{ time_zone: string; display_name: string; demo_mode: boolean }>('select time_zone, display_name, demo_mode from public.profiles where id = $1', [userId]);
+    const prof = await tx.query<{ time_zone: string; display_name: string; demo_mode: boolean; birth_date: Date | null; max_heart_rate: number | null }>('select time_zone, display_name, demo_mode, birth_date, max_heart_rate from public.profiles where id = $1', [userId]);
+    const maxHr = estimateMaxHeartRate({ maxHeartRate: prof.rows[0]?.max_heart_rate ?? null, birthDate: prof.rows[0]?.birth_date ? new Date(prof.rows[0].birth_date).toISOString().slice(0, 10) : null });
     const timeZone = prof.rows[0]?.time_zone ?? 'UTC';
     const localToday = localDateOf(nowIso, null, timeZone);
     const asOfDate = addDays(localToday, -1); // latest COMPLETE local day
@@ -273,17 +274,18 @@ export async function buildToday(pool: pg.Pool, userId: string, now: Date = new 
     const domains: DomainCard[] = [];
     for (const domain of DOMAINS) {
       const cards: MetricCard[] = [];
-      for (const metricId of DASHBOARD_METRICS[domain]) cards.push(await buildMetricCard(tx, userId, metricId, asOfDate, nowIso, connections));
+      for (const metricId of DASHBOARD_METRICS[domain]) {
+        const card = await buildMetricCard(tx, userId, metricId, asOfDate, nowIso, connections);
+        if (metricId === 'zone2_minutes' && !maxHr && !card.latest) card.freshness = { ...card.freshness, status: 'INSUFFICIENT_DATA', reason: 'Set your maximum heart rate (or birth date for an estimate) in Settings to derive Zone 2 minutes from heart-rate samples during workouts.' };
+        cards.push(card);
+      }
       const { status, evidence } = domainStatus(cards);
       domains.push({ domain, label: DOMAIN_LABELS[domain], status, summary: domainSummary(status, DOMAIN_LABELS[domain], evidence), evidence, metrics: cards });
     }
 
     const allCards = domains.flatMap((d) => d.metrics);
-    const whatChanged = allCards
-      .filter((c) => c.comparison && (c.comparison.changeClass === 'MEANINGFUL' || c.comparison.changeClass === 'DIRECTIONAL'))
-      .sort((a, b) => (a.comparison!.changeClass === 'MEANINGFUL' ? -1 : 1) - (b.comparison!.changeClass === 'MEANINGFUL' ? -1 : 1))
-      .slice(0, 6)
-      .map((c) => `${c.label}: ${c.comparison!.explanation}`);
+    const changeSignals = rankSignals(allCards.flatMap((c) => detectSignals({ card: c, daily365: [] }).filter((s) => s.kind === 'MEANINGFUL_CHANGE' || s.kind === 'DIRECTIONAL_CHANGE')));
+    const whatChanged = changeSignals.slice(0, 6).map((s) => `${allCards.find((c) => c.metricId === s.metricId)?.label ?? s.metricId}: ${s.explanation}`);
 
     const whatMatters: string[] = [];
     for (const d of domains) if (d.status === 'ATTENTION') whatMatters.push(`${d.label} needs attention: ${d.evidence[0] ?? 'see details'}`);
