@@ -18,7 +18,7 @@ const EnvSchema = z.object({
   SUPABASE_JWKS_URL: z.string().url().optional(),
   /** base64 of 32 random bytes; encrypts OAuth tokens at rest. Required when any OAuth connector is enabled. */
   TOKEN_ENCRYPTION_KEY: z.string().optional(),
-  ALLOW_DEMO_SEED: z.coerce.boolean().default(true),
+  ALLOW_DEMO_SEED: z.enum(['true', 'false']).default('true').transform((v) => v === 'true'),
   CORS_ORIGINS: z.string().default('http://localhost:3000,http://127.0.0.1:3000'),
   PUBLIC_BASE_URL: z.string().url().default('http://localhost:8787'),
   WEB_BASE_URL: z.string().url().default('http://localhost:3000'),
@@ -50,6 +50,10 @@ const EnvSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   AI_MODEL: z.string().default('claude-sonnet-5-5'),
   /** Tests/demo only: the mock provider also emits an uncited and an unsafe finding so the validator path is visible. */
+  /** Phase 8: per-minute request limits (per user when authenticated, else per IP). 0 disables a class. */
+  RATE_LIMIT_AUTH_MAX: z.coerce.number().int().min(0).default(30),
+  RATE_LIMIT_HEAVY_MAX: z.coerce.number().int().min(0).default(20),
+  RATE_LIMIT_JOBS_MAX: z.coerce.number().int().min(0).default(6),
   AI_MOCK_INCLUDE_INVALID: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
   AI_API_BASE: z.string().url().optional(),
 });
@@ -66,8 +70,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   if (cfg.AUTH_MODE === 'supabase' && !cfg.SUPABASE_URL && !cfg.SUPABASE_JWKS_URL && !cfg.SUPABASE_JWT_SECRET) {
     throw new Error('AUTH_MODE=supabase requires SUPABASE_URL (for JWKS) or SUPABASE_JWT_SECRET');
   }
-  if (cfg.NODE_ENV === 'production' && cfg.AUTH_MODE === 'local') {
-    throw new Error('AUTH_MODE=local is not allowed in production');
+  if (cfg.NODE_ENV === 'production') {
+    // Production guards: nothing here is silently downgraded (threat model T1, T11, T16).
+    if (cfg.AUTH_MODE === 'local') throw new Error('AUTH_MODE=local is not allowed in production');
+    if (cfg.ALLOW_DEMO_SEED) throw new Error('ALLOW_DEMO_SEED must be false in production');
+    if (cfg.PUBLIC_BASE_URL && !cfg.PUBLIC_BASE_URL.startsWith('https://')) throw new Error('PUBLIC_BASE_URL must use https in production');
+    if ((cfg.OURA_CLIENT_ID || cfg.WITHINGS_CLIENT_ID || cfg.EPIC_CLIENT_ID) && !cfg.TOKEN_ENCRYPTION_KEY) throw new Error('TOKEN_ENCRYPTION_KEY is required when connectors are configured');
   }
   return { ...cfg, corsOrigins: cfg.CORS_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean) };
 }

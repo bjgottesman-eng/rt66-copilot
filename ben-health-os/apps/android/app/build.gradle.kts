@@ -42,11 +42,27 @@ android {
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
+    // Release signing comes from ~/.gradle/gradle.properties (never from the repository):
+    // BHO_KEYSTORE=/path/to/keystore.jks, BHO_KEYSTORE_PASSWORD, BHO_KEY_ALIAS, BHO_KEY_PASSWORD.
+    // Without them the release build is unsigned (fine for local verification, not for Play).
+    val keystorePath = project.findProperty("BHO_KEYSTORE") as String?
+    if (keystorePath != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystorePath)
+                storePassword = project.findProperty("BHO_KEYSTORE_PASSWORD") as String?
+                keyAlias = project.findProperty("BHO_KEY_ALIAS") as String?
+                keyPassword = project.findProperty("BHO_KEY_PASSWORD") as String?
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (keystorePath != null) signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".debug"

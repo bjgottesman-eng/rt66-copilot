@@ -10,19 +10,19 @@
 | 5 Clinical intelligence | Laboratory ingestion engine (analyte mapping by LOINC/name, explicit unit factors with refusal, lab-reported ranges/flags, raw events), Function Health PDF (text layer, no OCR) and CSV imports staged for review with corrections, manual entry, cross-source lab dedup, lab explorer with history/direction; Epic SMART-on-FHIR patient-access connector (discovery, PKCE + aud, token rotation) pulling laboratory Observations as confirmed clinician records, Conditions, MedicationRequests (reconciliation queue), AllergyIntolerances, Immunizations/Procedures/Encounters; medications, supplements, allergies, conditions, reconciliation log; preventive-care items with mandatory guideline source, computed DUE/DUE SOON, iCal export; physician brief JSON + PDF; clinical domain evidence on Today; web Labs/Medications/Preventive/Physician brief pages; Android Labs/Medications/Preventive screens | **Implemented, TESTED WITH MOCK DATA** (10 analytics + 5 FHIR client/mapper + 5 API tests, Playwright); live Epic = BLOCKED BY CREDENTIALS (fhir.epic.com app registration); drug-interaction checking NOT IMPLEMENTED (no verified source integrated) |
 | 6 AI intelligence | provider-independent analysis packets (citation ids, provenance, sharing controls applied in code, packet hash), deterministic rules engine → recommendations with evidence rows and the three-priority cap, no-repeat rules for dismissed items, descriptive outcome evaluation, weekly Health CEO and monthly Health Board reports persisted with algorithm versions, AI narrative through a provider adapter with a structured-output validator (mock provider in tests; Anthropic adapter BLOCKED BY CREDENTIALS), alerts with lock-screen-safe titles and notification preferences, health memory with origin/verification, scheduled reports job; web Health CEO + Inbox pages, Android Health CEO + Inbox screens and alert notifications with quiet hours | **Implemented, TESTED WITH MOCK DATA** (8 `@bho/ai` + 4 API tests, Playwright, 2 Android tests); live AI provider = BLOCKED BY CREDENTIALS |
 | 7 Experiments & training | N-of-1 experiment engine (`experiment_evaluation/v1`: pooled baseline vs intervention days with the trend change classifier, coverage and adherence gates, alternating-block consistency, verdicts ADOPT / REJECT / RETEST / INCONCLUSIVE / INSUFFICIENT EVIDENCE, preliminary while running, decisions written to the health memory, completion alerts from the job, results in the monthly board report), strength-training module (logged sets with Epley estimated 1RM on 1–12-rep sets, weekly sessions/volume from exercise records + sets, progression last 4 weeks vs prior 4), subjective check-ins (1–10 self-ratings as measured facts, 7-vs-28-day summary, usable as experiment outcomes); web Experiments + Training pages, Android Experiments + Training screens; demo seed adds sets, check-ins and a finished experiment | **Implemented, TESTED WITH MOCK DATA** (8 analytics + 3 API + 1 fixture tests, Playwright, Android DTO test); exploratory correlations NOT IMPLEMENTED (deferred: no causal-safe design agreed) |
-| 8 Hardening | threat model, tests, background sync testing on device, error recovery, performance, deployment docs, AGP 9 / compileSdk 37 upgrade, Play release prep | Planned |
+| 8 Hardening | threat model (`docs/threat-model.md`), rate limits, security headers, readiness probe, JSON error envelope everywhere, strict production guards, pool timeouts, secret scan, sources query performance fix, release signing config + R8 rules, deployment guide (`docs/deployment.md`), Play release checklist | **Implemented, TESTED WITH MOCK DATA** (3 API tests); background sync on the device, live-API verification and the AGP 9 / compileSdk 37 upgrade remain pending (device + credentials + toolchain) |
 
-## Immediate next milestone (Phase 8 — Production hardening)
-1. Threat model and abuse cases written down (`docs/threat-model.md`): token theft, webhook forgery,
-   RLS bypass attempts, document upload abuse, AI prompt injection through imported text.
-2. Operational hardening: request body limits and rate limits on auth, import and job endpoints,
-   structured error envelope everywhere, idempotency keys on manual entry, health/readiness probes,
-   graceful shutdown, migration safety checks.
-3. Deployment guide (Supabase project + container host + cron/pg_cron schedules for reconcile,
-   derive and reports), backup/restore of the database and `DOCUMENT_STORAGE_DIR`, environment
-   checklists; Android release build, Play Console health declaration and privacy policy text.
-4. Physical-device verification plan for Health Connect background sync (`docs/device-setup.md`)
-   and live-API verification once credentials exist.
+## Immediate next milestone (verification that needs Ben)
+Everything that can be built without credentials or the phone is built and tested with synthetic
+data. The next milestone is verification, in this order:
+1. **Physical device** (`docs/device-setup.md`): install the debug APK on the Galaxy S26 Ultra, grant
+   Health Connect permissions, confirm first backfill, change-token sync, background sync under Doze,
+   permission revocation, biometric lock and private notifications → flip the Android rows in
+   `docs/testing.md` to TESTED ON PHYSICAL DEVICE.
+2. **Supabase project**: apply migrations, switch `AUTH_MODE=supabase`, run the go-live checklist in
+   `docs/deployment.md`.
+3. **Oura, Withings, Epic, AI credentials**: one real round trip each → TESTED AGAINST LIVE API.
+4. Toolchain: AGP 9 / Gradle 9 / compileSdk 37 upgrade (ADR 0003) once verified on the build machine.
 Deferred: Apple Health / Google Fit historical import (needs Ben's export files to design the mapper);
 drug-interaction flags (needs a verified clinical interaction source).
 Still pending from earlier phases (blocked on Ben): physical-device verification of the Android app,

@@ -4,7 +4,7 @@ export type Db = pg.Pool;
 export type Tx = pg.PoolClient;
 
 export function createPool(connectionString: string): pg.Pool {
-  const pool = new pg.Pool({ connectionString, max: 10, idleTimeoutMillis: 30_000 });
+  const pool = new pg.Pool({ connectionString, max: 10, idleTimeoutMillis: 30_000, connectionTimeoutMillis: 10_000, query_timeout: 120_000 });
   pool.on('error', (err) => {
     // Pool-level errors are logged without payload details; health data never reaches logs.
     console.error('pg pool error', err.message);

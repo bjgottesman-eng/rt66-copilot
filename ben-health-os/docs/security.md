@@ -70,3 +70,25 @@ Health data is treated as highly sensitive at every layer.
   delivered. Nothing clinical is ever on the lock screen by default.
 - Recommendations, evidence, reports, alerts and memories are user tables under RLS, included in
   export-all and delete-all.
+
+## Phase 8 additions (hardening)
+- **Threat model** in `docs/threat-model.md` (assets, trust boundaries, 22 threats with controls and
+  honest status, abuse cases, residual risks for Ben to decide).
+- **Rate limits** (`@fastify/rate-limit`, per user when authenticated, else per IP): login,
+  imports, OAuth start, demo seed, export, delete-all, packet preview, report generation, physician
+  brief generation and the internal job endpoints; 429 responses use the common error envelope with
+  `retryAfterSeconds`. Limits are configurable (`RATE_LIMIT_AUTH_MAX`, `RATE_LIMIT_HEAVY_MAX`,
+  `RATE_LIMIT_JOBS_MAX`; 0 disables a class).
+- **Security headers** on every API response (`nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy: no-referrer`, `Cache-Control: no-store`, HSTS when `PUBLIC_BASE_URL` is https)
+  and HSTS on production web builds.
+- **Production guards** in configuration: `AUTH_MODE=local` refused, `ALLOW_DEMO_SEED` must be
+  `false`, `PUBLIC_BASE_URL` must be https, `TOKEN_ENCRYPTION_KEY` required once any connector is
+  configured. Boolean environment variables are parsed strictly (`'false'` is false).
+- **Readiness** (`GET /ready`): database round trip and a writable document directory; 503 with the
+  failing check otherwise. `GET /health` stays a liveness probe.
+- **Unknown routes** answer with the JSON error envelope; the database pool has connection and
+  query timeouts so a stuck query cannot hold a worker forever.
+- **Secret scan** in `scripts/verify.sh` (API-key and private-key patterns) and release signing
+  material read from `~/.gradle/gradle.properties`, never from the repository.
+- Still **not** claimed: HIPAA compliance, penetration testing, and physical-device verification.

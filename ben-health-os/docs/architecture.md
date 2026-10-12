@@ -113,3 +113,5 @@ and the derived `local_date`. DST days are 23/25 hours long and are bucketed cor
 - Database: Supabase project (migrations applied with `supabase db push` or the included runner).
 - Scheduled jobs (Phase 2 reconciliation, Phase 6 reports): pg_cron + pg_net on Supabase, or a
   container cron hitting internal endpoints.
+- Hardening (Phase 8): per-route-class rate limits, security headers, `/ready` probe, strict
+  production configuration guards; see `docs/threat-model.md` and `docs/deployment.md`.

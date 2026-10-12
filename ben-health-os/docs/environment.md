@@ -10,7 +10,7 @@
 | `SUPABASE_JWKS_URL` | optional | Override JWKS endpoint. |
 | `SUPABASE_JWT_SECRET` | optional | Legacy HS256 fallback only. |
 | `TOKEN_ENCRYPTION_KEY` | Phase 2 | base64 of 32 random bytes (`node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`); encrypts OAuth tokens at rest. |
-| `ALLOW_DEMO_SEED` | optional | default true; set false in production. |
+| `ALLOW_DEMO_SEED` | optional | `true` (default) or `false`; must be `false` in production (enforced). |
 | `CORS_ORIGINS` | optional | comma-separated web origins. |
 | `PUBLIC_BASE_URL` | Phase 2 | public HTTPS URL for OAuth redirects and webhooks. |
 | `WEB_BASE_URL` | Phase 2 | where OAuth callbacks redirect web users (default `http://localhost:3000`). |
@@ -30,7 +30,8 @@
 | `AI_MODEL` | optional | model id for the Anthropic adapter (default `claude-sonnet-5-5`). |
 | `AI_API_BASE` | tests | override the Messages API base URL (mock server). |
 | `AI_MOCK_INCLUDE_INVALID` | tests | `true` makes the mock provider also emit an uncited and an unsafe finding so the validator path is visible. |
-| `PORT`, `HOST`, `LOG_LEVEL`, `NODE_ENV` | optional | defaults 8787 / 0.0.0.0 / info / development. |
+| `RATE_LIMIT_AUTH_MAX`, `RATE_LIMIT_HEAVY_MAX`, `RATE_LIMIT_JOBS_MAX` | optional | requests per minute for login (default 30, per IP), heavy endpoints (imports, OAuth start, demo seed, export, delete-all, packet preview, report and brief generation; default 20, per user) and internal jobs (default 6); `0` disables a class. |
+| `PORT`, `HOST`, `LOG_LEVEL`, `NODE_ENV` | optional | defaults 8787 / 0.0.0.0 / info / development. In production the API refuses `AUTH_MODE=local`, `ALLOW_DEMO_SEED=true`, a non-https `PUBLIC_BASE_URL`, and configured connectors without `TOKEN_ENCRYPTION_KEY`. Probes: `GET /health` (liveness), `GET /ready` (database + document directory). |
 
 ## Web (`apps/web`)
 `API_BASE_URL` (server-side), `NEXT_PUBLIC_AUTH_MODE` (`local`|`supabase`),
