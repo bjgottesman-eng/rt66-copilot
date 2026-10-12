@@ -37,6 +37,20 @@ and marks the old one SUPERSEDED.
   `annotations` (MEAL/EXERCISE/NOTE/MEDICATION_TAKEN/TAG) are user markers that feed the glucose day
   view; glucose statistics are computed on request from canonical `glucose_samples` excluding
   `IMPLAUSIBLE_VALUE`/`FUTURE_TIMESTAMP` rows (algorithms `glucose_day` v1, `meal_excursion` v1).
+- **Clinical (Phase 5).** `documents` hold file metadata only (sha256, size, page count, extraction
+  summary); bytes live under `DOCUMENT_STORAGE_DIR`. Every `lab_results` row keeps the reported name,
+  catalog analyte (`analyte` = catalog id or `raw:<slug>`), LOINC, value/value_text, unit, canonical
+  value/unit (explicit factors only, else `UNIT_NOT_CONVERTIBLE`), lab-reported reference range and
+  flag, collected/resulted dates, laboratory, provider, method, document, source connector, external
+  id, extraction confidence, verification status (REVIEW → CONFIRMED/REJECTED by the user; clinical
+  FHIR rows are CONFIRMED on import), canonical/duplicate links (`lab_dedup` v1: same analyte, day ±1,
+  value within 1 %, priority clinical_fhir > function_health > file_import > manual) and quality
+  flags; the raw row is an immutable `raw_ingest_events` entry. `conditions`, `clinical_events`,
+  `allergies` and `medication_source_records` are idempotent per `(source, external id)`;
+  medication source records are reconciled by the user into `medications` (LINK / CREATE / IGNORE,
+  logged in `medication_reconciliations`). `preventive_care_items` require a guideline source and keep
+  a completion history; statuses come from `preventive_status` v1. `physician_briefs.content` is the
+  assembled JSON (`physician_brief` v1) and `pdf_document_id` the generated PDF.
 - Sources: `source_connections` (status, encrypted tokens, permissions, sync health),
   `source_devices`, `sync_cursors` (change tokens / lastupdate), `sync_runs`.
 - Clinical and intelligence entities (schema in place, features in later phases): `documents`,

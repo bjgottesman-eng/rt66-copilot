@@ -21,6 +21,9 @@
 | `WITHINGS_CLIENT_ID`, `WITHINGS_CLIENT_SECRET` | Phase 2 | from https://developer.withings.com/dashboard/; redirect URI `<PUBLIC_BASE_URL>/v1/oauth/withings/callback`; notification callback `<PUBLIC_BASE_URL>/v1/webhooks/withings` must be public HTTPS. |
 | `WITHINGS_HISTORY_DAYS` | optional | initial import depth (default 730). |
 | `WITHINGS_API_BASE`, `WITHINGS_ACCOUNT_BASE` | tests | override endpoints (mock servers). |
+| `EPIC_CLIENT_ID`, `EPIC_CLIENT_SECRET` | Phase 5 | patient-facing app registered at https://fhir.epic.com (non-production and production client ids); redirect URI `<PUBLIC_BASE_URL>/v1/oauth/clinical_fhir/callback`. Epic patient apps are normally public clients (PKCE, no secret). Enables the clinical records connector for Weill Cornell and NYU Langone. |
+| `FHIR_BASE_OVERRIDE` | tests | points every organization at a mock FHIR server. |
+| `DOCUMENT_STORAGE_DIR` | Phase 5 | directory for uploaded lab PDFs/CSVs and generated briefs (default `./data/documents`); files never live in the database. Back it up and restrict permissions with the database. |
 | `JOB_SECRET` | Phase 2/3 | shared secret for `POST /internal/jobs/reconcile` (hourly) and `POST /internal/jobs/derive` (nightly) via header `x-job-secret`; schedule with pg_cron + pg_net or a container cron. |
 | `PORT`, `HOST`, `LOG_LEVEL`, `NODE_ENV` | optional | defaults 8787 / 0.0.0.0 / info / development. |
 
@@ -43,7 +46,8 @@ build only.
 3. **Withings developer app** at https://developer.withings.com/dashboard/ (client id/secret,
    redirect URI `<PUBLIC_BASE_URL>/v1/oauth/withings/callback`, HTTPS callback URL for notifications).
 4. **Epic patient-facing app registration** at https://fhir.epic.com (Phase 5) for Weill Cornell /
-   NYU Langone FHIR access.
+   NYU Langone FHIR access — the connector is built and mock-tested; it needs the client id
+   (`EPIC_CLIENT_ID`) and, for production, Epic's app review.
 5. **Google Play Console** health declaration + privacy policy URL before a store release (Phase 8).
 6. **AI provider API key** (Phase 6) — a consumer ChatGPT/Claude subscription is not an API.
 7. The **Samsung Galaxy S26 Ultra** itself for TESTED ON PHYSICAL DEVICE verification

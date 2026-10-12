@@ -60,6 +60,10 @@ class ApiClient(
     suspend fun bloodPressureSummary(days: Int = 30): BpSummaryDto = get("/v1/blood-pressure/summary?days=$days", BpSummaryDto.serializer())
     suspend fun nutritionDays(fromDate: String, toDate: String): NutritionDaysDto = get("/v1/nutrition/days?from=$fromDate&to=$toDate", NutritionDaysDto.serializer())
     suspend fun glucoseDay(date: String?): GlucoseDayDto = get("/v1/glucose/day" + (date?.let { "?date=$it" } ?: ""), GlucoseDayDto.serializer())
+    suspend fun labs(): LabsOverviewDto = get("/v1/labs", LabsOverviewDto.serializer())
+    suspend fun medications(): MedicationsDto = get("/v1/medications", MedicationsDto.serializer())
+    suspend fun preventive(): PreventiveDto = get("/v1/preventive", PreventiveDto.serializer())
+    suspend fun completePreventive(id: String, completedAt: String) = postNoContent("/v1/preventive/$id/complete", """{"completedAt":"$completedAt"}""")
 
     suspend fun seedDemo(days: Int): JsonObject = postRaw("/v1/demo/seed", """{"days":$days,"replace":true}""", JsonObject.serializer())
     suspend fun clearDemo() = deleteNoContent("/v1/demo")

@@ -1,11 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import type { AppContext } from '../app.js';
 import { ensureProfile, requireUser } from '../auth/plugin.js';
-import { ConnectorError, completeOAuth, startOAuth, type OAuthConnector } from '../services/connectors.js';
+import { ConnectorError, OAUTH_CONNECTORS, completeOAuth, startOAuth, type OAuthConnector } from '../services/connectors.js';
 
 function isOAuthConnector(c: string): c is OAuthConnector {
-  return c === 'oura' || c === 'withings';
+  return (OAUTH_CONNECTORS as string[]).includes(c);
 }
+const DISPLAY: Record<OAuthConnector, string> = { oura: 'Oura', withings: 'Withings', clinical_fhir: 'Clinical records' };
 
 function htmlPage(title: string, body: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>
@@ -19,10 +20,10 @@ export async function oauthRoutes(app: FastifyInstance, ctx: AppContext): Promis
     if (!user) return;
     const { connector } = request.params as { connector: string };
     if (!isOAuthConnector(connector)) return reply.code(404).send({ error: 'not_found', message: 'unknown OAuth connector' });
-    const q = request.query as { client?: string; returnTo?: string };
+    const q = request.query as { client?: string; returnTo?: string; org?: string };
     await ensureProfile(ctx.pool, ctx.config, user);
     try {
-      const { url } = await startOAuth(ctx.pool, ctx.connectors, user.userId, connector, q.client === 'android' ? 'android' : 'web', q.returnTo ?? null);
+      const { url } = await startOAuth(ctx.pool, ctx.connectors, user.userId, connector, q.client === 'android' ? 'android' : 'web', q.returnTo ?? null, { org: q.org });
       return { url };
     } catch (e) {
       if (e instanceof ConnectorError) return reply.code(e.statusCode).send({ error: 'connector_error', message: e.message });
@@ -42,9 +43,10 @@ export async function oauthRoutes(app: FastifyInstance, ctx: AppContext): Promis
     if (!q.code || !q.state) return fail('missing code or state');
     try {
       const done = await completeOAuth(ctx.pool, ctx.connectors, connector, q.code, q.state);
-      request.log.info({ userId: done.userId, connector, inserted: done.importResult?.inserted ?? null, webhook: done.webhook }, 'oauth connection completed');
+      request.log.info({ userId: done.userId, connector, inserted: done.importResult?.inserted ?? done.fhirResult?.labsStaged ?? null, webhook: done.webhook }, 'oauth connection completed');
       if (done.client === 'android') {
-        return reply.type('text/html').send(htmlPage(`${connector === 'oura' ? 'Oura' : 'Withings'} connected`, `<p>${done.importResult ? `${done.importResult.inserted} records imported.` : `Connected, but the first import failed: ${done.importError}. Use Refresh in Data Sources.`}</p><p>${done.webhook}</p><p>You can return to the app.</p>`));
+        const summary = done.importResult ? `${done.importResult.inserted} records imported.` : done.fhirResult ? `${done.fhirResult.labsStaged} lab results, ${done.fhirResult.conditions} conditions, ${done.fhirResult.medicationSourceRecords} medication records, ${done.fhirResult.allergies} allergies and ${done.fhirResult.events} events imported.` : `Connected, but the first import failed: ${done.importError}. Use Refresh in Data Sources.`;
+        return reply.type('text/html').send(htmlPage(`${DISPLAY[connector]} connected`, `<p>${summary}</p><p>${done.webhook}</p><p>You can return to the app.</p>`));
       }
       const target = done.returnTo && done.returnTo.startsWith('/') ? done.returnTo : '/sources';
       return reply.redirect(`${ctx.connectors.webBaseUrl}${target}?connected=${connector}${done.importError ? `&warning=${encodeURIComponent(done.importError)}` : ''}`);

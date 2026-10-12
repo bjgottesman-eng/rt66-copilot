@@ -5,8 +5,8 @@ what is changing, and what should I do next?"* — without inventing data, diagn
 prescribing.
 
 ## Primary navigation
-Today · Trends · Health CEO · Labs · Training · Nutrition · Experiments · Medications ·
-Data Sources · Settings. Items beyond Phase 1 are honest placeholders that name their phase.
+Today · Trends · Health CEO · Labs · Training · Nutrition · Experiments · Medications · Preventive ·
+Physician brief · Data Sources · Settings. Items not yet built are honest placeholders that name their phase.
 
 ## Today
 - How am I doing? (headline from domain statuses), What changed (meaningful/directional
@@ -22,8 +22,9 @@ Data Sources · Settings. Items beyond Phase 1 are honest placeholders that name
     manual entry; strength benchmarks in Phase 7).
   - Metabolic & nutrition: glucose, glucose variability, calories, protein, fiber, saturated fat,
     sodium, potassium (micronutrients with Cronometer CSV in Phase 4).
-  - Clinical & preventive: lab results and preventive-care status (Phase 5) — shown as NOT
-    CONNECTED until then.
+  - Clinical & preventive: confirmed lab results (count, latest panel, lab-flagged values) and
+    preventive-care items due (Phase 5); WATCH when the laboratory flagged a value or an item is due,
+    never a diagnosis. NOT CONNECTED until labs or clinical records exist.
 - Every metric: latest value with unit, measured-at and source, freshness chip with reason,
   7-day vs 28-day delta and change class, 28-day sparkline with gaps, quality flags.
 

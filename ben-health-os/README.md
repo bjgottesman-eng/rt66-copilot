@@ -4,18 +4,19 @@ Private, connected personal health intelligence. One longitudinal record across 
 (Samsung Health, Withings, Stelo, Cronometer…), Withings, labs and clinical records, with honest
 freshness, provenance and deduplication — and no invented numbers.
 
-**Status (2026-10-12): Phases 0–4 implemented and tested with synthetic/mock data.** See
+**Status (2026-10-12): Phases 0–5 implemented and tested with synthetic/mock data.** See
 `docs/testing.md` for what has been verified and how, and `docs/roadmap.md` for phases.
 
 | Component | What works today | Status |
 |---|---|---|
 | Backend API (`services/api`) | Local/Supabase JWT auth, Health Connect ingest with provenance + dedup, Today dashboard, metric series, Data Sources status, manual BP, export-all, delete-all, demo seed | TESTED WITH MOCK DATA (11 integration tests on Postgres 16) |
-| Analytics (`services/analytics` + derive job) | Time zones/DST, units, stats, 7-day vs preceding 28-day baselines, freshness, dedup, BP sessions, domain status; Phase 3: versioned 7/28/90/365-day windows, signal engine, Zone 2 minutes, 365-day percentiles, domain dashboards | TESTED WITH MOCK DATA (50 unit + 2 API tests) |
+| Analytics (`services/analytics` + derive job) | Time zones/DST, units, stats, 7-day vs preceding 28-day baselines, freshness, dedup, BP sessions, domain status; Phase 3: versioned 7/28/90/365-day windows, signal engine, Zone 2 minutes, 365-day percentiles, domain dashboards | TESTED WITH MOCK DATA (60 unit + 2 API tests) |
 | Web dashboard (`apps/web`) | Login, Today (5 domains), Trends, Blood pressure, Data Sources, Settings, honest placeholders | TESTED WITH MOCK DATA (build + Playwright smoke) |
 | Android app (`apps/android`) | Onboarding, Health Connect availability/permissions, backfill + change-token sync, offline queue, Today/Trends/Sources/BP/Settings, biometric lock, Keystore-encrypted session | IMPLEMENTED; unit tests pass; **not yet run on a physical device** |
 | Oura + Withings connectors (`services/integrations`, API routes) | OAuth (PKCE), encrypted token storage with rotation, history import, incremental reconcile, HMAC-verified replay-safe webhooks, BP dashboard on web + Android | TESTED WITH MOCK DATA (13 connector + 8 API flow tests); live = BLOCKED BY CREDENTIALS |
 | Nutrition & glucose (Phase 4) | Cronometer CSV importer with mapping review and idempotent re-import, same-day dedup against Cronometer-via-Health-Connect meals, `nutrition_days` + personal targets, glucose day analytics (time in range, overnight, meal excursions, repeated meals, Stelo 3-hour latency), annotations; web Nutrition page + Android Nutrition screen | TESTED WITH MOCK DATA (7 analytics + 2 API + 1 fixture tests, Playwright) |
-| Function, FHIR, Apple Health/Google Fit import | Verified documentation + feasibility matrix (`docs/integrations.md`) | NOT IMPLEMENTED (Phase 5 / deferred) |
+| Clinical intelligence (Phase 5) | Lab ingestion engine (LOINC/name mapping, explicit unit factors, lab-reported ranges/flags), Function Health PDF text-layer + CSV import staged for review, manual entry, cross-source dedup, lab explorer; Epic SMART-on-FHIR connector (labs, conditions, medications, allergies, events) against a mock server; medications/supplements/allergies/conditions + reconciliation; preventive care with guideline sources + iCal; physician brief PDF; web + Android screens | TESTED WITH MOCK DATA (10 analytics + 5 FHIR + 5 API tests, Playwright); live Epic = BLOCKED BY CREDENTIALS; drug interactions NOT IMPLEMENTED |
+| Apple Health / Google Fit historical import, AI layer, experiments, training | Feasibility matrix (`docs/integrations.md`), schema and safety rules exist | NOT IMPLEMENTED (deferred / Phases 6–7) |
 
 ## Quick start (local, no cloud accounts needed)
 

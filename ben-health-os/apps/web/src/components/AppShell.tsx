@@ -12,6 +12,8 @@ const NAV = [
   ['/nutrition', 'Nutrition'],
   ['/experiments', 'Experiments'],
   ['/medications', 'Medications'],
+  ['/preventive', 'Preventive'],
+  ['/physician-brief', 'Physician brief'],
   ['/sources', 'Data Sources'],
   ['/settings', 'Settings'],
 ] as const;

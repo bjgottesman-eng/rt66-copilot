@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.benhealthos.app.presentation.components.SectionCard
 import com.benhealthos.app.presentation.components.StatusChip
 
-private val PLANNED = listOf(Triple("Health CEO", 6, "Weekly Health CEO and monthly Health Board reports."), Triple("Labs", 5, "Lab explorer, Function Health imports, clinical records."), Triple("Training", 7, "Strength module, progression, Zone 2 minutes."), Triple("Experiments", 7, "N-of-1 experiment engine."), Triple("Medications", 5, "Medication reconciliation and supplement ledger."))
+private val PLANNED = listOf(Triple("Health CEO", 6, "Weekly Health CEO and monthly Health Board reports."), Triple("Training", 7, "Strength module, progression, Zone 2 minutes."), Triple("Experiments", 7, "N-of-1 experiment engine."))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +26,17 @@ fun MoreScreen(onNavigate: (String) -> Unit) {
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp)) {
             Text("Settings", style = MaterialTheme.typography.titleMedium, modifier = Modifier.fillMaxWidth().clickable { onNavigate("settings") }.padding(vertical = 12.dp))
             HorizontalDivider()
+            listOf(
+                Triple("labs", "Labs", "Confirmed laboratory results with the lab’s ranges and flags; imports are reviewed on the web dashboard."),
+                Triple("medications", "Medications & allergies", "Medication list with statuses, supplements, allergies, records waiting for reconciliation."),
+                Triple("preventive", "Preventive care", "Items with guideline sources; due / due soon / completed from your own intervals."),
+            ).forEach { (route, name, desc) ->
+                Column(Modifier.fillMaxWidth().clickable { onNavigate(route) }.padding(vertical = 12.dp)) {
+                    Text(name, style = MaterialTheme.typography.titleMedium)
+                    Text(desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                HorizontalDivider()
+            }
             Column(Modifier.fillMaxWidth().clickable { onNavigate("nutrition") }.padding(vertical = 12.dp)) {
                 Text("Nutrition & glucose", style = MaterialTheme.typography.titleMedium)
                 Text("Cronometer day totals vs your targets, Stelo glucose day: time in range, overnight, meal excursions.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

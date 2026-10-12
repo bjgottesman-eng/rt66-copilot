@@ -1,0 +1,37 @@
+Biomarker,Result,Units,Reference Range,Flag,Date Collected,Lab,Category
+Apolipoprotein B,98,mg/dL,< 90,H,2025-09-06,Quest Diagnostics (synthetic),Panel
+LDL Cholesterol Calc (NIH),128,mg/dL,< 100,H,2025-09-06,Quest Diagnostics (synthetic),Panel
+HDL Cholesterol,52,mg/dL,> 40,,2025-09-06,Quest Diagnostics (synthetic),Panel
+Triglycerides,110,mg/dL,< 150,,2025-09-06,Quest Diagnostics (synthetic),Panel
+Hemoglobin A1c,5.6,%,4.0-5.6,,2025-09-06,Quest Diagnostics (synthetic),Panel
+"Glucose, Fasting",96,mg/dL,65-99,,2025-09-06,Quest Diagnostics (synthetic),Panel
+hs-CRP,1.2,mg/L,0.0-3.0,,2025-09-06,Quest Diagnostics (synthetic),Panel
+"Vitamin D, 25-Hydroxy",24,ng/mL,30-100,L,2025-09-06,Quest Diagnostics (synthetic),Panel
+Ferritin,95,ng/mL,30-400,,2025-09-06,Quest Diagnostics (synthetic),Panel
+TSH,1.9,mIU/L,0.40-4.50,,2025-09-06,Quest Diagnostics (synthetic),Panel
+Creatinine,0.98,mg/dL,0.60-1.24,,2025-09-06,Quest Diagnostics (synthetic),Panel
+ALT,31,U/L,9-46,,2025-09-06,Quest Diagnostics (synthetic),Panel
+Apolipoprotein B,88,mg/dL,< 90,,2026-03-25,Quest Diagnostics (synthetic),Panel
+LDL Cholesterol Calc (NIH),115,mg/dL,< 100,H,2026-03-25,Quest Diagnostics (synthetic),Panel
+HDL Cholesterol,55,mg/dL,> 40,,2026-03-25,Quest Diagnostics (synthetic),Panel
+Triglycerides,98,mg/dL,< 150,,2026-03-25,Quest Diagnostics (synthetic),Panel
+Hemoglobin A1c,5.5,%,4.0-5.6,,2026-03-25,Quest Diagnostics (synthetic),Panel
+"Glucose, Fasting",93,mg/dL,65-99,,2026-03-25,Quest Diagnostics (synthetic),Panel
+hs-CRP,0.9,mg/L,0.0-3.0,,2026-03-25,Quest Diagnostics (synthetic),Panel
+"Vitamin D, 25-Hydroxy",31,ng/mL,30-100,,2026-03-25,Quest Diagnostics (synthetic),Panel
+Ferritin,110,ng/mL,30-400,,2026-03-25,Quest Diagnostics (synthetic),Panel
+TSH,2.1,mIU/L,0.40-4.50,,2026-03-25,Quest Diagnostics (synthetic),Panel
+Creatinine,0.96,mg/dL,0.60-1.24,,2026-03-25,Quest Diagnostics (synthetic),Panel
+ALT,27,U/L,9-46,,2026-03-25,Quest Diagnostics (synthetic),Panel
+Apolipoprotein B,82,mg/dL,< 90,,2026-09-21,Quest Diagnostics (synthetic),Panel
+LDL Cholesterol Calc (NIH),108,mg/dL,< 100,H,2026-09-21,Quest Diagnostics (synthetic),Panel
+HDL Cholesterol,57,mg/dL,> 40,,2026-09-21,Quest Diagnostics (synthetic),Panel
+Triglycerides,92,mg/dL,< 150,,2026-09-21,Quest Diagnostics (synthetic),Panel
+Hemoglobin A1c,5.4,%,4.0-5.6,,2026-09-21,Quest Diagnostics (synthetic),Panel
+"Glucose, Fasting",91,mg/dL,65-99,,2026-09-21,Quest Diagnostics (synthetic),Panel
+hs-CRP,0.7,mg/L,0.0-3.0,,2026-09-21,Quest Diagnostics (synthetic),Panel
+"Vitamin D, 25-Hydroxy",36,ng/mL,30-100,,2026-09-21,Quest Diagnostics (synthetic),Panel
+Ferritin,120,ng/mL,30-400,,2026-09-21,Quest Diagnostics (synthetic),Panel
+TSH,2,mIU/L,0.40-4.50,,2026-09-21,Quest Diagnostics (synthetic),Panel
+Creatinine,0.97,mg/dL,0.60-1.24,,2026-09-21,Quest Diagnostics (synthetic),Panel
+ALT,24,U/L,9-46,,2026-09-21,Quest Diagnostics (synthetic),Panel

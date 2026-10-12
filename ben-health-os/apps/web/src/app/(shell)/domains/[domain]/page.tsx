@@ -21,6 +21,8 @@ export default async function DomainPage({ params }: { params: Promise<{ domain:
       <PageHeader title={DOMAIN_LABELS[domain as keyof typeof DOMAIN_LABELS]} subtitle={d.summary}>
         <div className="flex items-center gap-2">
           <Chip tone={domainTone(d.status)}>{d.status.replace(/_/g, ' ').toLowerCase()}</Chip>
+          {domain === 'clinical_preventive' && <Link href="/labs" className="rounded-lg border border-line px-3 py-1 text-sm text-muted">Labs</Link>}
+          {domain === 'clinical_preventive' && <Link href="/preventive" className="rounded-lg border border-line px-3 py-1 text-sm text-muted">Preventive care</Link>}
           <Link href="/today" className="rounded-lg border border-line px-3 py-1 text-sm text-muted">Today</Link>
         </div>
       </PageHeader>

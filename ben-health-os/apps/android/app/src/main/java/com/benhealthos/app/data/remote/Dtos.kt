@@ -203,3 +203,17 @@ data class GlucoseDayDto(
     val datesWithData: List<String> = emptyList(),
     val disclaimer: String = "",
 )
+
+// ---- Phase 5: labs, medications, preventive care (rendered only) ----
+@Serializable data class LabPointDto(val id: String, val collectedAt: String? = null, val value: Double? = null, val valueText: String? = null, val unit: String? = null, val canonicalValue: Double? = null, val canonicalUnit: String? = null, val abnormalFlag: String? = null, val referenceText: String? = null, val source: String, val laboratory: String? = null, val canonical: Boolean = true, val verificationStatus: String = "CONFIRMED", val qualityFlags: List<String> = emptyList())
+@Serializable data class LabAnalyteDto(val analyteKey: String, val analyteId: String? = null, val label: String, val canonicalUnit: String? = null, val mapped: Boolean = false, val latest: LabPointDto? = null, val previous: LabPointDto? = null, val direction: String? = null, val deltaPct: Double? = null, val count: Int = 0, val flaggedLatest: Boolean = false)
+@Serializable data class LabsOverviewDto(val generatedAt: String, val analytes: List<LabAnalyteDto> = emptyList(), val pendingReview: Int = 0, val latestCollectedAt: String? = null, val sources: List<String> = emptyList(), val notes: List<String> = emptyList())
+@Serializable data class MedicationDto(val id: String, val name: String, val dosage: String? = null, val frequency: String? = null, val route: String? = null, val status: String = "UNCERTAIN", val prescribingClinician: String? = null, val indication: String? = null, val refillDate: String? = null, val source: String = "USER")
+@Serializable data class SupplementDto(val id: String, val name: String, val dose: String? = null, val frequency: String? = null, val purpose: String? = null, val status: String = "CURRENT")
+@Serializable data class AllergyDto(val id: String, val substance: String, val reaction: String? = null, val severity: String = "UNKNOWN", val source: String = "USER")
+@Serializable data class MedicationSourceRecordDto(val id: String, val source: String, val name: String? = null, val status: String = "UNRECONCILED", val recordedAt: String? = null)
+@Serializable data class InteractionsCheckDto(val status: String = "NOT_IMPLEMENTED", val note: String = "")
+@Serializable data class MedicationsDto(val medications: List<MedicationDto> = emptyList(), val supplements: List<SupplementDto> = emptyList(), val allergies: List<AllergyDto> = emptyList(), val unreconciled: List<MedicationSourceRecordDto> = emptyList(), val interactionsCheck: InteractionsCheckDto = InteractionsCheckDto(), val notes: List<String> = emptyList())
+@Serializable data class PreventiveItemDto(val id: String, val title: String, val category: String, val guidelineSource: String = "", val guidelineReviewedAt: String? = null, val intervalMonths: Int? = null, val lastCompletedAt: String? = null, val status: String = "DISCUSS_WITH_CLINICIAN", val computedStatus: String = "DISCUSS_WITH_CLINICIAN", val computedDueAt: String? = null, val daysUntilDue: Int? = null, val notes: String? = null)
+@Serializable data class PreventiveCountsDto(val due: Int = 0, val dueSoon: Int = 0, val completed: Int = 0, val discuss: Int = 0, val notApplicable: Int = 0)
+@Serializable data class PreventiveDto(val today: String, val items: List<PreventiveItemDto> = emptyList(), val counts: PreventiveCountsDto = PreventiveCountsDto(), val notes: List<String> = emptyList())

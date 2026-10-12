@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { HealthConnectIngestBatchSchema } from '@bho/contracts';
-import { parseCronometerCsv, rowsToMeals } from '@bho/analytics';
-import { generateCronometerCsv, generateDemoDataset } from '../src/generate.js';
+import { parseCronometerCsv, parseLabCsv, rowsToMeals } from '@bho/analytics';
+import { generateCronometerCsv, generateDemoDataset, generateLabCsv } from '../src/generate.js';
 
 describe('synthetic demo dataset', () => {
   it('is deterministic for a seed and validates against the ingest contract', () => {
@@ -34,5 +34,15 @@ describe('synthetic demo dataset', () => {
     const meals = rowsToMeals(rows, mapping);
     expect(meals.length).toBe(ds.summary.meals_cronometer);
     expect(meals.every((m) => m.time !== null && m.foodItems.length >= 2)).toBe(true);
+  });
+  it('emits a synthetic Function-style lab export whose rows all map to catalog analytes with lab-reported flags', () => {
+    const ds = generateDemoDataset({ days: 20, detailedDays: 5, glucoseDays: 3, endDate: '2026-10-11' });
+    const { mapping, rows, warnings } = parseLabCsv(generateLabCsv(ds));
+    expect(mapping.usable).toBe(true);
+    expect(warnings).toEqual([]);
+    expect(rows).toHaveLength(36);
+    expect(rows.every((r) => r.analyteId !== null && r.collectedAt !== null)).toBe(true);
+    expect(rows.filter((r) => r.abnormalFlag === 'H' || r.abnormalFlag === 'L').length).toBeGreaterThan(0);
+    expect(new Set(rows.map((r) => r.collectedAt)).size).toBe(3);
   });
 });

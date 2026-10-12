@@ -25,14 +25,14 @@ export async function listSources(pool: pg.Pool, userId: string, now: Date = new
       const c = byConn.get(def.id);
       const s = byStats.get(def.id);
       const notes = [def.notes];
-      const isOAuth = def.integrationClass === 'VERIFIED_DIRECT_API';
+      const isOAuth = def.integrationClass === 'VERIFIED_DIRECT_API' || def.integrationClass === 'CLINICAL_FHIR';
       const serverConfigured = !isOAuth || configured.has(def.id);
       let implementationStatus: SourceStatus['implementationStatus'] = def.implementationStatus;
       if (isOAuth && def.implementationStatus !== 'NOT_IMPLEMENTED' && !serverConfigured) implementationStatus = 'BLOCKED_BY_CREDENTIALS';
       let connectionStatus: SourceStatus['connectionStatus'] = (c?.status as SourceStatus['connectionStatus']) ?? 'NOT_CONFIGURED';
       if (def.implementationStatus === 'NOT_IMPLEMENTED') notes.push(`Not implemented yet (planned for phase ${def.phase}).`);
-      else if (isOAuth && !serverConfigured) notes.push(`Server credentials missing: set ${def.id.toUpperCase()}_CLIENT_ID and ${def.id.toUpperCase()}_CLIENT_SECRET (see docs/environment.md).`);
-      else if (isOAuth && !c) notes.push('Not connected yet. Connect authorizes Ben Health OS with the provider and imports history; the source shows as connected only after data is retrieved.');
+      else if (isOAuth && !serverConfigured) notes.push(def.id === 'clinical_fhir' ? 'Server credentials missing: register a patient-facing app at fhir.epic.com and set EPIC_CLIENT_ID (see docs/environment.md).' : `Server credentials missing: set ${def.id.toUpperCase()}_CLIENT_ID and ${def.id.toUpperCase()}_CLIENT_SECRET (see docs/environment.md).`);
+      else if (isOAuth && !c) notes.push(def.id === 'clinical_fhir' ? 'Not connected yet. Connect opens the organization’s MyChart login (Weill Cornell or NYU Langone); records are pulled only after you authorize, and lab results from clinical records are confirmed on import.' : 'Not connected yet. Connect authorizes Ben Health OS with the provider and imports history; the source shows as connected only after data is retrieved.');
       if (c?.status === 'EXPIRED') notes.push('Authorization expired or was revoked at the provider; reconnect to resume synchronization.');
       if (c && connectionStatus === 'PARTIAL') notes.push('Authorized, but no observations have been received yet.');
       const missing = c ? c.requested_permissions.filter((p) => !c.granted_permissions.includes(p)) : [];

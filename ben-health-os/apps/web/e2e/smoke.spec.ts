@@ -58,8 +58,35 @@ test('login, load demo data, and walk the Phase 1 screens', async ({ page }) => 
   await expect(page.getByText('Evening walk').first()).toBeVisible();
   await page.screenshot({ path: '../../screenshots/web-nutrition.png', fullPage: true });
 
-  // Honest placeholders
+  // Labs (Phase 5): paste a lab CSV, review, stage, confirm, see the explorer
   await page.goto('/labs');
+  await page.getByTestId('lab-csv-text').fill('Test,Value,Unit,Reference Range,Flag,Collected\nApolipoprotein B,78,mg/dL,< 90,,2026-09-20\nLDL Cholesterol,112,mg/dL,< 100,H,2026-09-20\n');
+  await page.getByTestId('lab-review').click();
+  await expect(page.getByTestId('lab-mapping')).toContainText('2 result rows');
+  await page.getByTestId('lab-import').click();
+  await expect(page.getByTestId('lab-import-result')).toContainText('2 row(s) staged');
+  await expect(page.getByTestId('lab-queue')).toBeVisible();
+  await page.getByTestId('lab-confirm-selected').click();
+  await expect(page.getByTestId('labs-analytes')).toContainText('ApoB');
+  await expect(page.getByTestId('labs-analytes')).toContainText('LDL-C');
+  await page.screenshot({ path: '../../screenshots/web-labs.png', fullPage: true });
+
+  // Preventive care: add from a template; medications: add one; physician brief: generate a PDF
+  await page.goto('/preventive');
+  await page.getByTestId('template-physical').click();
+  await page.getByTestId('prev-save').click();
+  await expect(page.getByTestId('prev-list')).toContainText('Annual physical');
+  await page.goto('/medications');
+  await page.getByTestId('med-name').fill('Atorvastatin');
+  await page.getByTestId('med-save').click();
+  await expect(page.getByTestId('med-list')).toContainText('Atorvastatin');
+  await page.goto('/physician-brief');
+  await page.getByTestId('brief-reason').fill('Annual visit');
+  await page.getByTestId('brief-generate').click();
+  await expect(page.getByTestId('brief-result')).toContainText('Open PDF');
+
+  // Honest placeholders
+  await page.goto('/health-ceo');
   await expect(page.getByText('Not implemented')).toBeVisible();
 
   // Settings + export link

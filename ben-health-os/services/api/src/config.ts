@@ -38,6 +38,13 @@ const EnvSchema = z.object({
   WITHINGS_HISTORY_DAYS: z.coerce.number().int().min(1).max(3650).default(730),
   /** Shared secret for internal scheduled-job endpoints (pg_cron / container cron). */
   JOB_SECRET: z.string().optional(),
+  /** Epic patient-facing app (fhir.epic.com). Client id enables the clinical FHIR connector; secret only for confidential clients. */
+  EPIC_CLIENT_ID: z.string().optional(),
+  EPIC_CLIENT_SECRET: z.string().optional(),
+  /** Tests/mocks: override every organization's FHIR base URL. */
+  FHIR_BASE_OVERRIDE: z.string().url().optional(),
+  /** Where uploaded documents (lab PDFs/CSVs, generated briefs) are stored. Files never live in the database. */
+  DOCUMENT_STORAGE_DIR: z.string().default('./data/documents'),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema> & { corsOrigins: string[] };

@@ -30,7 +30,7 @@ apps/android      Kotlin + Compose + Health Connect SDK 1.1.0 + Room + WorkManag
 apps/web          Next.js 15 App Router + Tailwind 4 + Recharts (no health math)
 services/api      Fastify API: auth (local/Supabase JWT), ingest, dashboard, sources, export/delete
 services/analytics  Authoritative calculations (time zones, units, windows, freshness, dedup, BP)
-services/integrations  Phase 2+: Oura, Withings, imports (OAuth + webhooks)
+services/integrations  Oura, Withings (OAuth + webhooks), SMART on FHIR client + R4 mappers (Epic)
 services/ai       Phase 6: analysis packets + provider adapters (contracts only until then)
 packages/contracts  Zod schemas / types for every API payload (mirrored by Kotlin DTOs)
 packages/shared-config  Freshness thresholds, source priority, dedup windows, metric catalog, connectors

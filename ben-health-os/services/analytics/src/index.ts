@@ -14,3 +14,4 @@ export * from './zones.js';
 export * from './csv.js';
 export * from './nutrition.js';
 export * from './glucose.js';
+export * from './labs.js';

@@ -355,3 +355,32 @@ export function generateCronometerCsv(ds: DemoDataset): string {
   }
   return lines.join('\n') + '\n';
 }
+
+/** Synthetic Function-style laboratory export: three panels (about 400, 200 and 20 days before the end date) for the catalog analytes, with the laboratory's ranges and flags. Deterministic. */
+export function generateLabCsv(ds: DemoDataset): string {
+  const end = ds.options.endDate ?? new Date().toISOString().slice(0, 10);
+  const days = [addDays(end, -400), addDays(end, -200), addDays(end, -20)];
+  const rows: Array<[string, number[], string, string, number | null, number | null]> = [
+    ['Apolipoprotein B', [98, 88, 82], 'mg/dL', '< 90', null, 90],
+    ['LDL Cholesterol Calc (NIH)', [128, 115, 108], 'mg/dL', '< 100', null, 100],
+    ['HDL Cholesterol', [52, 55, 57], 'mg/dL', '> 40', 40, null],
+    ['Triglycerides', [110, 98, 92], 'mg/dL', '< 150', null, 150],
+    ['Hemoglobin A1c', [5.6, 5.5, 5.4], '%', '4.0-5.6', 4, 5.6],
+    ['Glucose, Fasting', [96, 93, 91], 'mg/dL', '65-99', 65, 99],
+    ['hs-CRP', [1.2, 0.9, 0.7], 'mg/L', '0.0-3.0', 0, 3],
+    ['Vitamin D, 25-Hydroxy', [24, 31, 36], 'ng/mL', '30-100', 30, 100],
+    ['Ferritin', [95, 110, 120], 'ng/mL', '30-400', 30, 400],
+    ['TSH', [1.9, 2.1, 2.0], 'mIU/L', '0.40-4.50', 0.4, 4.5],
+    ['Creatinine', [0.98, 0.96, 0.97], 'mg/dL', '0.60-1.24', 0.6, 1.24],
+    ['ALT', [31, 27, 24], 'U/L', '9-46', 9, 46],
+  ];
+  const lines = ['Biomarker,Result,Units,Reference Range,Flag,Date Collected,Lab,Category'];
+  days.forEach((day, i) => {
+    for (const [name, values, unit, range, low, high] of rows) {
+      const v = values[i]!;
+      const flag = (high !== null && v > high) ? 'H' : (low !== null && v < low) ? 'L' : '';
+      lines.push([name, String(v), unit, range, flag, day, 'Quest Diagnostics (synthetic)', 'Panel'].map((c) => (c.includes(',') ? `"${c}"` : c)).join(','));
+    }
+  });
+  return lines.join('\n') + '\n';
+}

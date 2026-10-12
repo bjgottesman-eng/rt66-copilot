@@ -13,8 +13,8 @@ async function forward(req: Request, params: Promise<{ path: string[] }>): Promi
   const target = `${API_BASE_URL}/${path.join('/')}${url.search}`;
   const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : await req.text();
   const res = await fetch(target, { method: req.method, headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body, cache: 'no-store' });
-  const text = await res.text();
-  return new NextResponse(text, { status: res.status, headers: { 'content-type': res.headers.get('content-type') ?? 'application/json', ...(res.headers.get('content-disposition') ? { 'content-disposition': res.headers.get('content-disposition')! } : {}) } });
+  const bytes = Buffer.from(await res.arrayBuffer()); // binary-safe (PDFs, calendars)
+  return new NextResponse(bytes, { status: res.status, headers: { 'content-type': res.headers.get('content-type') ?? 'application/json', ...(res.headers.get('content-disposition') ? { 'content-disposition': res.headers.get('content-disposition')! } : {}) } });
 }
 
 export async function GET(req: Request, ctx: { params: Promise<{ path: string[] }> }) {

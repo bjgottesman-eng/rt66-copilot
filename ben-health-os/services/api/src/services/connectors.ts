@@ -2,7 +2,9 @@ import type pg from 'pg';
 import { randomBytes } from 'node:crypto';
 import type { IngestResult, ExternalRecordInput } from '@bho/contracts';
 import { addDays, localDateOf } from '@bho/analytics';
-import { OuraClient, WithingsClient, WithingsApiError, WITHINGS_APPLI, dateWindows, generatePkce, mapOuraDocument, mapWithingsGroup, randomState, type OAuthTokens, type OuraDataType } from '@bho/integrations';
+import { OuraClient, SmartClient, WithingsClient, WithingsApiError, WITHINGS_APPLI, dateWindows, discoverSmart, generatePkce, mapOuraDocument, mapWithingsGroup, randomState, type OAuthTokens, type OuraDataType } from '@bho/integrations';
+import type { FhirImportResult } from '@bho/contracts';
+import { FhirConfigError, importFhir, resolveOrganization, type FhirConnectionMeta } from './fhir.js';
 import type { AppConfig } from '../config.js';
 import { withService, withUser, type Tx } from '../db/pool.js';
 import { TokenCipher } from './crypto.js';
@@ -10,8 +12,8 @@ import { audit } from './audit.js';
 import { ingestConnectorRecords } from './ingest.js';
 import { deriveForUser } from './derived.js';
 
-export type OAuthConnector = 'oura' | 'withings';
-export const OAUTH_CONNECTORS: OAuthConnector[] = ['oura', 'withings'];
+export type OAuthConnector = 'oura' | 'withings' | 'clinical_fhir';
+export const OAUTH_CONNECTORS: OAuthConnector[] = ['oura', 'withings', 'clinical_fhir'];
 
 export interface ConnectorRuntime {
   oura: OuraClient | null;
@@ -23,6 +25,9 @@ export interface ConnectorRuntime {
   webBaseUrl: string;
   ouraHistoryDays: number;
   withingsHistoryDays: number;
+  /** Epic patient-facing app (fhir.epic.com); null = BLOCKED BY CREDENTIALS. */
+  epic: { clientId: string; clientSecret: string | null } | null;
+  fhirBaseOverride: string | null;
   configured: Set<OAuthConnector>;
 }
 
@@ -30,7 +35,7 @@ export function createConnectorRuntime(cfg: AppConfig, log: { warn: (msg: string
   const configured = new Set<OAuthConnector>();
   const publicBaseUrl = cfg.PUBLIC_BASE_URL.replace(/\/$/, '');
   let keyB64 = cfg.TOKEN_ENCRYPTION_KEY;
-  const anyConnector = Boolean((cfg.OURA_CLIENT_ID && cfg.OURA_CLIENT_SECRET) || (cfg.WITHINGS_CLIENT_ID && cfg.WITHINGS_CLIENT_SECRET));
+  const anyConnector = Boolean((cfg.OURA_CLIENT_ID && cfg.OURA_CLIENT_SECRET) || (cfg.WITHINGS_CLIENT_ID && cfg.WITHINGS_CLIENT_SECRET) || cfg.EPIC_CLIENT_ID);
   if (!keyB64) {
     if (cfg.NODE_ENV === 'production' && anyConnector) throw new Error('TOKEN_ENCRYPTION_KEY is required in production when an OAuth connector is configured');
     keyB64 = randomBytes(32).toString('base64');
@@ -44,7 +49,11 @@ export function createConnectorRuntime(cfg: AppConfig, log: { warn: (msg: string
     ? new WithingsClient({ clientId: cfg.WITHINGS_CLIENT_ID, clientSecret: cfg.WITHINGS_CLIENT_SECRET, redirectUri: `${publicBaseUrl}/v1/oauth/withings/callback`, apiBase: cfg.WITHINGS_API_BASE, accountBase: cfg.WITHINGS_ACCOUNT_BASE })
     : null;
   if (withings) configured.add('withings');
+  const epic = cfg.EPIC_CLIENT_ID ? { clientId: cfg.EPIC_CLIENT_ID, clientSecret: cfg.EPIC_CLIENT_SECRET ?? null } : null;
+  if (epic) configured.add('clinical_fhir');
   return {
+    epic,
+    fhirBaseOverride: cfg.FHIR_BASE_OVERRIDE ?? null,
     oura,
     withings,
     cipher: new TokenCipher(keyB64),
@@ -108,7 +117,7 @@ export async function freshAccessToken(pool: pg.Pool, rt: ConnectorRuntime, user
   if (!expiresSoon) return { accessToken: stored.accessToken, externalUserId: stored.externalUserId };
   if (!stored.refreshToken) throw new ConnectorError(409, `${connector} token expired and no refresh token is stored; reconnect`);
   try {
-    const refreshed = connector === 'oura' ? await rt.oura!.refresh(stored.refreshToken) : await rt.withings!.refresh(stored.refreshToken);
+    const refreshed = connector === 'oura' ? await rt.oura!.refresh(stored.refreshToken) : connector === 'withings' ? await rt.withings!.refresh(stored.refreshToken) : await (await smartClientFor(pool, rt, userId)).refresh(stored.refreshToken);
     await withUser(pool, userId, (tx) => saveTokens(tx, rt, userId, connector, refreshed, refreshed.externalUserId ?? stored.externalUserId, 'CONNECTED'));
     await audit(pool, { userId, actor: 'system', action: 'TOKEN_REFRESH', entity: 'source_connection', entityId: connector });
     return { accessToken: refreshed.accessToken, externalUserId: refreshed.externalUserId ?? stored.externalUserId };
@@ -118,20 +127,59 @@ export async function freshAccessToken(pool: pg.Pool, rt: ConnectorRuntime, user
   }
 }
 
-function requireClient(rt: ConnectorRuntime, connector: OAuthConnector): OuraClient | WithingsClient {
+function requireClient(rt: ConnectorRuntime, connector: 'oura' | 'withings'): OuraClient | WithingsClient {
   const c = connector === 'oura' ? rt.oura : rt.withings;
   if (!c) throw new ConnectorError(503, `${connector} is not configured on this server (BLOCKED BY CREDENTIALS: set ${connector.toUpperCase()}_CLIENT_ID and ${connector.toUpperCase()}_CLIENT_SECRET)`);
   return c;
 }
 
+function requireEpic(rt: ConnectorRuntime): { clientId: string; clientSecret: string | null } {
+  if (!rt.epic) throw new ConnectorError(503, 'clinical records (Epic patient access) are not configured on this server (BLOCKED BY CREDENTIALS: register the app at fhir.epic.com and set EPIC_CLIENT_ID)');
+  return rt.epic;
+}
+
+/** Loads the stored organization/endpoints for a user's clinical connection. */
+export async function fhirMetaFor(pool: pg.Pool, userId: string): Promise<FhirConnectionMeta> {
+  const r = await withUser(pool, userId, (tx) => tx.query<{ metadata: Partial<FhirConnectionMeta> | null; external_user_id: string | null }>(`select metadata, external_user_id from public.source_connections where user_id = $1 and connector = 'clinical_fhir'`, [userId]));
+  const m = r.rows[0]?.metadata;
+  if (!m || !m.fhirBase || !m.smart || !m.org) throw new ConnectorError(409, 'clinical records are not connected');
+  return { org: m.org, fhirBase: m.fhirBase, smart: m.smart, patientId: m.patientId ?? r.rows[0]?.external_user_id ?? null };
+}
+
+async function smartClientFor(pool: pg.Pool, rt: ConnectorRuntime, userId: string): Promise<SmartClient> {
+  const epic = requireEpic(rt);
+  const meta = await fhirMetaFor(pool, userId);
+  return new SmartClient({ clientId: epic.clientId, clientSecret: epic.clientSecret, redirectUri: `${rt.publicBaseUrl}/v1/oauth/clinical_fhir/callback`, fhirBase: meta.fhirBase, smart: { authorization_endpoint: meta.smart.authorization_endpoint, token_endpoint: meta.smart.token_endpoint } });
+}
+
 // ---------------------------------------------------------------------------------------------
 // OAuth
 // ---------------------------------------------------------------------------------------------
-export async function startOAuth(pool: pg.Pool, rt: ConnectorRuntime, userId: string, connector: OAuthConnector, client: 'web' | 'android', returnTo: string | null): Promise<{ url: string; state: string }> {
-  const c = requireClient(rt, connector);
+export async function startOAuth(pool: pg.Pool, rt: ConnectorRuntime, userId: string, connector: OAuthConnector, client: 'web' | 'android', returnTo: string | null, opts: { org?: string } = {}): Promise<{ url: string; state: string }> {
   const state = randomState();
-  const pkce = connector === 'oura' ? generatePkce() : null;
   const redirectUri = `${rt.publicBaseUrl}/v1/oauth/${connector}/callback`;
+  if (connector === 'clinical_fhir') {
+    const epic = requireEpic(rt);
+    let resolved: { org: { id: string }; fhirBase: string };
+    try {
+      resolved = resolveOrganization(opts.org, rt.fhirBaseOverride);
+    } catch (e) {
+      if (e instanceof FhirConfigError) throw new ConnectorError(e.statusCode, e.message);
+      throw e;
+    }
+    const smart = await discoverSmart(resolved.fhirBase).catch((e: Error) => {
+      throw new ConnectorError(502, `could not read the organization's SMART configuration: ${e.message}`);
+    });
+    const pkce = generatePkce();
+    const metadata: FhirConnectionMeta = { org: resolved.org.id, fhirBase: resolved.fhirBase, smart: { authorization_endpoint: smart.authorization_endpoint, token_endpoint: smart.token_endpoint }, patientId: null };
+    await withUser(pool, userId, (tx) =>
+      tx.query(`insert into public.oauth_states (state, user_id, connector, code_verifier, redirect_uri, client, return_to, expires_at, metadata) values ($1, $2, $3, $4, $5, $6, $7, now() + interval '10 minutes', $8)`, [state, userId, connector, pkce.verifier, redirectUri, client, returnTo, JSON.stringify(metadata)]),
+    );
+    const sc = new SmartClient({ clientId: epic.clientId, clientSecret: epic.clientSecret, redirectUri, fhirBase: resolved.fhirBase, smart });
+    return { url: sc.authorizeUrl({ state, codeChallenge: pkce.challenge }), state };
+  }
+  const c = requireClient(rt, connector);
+  const pkce = connector === 'oura' ? generatePkce() : null;
   await withUser(pool, userId, (tx) =>
     tx.query(`insert into public.oauth_states (state, user_id, connector, code_verifier, redirect_uri, client, return_to, expires_at) values ($1, $2, $3, $4, $5, $6, $7, now() + interval '10 minutes')`, [state, userId, connector, pkce?.verifier ?? null, redirectUri, client, returnTo]),
   );
@@ -145,14 +193,14 @@ export interface OAuthCompletion {
   client: 'web' | 'android';
   returnTo: string | null;
   importResult: IngestResult | null;
+  fhirResult: FhirImportResult | null;
   importError: string | null;
   webhook: string;
 }
 
 export async function completeOAuth(pool: pg.Pool, rt: ConnectorRuntime, connector: OAuthConnector, code: string, state: string): Promise<OAuthCompletion> {
-  const c = requireClient(rt, connector);
   const st = await withService(pool, async (tx) => {
-    const r = await tx.query<{ user_id: string; code_verifier: string | null; client: string; return_to: string | null }>(`delete from public.oauth_states where state = $1 and connector = $2 and expires_at > now() returning user_id, code_verifier, client, return_to`, [state, connector]);
+    const r = await tx.query<{ user_id: string; code_verifier: string | null; client: string; return_to: string | null; metadata: Partial<FhirConnectionMeta> | null }>(`delete from public.oauth_states where state = $1 and connector = $2 and expires_at > now() returning user_id, code_verifier, client, return_to, metadata`, [state, connector]);
     await tx.query('delete from public.oauth_states where expires_at < now()');
     return r.rows[0] ?? null;
   });
@@ -160,31 +208,50 @@ export async function completeOAuth(pool: pg.Pool, rt: ConnectorRuntime, connect
   const userId = st.user_id;
   let tokens: OAuthTokens;
   let externalUserId: string | null = null;
-  if (connector === 'oura') {
-    tokens = await (c as OuraClient).exchangeCode(code, st.code_verifier ?? '');
-    const info = await (c as OuraClient).personalInfo(tokens.accessToken).catch(() => null);
-    externalUserId = info?.id ?? null;
+  let fhirMeta: FhirConnectionMeta | null = null;
+  if (connector === 'clinical_fhir') {
+    const epic = requireEpic(rt);
+    const m = st.metadata;
+    if (!m || !m.fhirBase || !m.smart || !m.org) throw new ConnectorError(400, 'OAuth state is missing the organization');
+    const sc = new SmartClient({ clientId: epic.clientId, clientSecret: epic.clientSecret, redirectUri: `${rt.publicBaseUrl}/v1/oauth/clinical_fhir/callback`, fhirBase: m.fhirBase, smart: { authorization_endpoint: m.smart.authorization_endpoint, token_endpoint: m.smart.token_endpoint } });
+    const t = await sc.exchangeCode(code, st.code_verifier ?? '');
+    tokens = t;
+    externalUserId = t.patientId;
+    fhirMeta = { org: m.org, fhirBase: m.fhirBase, smart: m.smart, patientId: t.patientId };
   } else {
-    tokens = await (c as WithingsClient).exchangeCode(code);
-    externalUserId = tokens.externalUserId ?? null;
+    const c = requireClient(rt, connector);
+    if (connector === 'oura') {
+      tokens = await (c as OuraClient).exchangeCode(code, st.code_verifier ?? '');
+      const info = await (c as OuraClient).personalInfo(tokens.accessToken).catch(() => null);
+      externalUserId = info?.id ?? null;
+    } else {
+      tokens = await (c as WithingsClient).exchangeCode(code);
+      externalUserId = tokens.externalUserId ?? null;
+    }
   }
-  await withUser(pool, userId, (tx) => saveTokens(tx, rt, userId, connector, tokens, externalUserId, 'PENDING_AUTH'));
-  await audit(pool, { userId, actor: 'user', action: 'SOURCE_CONNECT', entity: 'source_connection', entityId: connector, details: { client: st.client } });
+  await withUser(pool, userId, async (tx) => {
+    await saveTokens(tx, rt, userId, connector, tokens, externalUserId, 'PENDING_AUTH');
+    if (fhirMeta) await tx.query(`update public.source_connections set metadata = metadata || $3::jsonb where user_id = $1 and connector = $2`, [userId, connector, JSON.stringify(fhirMeta)]);
+  });
+  await audit(pool, { userId, actor: 'user', action: 'SOURCE_CONNECT', entity: 'source_connection', entityId: connector, details: { client: st.client, org: fhirMeta?.org ?? null } });
 
   let importResult: IngestResult | null = null;
+  let fhirResult: FhirImportResult | null = null;
   let importError: string | null = null;
   try {
-    importResult = connector === 'oura' ? await importOura(pool, rt, userId, { days: rt.ouraHistoryDays, mode: 'INITIAL_BACKFILL' }) : await importWithings(pool, rt, userId, { mode: 'INITIAL_BACKFILL' });
+    if (connector === 'clinical_fhir') fhirResult = await importFhir(pool, userId, tokens.accessToken, fhirMeta!, 'INITIAL_BACKFILL');
+    else importResult = connector === 'oura' ? await importOura(pool, rt, userId, { days: rt.ouraHistoryDays, mode: 'INITIAL_BACKFILL' }) : await importWithings(pool, rt, userId, { mode: 'INITIAL_BACKFILL' });
   } catch (e) {
     importError = (e as Error).message;
     await withUser(pool, userId, (tx) => tx.query(`update public.source_connections set last_error = $3, last_sync_status = 'ERROR' where user_id = $1 and connector = $2`, [userId, connector, importError!.slice(0, 300)]));
   }
-  const webhook = await ensureWebhooks(pool, rt, userId, connector).catch((e: Error) => `webhook setup failed: ${e.message}`);
+  const webhook = connector === 'clinical_fhir' ? 'no webhooks: patient-access FHIR is pull-only (refresh from Data Sources or the hourly reconcile job)' : await ensureWebhooks(pool, rt, userId, connector).catch((e: Error) => `webhook setup failed: ${e.message}`);
   if (importResult) await deriveForUser(pool, userId).catch(() => undefined);
-  return { userId, connector, client: st.client === 'android' ? 'android' : 'web', returnTo: st.return_to, importResult, importError, webhook };
+  return { userId, connector, client: st.client === 'android' ? 'android' : 'web', returnTo: st.return_to, importResult, fhirResult, importError, webhook };
 }
 
 export async function disconnect(pool: pg.Pool, rt: ConnectorRuntime, userId: string, connector: OAuthConnector): Promise<void> {
+  if (connector === 'clinical_fhir') return; // SMART patient access has no revocation endpoint; tokens are cleared by the caller
   const stored = await withUser(pool, userId, (tx) => loadTokens(tx, rt, userId, connector));
   if (stored && connector === 'oura' && rt.oura) await rt.oura.revoke(stored.accessToken).catch(() => undefined);
   if (stored && connector === 'withings' && rt.withings) {
@@ -276,19 +343,24 @@ export async function importWithings(pool: pg.Pool, rt: ConnectorRuntime, userId
   );
 }
 
-export async function reconcile(pool: pg.Pool, rt: ConnectorRuntime, userId: string, connector: OAuthConnector, now: Date = new Date()): Promise<IngestResult> {
+export async function reconcile(pool: pg.Pool, rt: ConnectorRuntime, userId: string, connector: OAuthConnector, now: Date = new Date()): Promise<IngestResult | FhirImportResult> {
+  if (connector === 'clinical_fhir') {
+    const { accessToken } = await freshAccessToken(pool, rt, userId, connector);
+    const meta = await fhirMetaFor(pool, userId);
+    return importFhir(pool, userId, accessToken, meta, 'INCREMENTAL', now);
+  }
   return connector === 'oura' ? importOura(pool, rt, userId, { days: 3, mode: 'RECONCILE', heartRateDays: 2 }, now) : importWithings(pool, rt, userId, { mode: 'RECONCILE' }, now);
 }
 
 export async function reconcileAll(pool: pg.Pool, rt: ConnectorRuntime, now: Date = new Date()): Promise<{ processed: number; failed: number; results: Array<{ userId: string; connector: string; status: string; error?: string }> }> {
-  const rows = await withService(pool, (tx) => tx.query<{ user_id: string; connector: OAuthConnector }>(`select user_id, connector from public.source_connections where connector in ('oura','withings') and status in ('CONNECTED','PARTIAL','PENDING_AUTH') and access_token_ciphertext is not null`));
+  const rows = await withService(pool, (tx) => tx.query<{ user_id: string; connector: OAuthConnector }>(`select user_id, connector from public.source_connections where connector in ('oura','withings','clinical_fhir') and status in ('CONNECTED','PARTIAL','PENDING_AUTH') and access_token_ciphertext is not null`));
   const results: Array<{ userId: string; connector: string; status: string; error?: string }> = [];
   let failed = 0;
   for (const r of rows.rows) {
     if (!rt.configured.has(r.connector)) continue;
     try {
       const res = await reconcile(pool, rt, r.user_id, r.connector, now);
-      results.push({ userId: r.user_id, connector: r.connector, status: `+${res.inserted}/~${res.updated}` });
+      results.push({ userId: r.user_id, connector: r.connector, status: 'inserted' in res ? `+${res.inserted}/~${res.updated}` : `labs +${res.labsStaged}/~${res.labsUnchanged}` });
     } catch (e) {
       failed++;
       results.push({ userId: r.user_id, connector: r.connector, status: 'ERROR', error: (e as Error).message.slice(0, 200) });
@@ -304,6 +376,7 @@ export async function reconcileAll(pool: pg.Pool, rt: ConnectorRuntime, now: Dat
 const OURA_WEBHOOK_TYPES = ['sleep', 'daily_sleep', 'daily_readiness', 'daily_activity', 'daily_spo2', 'daily_stress', 'workout', 'vo2_max'];
 
 async function ensureWebhooks(pool: pg.Pool, rt: ConnectorRuntime, userId: string, connector: OAuthConnector): Promise<string> {
+  if (connector === 'clinical_fhir') return 'no webhooks for FHIR patient access';
   if (!rt.publicBaseUrl.startsWith('https://')) return 'skipped: PUBLIC_BASE_URL is not https (webhooks need a public HTTPS callback); periodic reconciliation covers updates';
   if (connector === 'withings') {
     const { accessToken } = await freshAccessToken(pool, rt, userId, 'withings');

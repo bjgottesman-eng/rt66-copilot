@@ -2,6 +2,7 @@ import type pg from 'pg';
 import type { DomainCard, MetricCard, SeriesResponse, TodayResponse } from '@bho/contracts';
 import { CONNECTORS, DOMAINS, DOMAIN_LABELS, HEALTH_CONNECT_ORIGINS, metricById, type Domain } from '@bho/shared-config';
 import { addDays, coefficientOfVariationPct, compareBaseline, computeFreshness, dailyAggregate, detectSignals, domainStatus, estimateMaxHeartRate, localDateOf, rankSignals, resolveDailySteps, sparkline, type ConnectionHealth, type DailyPoint } from '@bho/analytics';
+import { clinicalDomainEvidence } from './labs.js';
 import { withUser, type Tx } from '../db/pool.js';
 
 export const DASHBOARD_METRICS: Record<Domain, string[]> = {
@@ -272,6 +273,7 @@ export async function buildToday(pool: pg.Pool, userId: string, now: Date = new 
     const connections = await loadConnections(tx, userId);
 
     const domains: DomainCard[] = [];
+    let clinical: Awaited<ReturnType<typeof clinicalDomainEvidence>> | null = null;
     for (const domain of DOMAINS) {
       const cards: MetricCard[] = [];
       for (const metricId of DASHBOARD_METRICS[domain]) {
@@ -279,7 +281,18 @@ export async function buildToday(pool: pg.Pool, userId: string, now: Date = new 
         if (metricId === 'zone2_minutes' && !maxHr && !card.latest) card.freshness = { ...card.freshness, status: 'INSUFFICIENT_DATA', reason: 'Set your maximum heart rate (or birth date for an estimate) in Settings to derive Zone 2 minutes from heart-rate samples during workouts.' };
         cards.push(card);
       }
-      const { status, evidence } = domainStatus(cards);
+      let { status, evidence } = domainStatus(cards);
+      if (domain === 'clinical_preventive') {
+        const clin = await clinicalDomainEvidence(tx, userId, localToday);
+        clinical = clin;
+        const labCard = cards.find((c) => c.metricId === 'lab_result');
+        if (labCard && clin.confirmedResults > 0 && clin.latestCollectedAt) {
+          const ageDays = Math.round((now.getTime() - Date.parse(clin.latestCollectedAt)) / 86_400_000);
+          labCard.freshness = { ...labCard.freshness, status: ageDays <= 180 ? 'CURRENT' : 'STALE', reason: `${clin.confirmedResults} confirmed result(s); latest panel collected ${clin.latestCollectedAt.slice(0, 10)}${ageDays > 180 ? ' (older than 6 months)' : ''}.`, measuredAt: clin.latestCollectedAt };
+        }
+        if (clin.confirmedResults > 0 || clin.preventiveDue + clin.preventiveDueSoon > 0) status = clin.flaggedLatestPanel > 0 || clin.preventiveDue > 0 ? 'WATCH' : 'STEADY';
+        evidence = [...clin.evidence, ...evidence.filter((e) => !e.startsWith('No connected source') && !e.startsWith('Not enough'))];
+      }
       domains.push({ domain, label: DOMAIN_LABELS[domain], status, summary: domainSummary(status, DOMAIN_LABELS[domain], evidence), evidence, metrics: cards });
     }
 
@@ -293,7 +306,9 @@ export async function buildToday(pool: pg.Pool, userId: string, now: Date = new 
     for (const c of allCards) if (c.freshness.status === 'SYNC_ERROR' || c.freshness.status === 'STALE') problemSources.set(c.label, c.freshness.reason);
     for (const [label, reason] of [...problemSources].slice(0, 3)) whatMatters.push(`${label} is not current: ${reason}`);
 
+    if (clinical?.preventiveDue) whatMatters.push(`${clinical.preventiveDue} preventive-care item(s) are due; review them with your clinician.`);
     const doToday: string[] = [];
+    if (clinical?.pendingReview) doToday.push(`Review ${clinical.pendingReview} imported lab result(s) in Labs so they count toward your clinical picture.`);
     const bp = allCards.find((c) => c.metricId === 'blood_pressure_systolic');
     if (bp && ['STALE', 'SOURCE_DELAYED', 'INSUFFICIENT_DATA'].includes(bp.freshness.status)) doToday.push('Take a seated blood-pressure reading this morning (two readings, one minute apart) so the cardiovascular trend stays current.');
     const sleep = allCards.find((c) => c.metricId === 'sleep_duration');

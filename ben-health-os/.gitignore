@@ -37,3 +37,5 @@ playwright-report/
 .idea/
 *.iml
 .vscode/
+# uploaded documents and generated briefs (local storage; never committed)
+**/data/documents/

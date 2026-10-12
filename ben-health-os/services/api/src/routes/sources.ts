@@ -21,7 +21,7 @@ export async function sourcesRoutes(app: FastifyInstance, ctx: AppContext): Prom
     if (!user) return;
     const { connector } = request.params as { connector: string };
     if (!(CONNECTOR_IDS as readonly string[]).includes(connector)) return reply.code(404).send({ error: 'not_found', message: 'unknown connector' });
-    if (connector === 'oura' || connector === 'withings') await disconnect(ctx.pool, ctx.connectors, user.userId, connector).catch(() => undefined);
+    if (connector === 'oura' || connector === 'withings' || connector === 'clinical_fhir') await disconnect(ctx.pool, ctx.connectors, user.userId, connector).catch(() => undefined);
     await withUser(ctx.pool, user.userId, (tx) => tx.query(`update public.source_connections set status = 'DISCONNECTED', access_token_ciphertext = null, refresh_token_ciphertext = null, token_expires_at = null where user_id = $1 and connector = $2`, [user.userId, connector]));
     await audit(ctx.pool, { userId: user.userId, actor: 'user', action: 'SOURCE_DISCONNECT', entity: 'source_connection', entityId: connector });
     return reply.code(204).send();
@@ -31,7 +31,7 @@ export async function sourcesRoutes(app: FastifyInstance, ctx: AppContext): Prom
     const user = requireUser(request, reply);
     if (!user) return;
     const { connector } = request.params as { connector: string };
-    if (connector !== 'oura' && connector !== 'withings') return reply.code(400).send({ error: 'bad_request', message: 'refresh is only available for API connectors; Health Connect syncs from the Android app' });
+    if (connector !== 'oura' && connector !== 'withings' && connector !== 'clinical_fhir') return reply.code(400).send({ error: 'bad_request', message: 'refresh is only available for API connectors; Health Connect syncs from the Android app' });
     await ensureProfile(ctx.pool, ctx.config, user);
     try {
       return await reconcile(ctx.pool, ctx.connectors, user.userId, connector as OAuthConnector);

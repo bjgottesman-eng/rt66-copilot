@@ -6,7 +6,7 @@ import { audit } from './audit.js';
 export const USER_TABLES = [
   'recommendation_evidence', 'recommendations', 'experiment_phases', 'health_experiments', 'health_goals', 'alerts', 'preventive_care_items',
   'weekly_health_reports', 'monthly_health_reports', 'physician_briefs', 'health_memories', 'symptoms', 'journal_entries',
-  'medication_source_records', 'medication_reconciliations', 'medications', 'supplements', 'conditions', 'clinical_events',
+  'medication_source_records', 'medication_reconciliations', 'medications', 'supplements', 'allergies', 'conditions', 'clinical_events',
   'lab_results', 'lab_panels', 'documents', 'derived_metrics', 'annotations', 'nutrient_observations', 'nutrition_days', 'meals',
   'glucose_samples', 'daily_activity', 'workouts', 'sleep_stages', 'sleep_sessions', 'blood_pressure_readings', 'blood_pressure_sessions',
   'observations', 'raw_ingest_events', 'sync_cursors', 'sync_runs', 'source_devices', 'oauth_states', 'source_connections',

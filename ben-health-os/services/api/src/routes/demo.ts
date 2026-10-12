@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { generateCronometerCsv, generateDemoDataset } from '@bho/fixtures';
+import { generateCronometerCsv, generateDemoDataset, generateLabCsv } from '@bho/fixtures';
 import type { AppContext } from '../app.js';
 import { ensureProfile, requireUser } from '../auth/plugin.js';
 import { withUser } from '../db/pool.js';
@@ -9,6 +9,10 @@ import { createManualBloodPressure } from '../services/bp.js';
 import { ingestHealthConnectBatch } from '../services/ingest.js';
 import { deriveForUser } from '../services/derived.js';
 import { importCronometerCsv } from '../services/nutrition.js';
+import { decideReviews, importLabFile, reviewQueue } from '../services/labs.js';
+import { createAllergy, createMedication, createSupplement } from '../services/medications.js';
+import { createCondition } from '../services/clinicalRecords.js';
+import { createPreventive } from '../services/preventive.js';
 import { localDateOf, addDays } from '@bho/analytics';
 
 const SeedBody = z.object({
@@ -50,9 +54,23 @@ export async function demoRoutes(app: FastifyInstance, ctx: AppContext): Promise
     for (const m of ds.manualBloodPressure) await createManualBloodPressure(ctx.pool, user.userId, m);
     // The same synthetic diary as a Cronometer CSV export: exercises the importer and same-day dedup against Health Connect.
     const csv = await importCronometerCsv(ctx.pool, user.userId, { csv: generateCronometerCsv(ds), fileName: 'cronometer-demo.csv', dryRun: false });
+    // Phase 5: a synthetic Function-style lab export (three panels); the two older panels are confirmed, the latest stays in the review queue
+    const labs = await importLabFile(ctx.pool, user.userId, ctx.config.DOCUMENT_STORAGE_DIR, { csv: generateLabCsv(ds), fileName: 'function-health-demo.csv', source: 'function_health', dryRun: false });
+    const pendingLabs = await reviewQueue(ctx.pool, user.userId);
+    const latestPanel = pendingLabs.pending.map((p) => p.collectedAt ?? '').sort().at(-1) ?? '';
+    const older = pendingLabs.pending.filter((p) => (p.collectedAt ?? '') !== latestPanel).map((p) => ({ id: p.id, action: 'CONFIRM' as const }));
+    const confirmedLabs = older.length ? await decideReviews(ctx.pool, user.userId, { decisions: older }) : null;
+    await createMedication(ctx.pool, user.userId, { name: 'Atorvastatin (synthetic demo)', dosage: '20 mg', frequency: 'nightly', route: 'oral', status: 'CURRENT', prescribingClinician: 'Dr. Synthetic', indication: 'LDL above target', startDate: addDays(endDate, -300) });
+    await createMedication(ctx.pool, user.userId, { name: 'Ibuprofen (synthetic demo)', dosage: '400 mg', frequency: 'as needed', status: 'AS_NEEDED' });
+    await createSupplement(ctx.pool, user.userId, { name: 'Vitamin D3 (synthetic demo)', dose: '2000 IU', frequency: 'daily', purpose: 'low 25-OH vitamin D on the first panel', status: 'CURRENT', ingredients: [{ name: 'cholecalciferol', amount: '2000 IU' }], monthlyCostCents: 800 });
+    await createAllergy(ctx.pool, user.userId, { substance: 'Penicillin (synthetic demo)', reaction: 'hives', severity: 'MODERATE' });
+    await createCondition(ctx.pool, user.userId, { name: 'Hyperlipidemia (synthetic demo)', status: 'ACTIVE', onsetDate: addDays(endDate, -400) });
+    await createPreventive(ctx.pool, user.userId, { title: 'Annual physical / wellness visit', category: 'PHYSICAL', guidelineSource: 'Primary care clinician (synthetic demo)', guidelineReviewedAt: addDays(endDate, -420), intervalMonths: 12, lastCompletedAt: addDays(endDate, -420), status: 'COMPLETED' });
+    await createPreventive(ctx.pool, user.userId, { title: 'Influenza vaccination', category: 'VACCINATION', guidelineSource: 'CDC/ACIP adult schedule (verify at cdc.gov/vaccines)', guidelineReviewedAt: addDays(endDate, -60), intervalMonths: 12, lastCompletedAt: addDays(endDate, -60), status: 'COMPLETED' });
+    await createPreventive(ctx.pool, user.userId, { title: 'Colorectal cancer screening', category: 'CANCER_SCREENING', guidelineSource: 'USPSTF — verify eligibility with your clinician', status: 'DISCUSS_WITH_CLINICIAN' });
     await withUser(ctx.pool, user.userId, (tx) => tx.query('update public.profiles set demo_mode = true, birth_date = coalesce(birth_date, $2::date) where id = $1', [user.userId, '1986-06-15']));
     const derived = await deriveForUser(ctx.pool, user.userId);
-    return { seeded: true, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, cronometerCsv: { meals: csv.meals, days: csv.days, inserted: csv.ingest?.inserted ?? 0, healthConnectDuplicatesLinked: csv.healthConnectDuplicatesLinked }, derived };
+    return { seeded: true, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, cronometerCsv: { meals: csv.meals, days: csv.days, inserted: csv.ingest?.inserted ?? 0, healthConnectDuplicatesLinked: csv.healthConnectDuplicatesLinked }, labs: { staged: labs.staged, confirmed: confirmedLabs?.confirmed ?? 0, pendingReview: labs.staged - (confirmedLabs?.confirmed ?? 0) }, derived };
   });
 
   app.delete('/v1/demo', async (request, reply) => {

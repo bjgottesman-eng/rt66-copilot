@@ -32,3 +32,18 @@ Health data is treated as highly sensitive at every layer.
 - Formal review before any claim of HIPAA compliance — **no such claim is made**.
 - SQLCipher for the on-device Room cache (today it relies on Android file-based encryption and
   the app sandbox; the cache holds only compact recent readings and dashboard JSON).
+
+## Phase 5 additions (documents, clinical records)
+- Uploaded lab PDFs/CSVs and generated physician briefs are written under `DOCUMENT_STORAGE_DIR`
+  (`<user id>/<sha256>.<ext>`); the database stores metadata only. The directory must be backed up
+  and permission-restricted together with the database; both are covered by export-all and
+  delete-all.
+- PDF handling reads the text layer in-process with pdf.js (`isEvalSupported: false`, no fonts, no
+  rendering); bytes are validated (`%PDF-` magic) before parsing. No external OCR or AI service sees
+  the file.
+- Epic patient-access tokens are stored like other OAuth tokens (AES-256-GCM, rotated on refresh);
+  SMART uses PKCE S256 and the `aud` parameter; the FHIR base URL is pinned per organization. There is
+  no revocation endpoint in SMART patient access, so disconnect clears the stored tokens and the
+  patient can revoke the app in MyChart.
+- Lab values, medication names and conditions never appear in request logs (bodies are not
+  serialized) or notifications.
