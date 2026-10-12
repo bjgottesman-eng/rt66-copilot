@@ -8,19 +8,20 @@
 | 3 Core analytics | 7/28/90/365-day window stats and baselines persisted as versioned `derived_metrics`, deterministic signal engine persisted per as-of day, Zone 2 minutes from heart-rate samples (profile max HR or Tanaka estimate, never guessed), personal 365-day percentiles, domain dashboards (web) and trend windows (web + Android), derive job | **Implemented, TESTED WITH MOCK DATA** (API + analytics tests) |
 | 4 Nutrition & glucose | Cronometer CSV importer (daily-summary or servings layout, header-mapped with dry-run review, idempotent re-import per day), same-day dedup against Cronometer meals arriving via Health Connect, `nutrition_days` rollups + user/clinician targets, glucose day analytics from Stelo via HC (mean/SD/CV, configurable time in range, overnight mean, meal excursions with baseline/peak/iAUC, repeated-meal comparison, 3-hour Stelo latency surfaced), annotations (meal/exercise/note), web Nutrition page, Android Nutrition screen | **Implemented, TESTED WITH MOCK DATA** (7 analytics + 2 API + 1 fixture tests, Playwright); Apple Health / Google Fit historical import NOT IMPLEMENTED (deferred to Phase 8 hardening) |
 | 5 Clinical intelligence | Laboratory ingestion engine (analyte mapping by LOINC/name, explicit unit factors with refusal, lab-reported ranges/flags, raw events), Function Health PDF (text layer, no OCR) and CSV imports staged for review with corrections, manual entry, cross-source lab dedup, lab explorer with history/direction; Epic SMART-on-FHIR patient-access connector (discovery, PKCE + aud, token rotation) pulling laboratory Observations as confirmed clinician records, Conditions, MedicationRequests (reconciliation queue), AllergyIntolerances, Immunizations/Procedures/Encounters; medications, supplements, allergies, conditions, reconciliation log; preventive-care items with mandatory guideline source, computed DUE/DUE SOON, iCal export; physician brief JSON + PDF; clinical domain evidence on Today; web Labs/Medications/Preventive/Physician brief pages; Android Labs/Medications/Preventive screens | **Implemented, TESTED WITH MOCK DATA** (10 analytics + 5 FHIR client/mapper + 5 API tests, Playwright); live Epic = BLOCKED BY CREDENTIALS (fhir.epic.com app registration); drug-interaction checking NOT IMPLEMENTED (no verified source integrated) |
-| 6 AI intelligence | provider-independent analysis packets, recommendation engine + evidence, inbox, weekly Health CEO and monthly Board reports, scheduling | Planned (sharing controls and Oura exclusion already in place) |
+| 6 AI intelligence | provider-independent analysis packets (citation ids, provenance, sharing controls applied in code, packet hash), deterministic rules engine → recommendations with evidence rows and the three-priority cap, no-repeat rules for dismissed items, descriptive outcome evaluation, weekly Health CEO and monthly Health Board reports persisted with algorithm versions, AI narrative through a provider adapter with a structured-output validator (mock provider in tests; Anthropic adapter BLOCKED BY CREDENTIALS), alerts with lock-screen-safe titles and notification preferences, health memory with origin/verification, scheduled reports job; web Health CEO + Inbox pages, Android Health CEO + Inbox screens and alert notifications with quiet hours | **Implemented, TESTED WITH MOCK DATA** (8 `@bho/ai` + 4 API tests, Playwright, 2 Android tests); live AI provider = BLOCKED BY CREDENTIALS |
 | 7 Experiments & training | N-of-1 engine, strength module, progression, check-ins, correlations (exploratory) | Planned (schema exists) |
 | 8 Hardening | threat model, tests, background sync testing on device, error recovery, performance, deployment docs, AGP 9 / compileSdk 37 upgrade, Play release prep | Planned |
 
-## Immediate next milestone (Phase 6 — AI intelligence)
-1. Structured analysis packets (measured facts with provenance, derived trends, confirmed clinical
-   records) honouring the AI-sharing controls and the Oura exclusion; provider adapter interface
-   with a mock provider for tests — live provider BLOCKED BY CREDENTIALS (API key).
-2. Recommendation engine + evidence references + persistent inbox (`recommendations`,
-   `recommendation_evidence`, `alerts`) with the labelling rules (MEASURED FACT / DERIVED TREND /
-   HYPOTHESIS / RECOMMENDATION) and the safety rules of `docs/recommendation-safety.md`.
-3. Weekly Health CEO and monthly Health Board reports (`weekly_health_reports`,
-   `monthly_health_reports`) built from the signal engine and the windows; notifications.
+## Immediate next milestone (Phase 7 — Experiments and training)
+1. N-of-1 experiment engine on the existing `experiments` schema: hypothesis, single intervention,
+   baseline window, intervention window (alternating periods where feasible), primary and secondary
+   outcome metrics, adherence check-ins, evaluation with the same change classifier and coverage
+   gates as trends, honest INSUFFICIENT_EVIDENCE verdicts, results into the monthly board report
+   (`experiments_completed` / `experiments_current` sections already reserved).
+2. Strength-training module: resistance sessions from Health Connect exercise sessions plus manual
+   set/rep/load logging, progression views, weekly volume, recovery context from HRV/sleep.
+3. Subjective check-ins (energy, mood, soreness, sleep quality) as MEASURED FACT self-reports with
+   their own freshness; exploratory correlations labelled HYPOTHESIS only.
 Deferred: Apple Health / Google Fit historical import (needs Ben's export files to design the mapper);
 drug-interaction flags (needs a verified clinical interaction source).
 Still pending from earlier phases (blocked on Ben): physical-device verification of the Android app,

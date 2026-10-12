@@ -85,8 +85,31 @@ test('login, load demo data, and walk the Phase 1 screens', async ({ page }) => 
   await page.getByTestId('brief-generate').click();
   await expect(page.getByTestId('brief-result')).toContainText('Open PDF');
 
-  // Honest placeholders
+  // Health CEO (Phase 6): the demo seed generated the first weekly report with exactly three priorities and no AI without consent
   await page.goto('/health-ceo');
+  await expect(page.getByTestId('report-weekly')).toBeVisible();
+  await expect(page.getByTestId('priority-3')).toBeVisible();
+  await expect(page.getByTestId('ai-note')).toContainText(/sharing is off|rules-based/i);
+  await page.screenshot({ path: '../../screenshots/web-health-ceo.png', fullPage: true });
+  await page.getByTestId('generate-monthly').click();
+  await expect(page.getByTestId('report-monthly')).toBeVisible({ timeout: 60_000 });
+
+  // Inbox: evidence is visible, dismissing moves the item to closed, alerts can be read, memory is remembered
+  await page.goto('/inbox');
+  const firstRec = page.getByTestId('rec-card').first();
+  await firstRec.getByTestId('rec-evidence-toggle').click();
+  await expect(firstRec.getByTestId('rec-evidence')).toBeVisible();
+  const openBefore = await page.getByTestId('rec-list').getByTestId('rec-card').count();
+  await firstRec.getByTestId('rec-dismiss').click();
+  await expect(page.getByTestId('rec-list').getByTestId('rec-card')).toHaveCount(openBefore - 1);
+  await page.getByTestId('alert-read').first().click();
+  await page.getByTestId('memory-statement').fill('Prefers morning training sessions');
+  await page.getByTestId('memory-save').click();
+  await expect(page.getByTestId('memory-list')).toContainText('Prefers morning training sessions');
+  await page.screenshot({ path: '../../screenshots/web-inbox.png', fullPage: true });
+
+  // Honest placeholders
+  await page.goto('/experiments');
   await expect(page.getByText('Not implemented')).toBeVisible();
 
   // Settings + export link

@@ -26,6 +26,8 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
         if (!container.secureStore.hasSession) return Result.success()
         val trigger = if (inputData.getString(KEY_TRIGGER) == "manual") SyncTrigger.MANUAL else SyncTrigger.PERIODIC
         val outcome = container.syncer.sync(trigger)
+        // Phase 6: server alerts (report ready, labs imported, follow-ups) ride on the sync cadence; no separate polling.
+        runCatching { container.alertNotifier.poll() }
         return when (outcome.status) {
             "SUCCESS", "PARTIAL" -> Result.success()
             else -> if (runAttemptCount < 3) Result.retry() else Result.failure()

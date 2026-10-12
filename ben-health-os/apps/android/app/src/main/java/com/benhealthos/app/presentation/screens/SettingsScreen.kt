@@ -57,6 +57,8 @@ fun SettingsScreen(onSignOut: () -> Unit) {
     var maxHr by remember { mutableStateOf("") }
     androidx.compose.runtime.LaunchedEffect(Unit) { runCatching { container.api.me() }.getOrNull()?.let { birthDate = it.birthDate ?: ""; maxHr = it.maxHeartRate?.toString() ?: "" } }
     var message by remember { mutableStateOf<String?>(null) }
+    var prefs by remember { mutableStateOf(com.benhealthos.app.data.remote.NotificationPrefsDto()) }
+    androidx.compose.runtime.LaunchedEffect(Unit) { runCatching { container.api.notificationPrefs() }.getOrNull()?.let { prefs = it } }
     var confirmDelete by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
 
@@ -75,6 +77,20 @@ fun SettingsScreen(onSignOut: () -> Unit) {
                 OutlinedTextField(maxHr, { maxHr = it.filter(Char::isDigit) }, label = { Text("Measured max heart rate (bpm)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 Text("Zone 2 uses the measured max heart rate when set, otherwise the Tanaka estimate from your age; with neither it stays insufficient data.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedButton(onClick = { scope.launch { message = runCatching { container.api.updateProfile(com.benhealthos.app.data.remote.ProfileUpdateDto(birthDate = birthDate.ifBlank { null }, maxHeartRate = maxHr.toIntOrNull())); "Physiology saved." }.getOrElse { "Save failed: ${it.message}" } } }) { Text("Save") }
+            }
+            SectionCard("Notifications") {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Push notifications", style = MaterialTheme.typography.bodyMedium)
+                        Text("High-signal only; titles never contain measurements and stay private on the lock screen.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(checked = prefs.pushEnabled, onCheckedChange = { v -> prefs = prefs.copy(pushEnabled = v) })
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(prefs.quietHoursStart ?: "", { prefs = prefs.copy(quietHoursStart = it.ifBlank { null }) }, label = { Text("Quiet from (HH:MM)") }, singleLine = true, modifier = Modifier.weight(1f))
+                    OutlinedTextField(prefs.quietHoursEnd ?: "", { prefs = prefs.copy(quietHoursEnd = it.ifBlank { null }) }, label = { Text("Quiet until (HH:MM)") }, singleLine = true, modifier = Modifier.weight(1f))
+                }
+                OutlinedButton(onClick = { scope.launch { message = runCatching { prefs = container.api.updateNotificationPrefs(prefs); "Notification preferences saved." }.getOrElse { "Save failed: ${it.message}" } } }) { Text("Save notifications") }
             }
             SectionCard("Security") {
                 Row(verticalAlignment = Alignment.CenterVertically) {

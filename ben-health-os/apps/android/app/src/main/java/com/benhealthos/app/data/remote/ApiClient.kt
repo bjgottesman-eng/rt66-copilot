@@ -6,6 +6,8 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -65,6 +67,25 @@ class ApiClient(
     suspend fun preventive(): PreventiveDto = get("/v1/preventive", PreventiveDto.serializer())
     suspend fun completePreventive(id: String, completedAt: String) = postNoContent("/v1/preventive/$id/complete", """{"completedAt":"$completedAt"}""")
 
+    // Phase 6
+    suspend fun reports(): ReportListDto = get("/v1/reports", ReportListDto.serializer())
+    suspend fun report(kind: String, id: String): ReportDto = get("/v1/reports/$kind/$id", ReportDto.serializer())
+    suspend fun generateReport(kind: String): ReportDto = postRaw("/v1/reports/$kind", "{\"force\":true}", ReportDto.serializer())
+    suspend fun recommendations(): RecommendationsDto = get("/v1/recommendations", RecommendationsDto.serializer())
+    suspend fun updateRecommendation(id: String, status: String, snoozedUntil: String? = null, dismissReason: String? = null): RecommendationDto {
+        val body = buildJsonObject {
+            put("status", status)
+            if (snoozedUntil != null) put("snoozedUntil", snoozedUntil)
+            if (dismissReason != null) put("dismissReason", dismissReason)
+        }
+        return patchRaw("/v1/recommendations/$id", json.encodeToString(JsonObject.serializer(), body), RecommendationDto.serializer())
+    }
+    suspend fun alerts(unreadOnly: Boolean, refresh: Boolean = false): AlertsDto = get("/v1/alerts?unread=${if (unreadOnly) 1 else 0}&refresh=${if (refresh) 1 else 0}", AlertsDto.serializer())
+    suspend fun alertAction(id: String, action: String) = patchNoContent("/v1/alerts/$id", "{\"action\":\"$action\"}")
+    suspend fun notificationPrefs(): NotificationPrefsDto = get("/v1/notifications/prefs", NotificationPrefsDto.serializer())
+    suspend fun updateNotificationPrefs(prefs: NotificationPrefsDto): NotificationPrefsDto = patchRaw("/v1/notifications/prefs", json.encodeToString(NotificationPrefsDto.serializer(), prefs), NotificationPrefsDto.serializer())
+    suspend fun aiStatus(): AiStatusDto = get("/v1/ai/status", AiStatusDto.serializer())
+
     suspend fun seedDemo(days: Int): JsonObject = postRaw("/v1/demo/seed", """{"days":$days,"replace":true}""", JsonObject.serializer())
     suspend fun clearDemo() = deleteNoContent("/v1/demo")
     suspend fun deleteAllData() = postOrDelete("DELETE", "/v1/me/data", """{"confirmation":"DELETE ALL MY HEALTH DATA"}""")
@@ -86,6 +107,10 @@ class ApiClient(
         http.newCall(request(path).post(bodyJson.toRequestBody(jsonMedia)).build()).execute().use { res ->
             if (!res.isSuccessful) throw ApiException(res.code, errorMessage(res.body?.string()))
         }
+    }
+
+    private suspend fun <T> patchRaw(path: String, bodyJson: String, serializer: KSerializer<T>): T = withContext(Dispatchers.IO) {
+        execute(request(path).patch(bodyJson.toRequestBody(jsonMedia)).build(), serializer)
     }
 
     private suspend fun patchNoContent(path: String, bodyJson: String) = withContext(Dispatchers.IO) {

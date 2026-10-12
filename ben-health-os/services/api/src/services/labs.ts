@@ -192,6 +192,7 @@ export async function importLabFile(pool: pg.Pool, userId: string, storageDir: s
       else staged++;
     }
     await tx.query(`update public.documents set extraction_status = $2, page_count = $3, extraction_summary = $4 where id = $1`, [doc.id, staged > 0 ? 'REVIEW' : 'EXTRACTED', pageCount, JSON.stringify({ rows: rows.length, staged, unchanged, warnings: warnings.slice(0, 10), format: base.format })]);
+    if (staged > 0) await tx.query(`insert into public.alerts (user_id, kind, severity, title, body, payload, dedupe_key) values ($1, 'LABS_IMPORTED', 'INFO', 'New laboratory results imported', $2, $3, $4) on conflict (user_id, dedupe_key) do nothing`, [userId, `${staged} result(s) from ${title} are waiting for your review in Labs.`, JSON.stringify({ documentId: doc.id }), `labs:${fileHash}`]);
     await tx.query(
       `insert into public.source_connections (user_id, connector, status, last_sync_attempt_at, last_successful_sync_at, last_sync_status) values ($1, $2, 'CONNECTED', $3, $3, 'SUCCESS')
        on conflict (user_id, connector) do update set status = 'CONNECTED', last_sync_attempt_at = excluded.last_sync_attempt_at, last_successful_sync_at = excluded.last_successful_sync_at, last_sync_status = 'SUCCESS', last_error = null`,

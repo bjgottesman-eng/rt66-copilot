@@ -308,6 +308,8 @@ export async function buildToday(pool: pg.Pool, userId: string, now: Date = new 
 
     if (clinical?.preventiveDue) whatMatters.push(`${clinical.preventiveDue} preventive-care item(s) are due; review them with your clinician.`);
     const doToday: string[] = [];
+    const priorities = await tx.query<{ title: string; priority: number }>(`select title, priority from public.recommendations where user_id = $1 and status in ('NEW','ACCEPTED','IN_PROGRESS','DISCUSS_WITH_CLINICIAN') and priority is not null and (expires_at is null or expires_at > now()) order by priority limit 3`, [userId]);
+    for (const p of priorities.rows) doToday.push(`Priority ${p.priority}: ${p.title} (see Inbox for the evidence).`);
     if (clinical?.pendingReview) doToday.push(`Review ${clinical.pendingReview} imported lab result(s) in Labs so they count toward your clinical picture.`);
     const bp = allCards.find((c) => c.metricId === 'blood_pressure_systolic');
     if (bp && ['STALE', 'SOURCE_DELAYED', 'INSUFFICIENT_DATA'].includes(bp.freshness.status)) doToday.push('Take a seated blood-pressure reading this morning (two readings, one minute apart) so the cardiovascular trend stays current.');

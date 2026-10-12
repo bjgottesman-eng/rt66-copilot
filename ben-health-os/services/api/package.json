@@ -15,6 +15,7 @@
     "lint": "echo 'no linter configured for api'"
   },
   "dependencies": {
+    "@bho/ai": "workspace:*",
     "@bho/analytics": "workspace:*",
     "@bho/contracts": "workspace:*",
     "@bho/fixtures": "workspace:*",

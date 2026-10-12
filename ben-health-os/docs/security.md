@@ -47,3 +47,26 @@ Health data is treated as highly sensitive at every layer.
   patient can revoke the app in MyChart.
 - Lab values, medication names and conditions never appear in request logs (bodies are not
   serialized) or notifications.
+
+## Phase 6 additions (AI layer, recommendations, notifications)
+- AI providers receive **analysis packets**, never database access or raw records: trends, signals,
+  BP summary, confirmed labs, glucose/nutrition summaries, medications, allergies, conditions,
+  preventive status, source freshness, goals and memory items — each with a citation id and
+  provenance. Items from excluded connectors (default Oura, ADR 0006) are removed in code before the
+  provider copy is built; with `ai_sharing.enabled = false` no provider is called. The SHA-256 packet
+  hash is stored with every report (`generator.providerPacketHash`) so what left the server is
+  auditable; the packet itself is not logged.
+- Provider responses are **validated before use**: citations must reference packet items; diagnostic,
+  medication-change, emergency and causal wording is rejected; rejected findings are listed in the
+  report, never shown as accepted. AI hypotheses enter the health memory only as
+  `AI_HYPOTHESIS / UNVERIFIED`.
+- `ANTHROPIC_API_KEY` is read from the environment on the API only; the web app and the Android app
+  never hold it. Provider failures are logged without the packet contents.
+- **Alerts** are created server-side with fixed, value-free titles and bodies (report ready, labs
+  imported, connection expired, sync stale, permissions revoked, follow-up due, medication review
+  due) and deduplicated per condition and period. The Android app posts them with
+  `VISIBILITY_PRIVATE` and a public version that shows only the app name, honours the user's push
+  toggle, enabled kinds and quiet hours (held, not dropped, during quiet hours), and marks them
+  delivered. Nothing clinical is ever on the lock screen by default.
+- Recommendations, evidence, reports, alerts and memories are user tables under RLS, included in
+  export-all and delete-all.

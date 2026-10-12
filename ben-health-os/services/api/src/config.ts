@@ -45,6 +45,13 @@ const EnvSchema = z.object({
   FHIR_BASE_OVERRIDE: z.string().url().optional(),
   /** Where uploaded documents (lab PDFs/CSVs, generated briefs) are stored. Files never live in the database. */
   DOCUMENT_STORAGE_DIR: z.string().default('./data/documents'),
+  /** AI narrative provider: none (default), mock (tests/demo), anthropic (needs ANTHROPIC_API_KEY; BLOCKED BY CREDENTIALS until then). */
+  AI_PROVIDER: z.enum(['none', 'mock', 'anthropic']).default('none'),
+  ANTHROPIC_API_KEY: z.string().optional(),
+  AI_MODEL: z.string().default('claude-sonnet-5-5'),
+  /** Tests/demo only: the mock provider also emits an uncited and an unsafe finding so the validator path is visible. */
+  AI_MOCK_INCLUDE_INVALID: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
+  AI_API_BASE: z.string().url().optional(),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema> & { corsOrigins: string[] };

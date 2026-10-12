@@ -54,4 +54,19 @@ class DtoSerializationTest {
     }
 
     private fun minutesOfDayForTest(iso: String, zone: String): Int = com.benhealthos.app.presentation.screens.minutesOfDay(iso, java.time.ZoneId.of(zone))
+
+    @Test
+    fun reportDtoDecodesContractShapeWithRulesOnlyNarrative() {
+        val body = """{"id":"7a4e2d2e-0c3b-4c6c-9a1d-1f2e3d4c5b6a","kind":"weekly","periodFrom":"2026-10-05","periodTo":"2026-10-11","baselineFrom":"2026-09-07","baselineTo":"2026-10-04","generatedAt":"2026-10-12T06:00:00Z","generator":{"ai":{"status":"DISABLED"}},"status":"READY",
+          "content":{"algorithm":"weekly_health_ceo","version":1,"dataThrough":"2026-10-11","executiveSummary":["x"],"sections":[{"key":"kpi_scorecard","title":"KPI","claimType":"DERIVED_TREND","lines":["a"],"items":[],"insufficient":false}],
+          "priorities":[{"rank":1,"title":"t","text":"x","recommendationId":null,"insufficient":false},{"rank":2,"title":"No further priority this period","text":"n","recommendationId":null,"insufficient":true},{"rank":3,"title":"n","text":"n","recommendationId":null,"insufficient":true}],
+          "physicianFollowUp":[],"aiNarrative":{"status":"DISABLED","provider":null,"model":null,"summary":null,"findings":[],"physicianQuestions":[],"rejected":[],"packetHash":null,"note":"off"},"packetHash":"abc"}}"""
+        val r = json.decodeFromString(ReportDto.serializer(), body)
+        assertEquals(3, r.content.priorities.size)
+        assertEquals("DISABLED", r.content.aiNarrative.status)
+        assertEquals(null, r.content.priorities[0].recommendationId)
+        val rec = json.decodeFromString(RecommendationDto.serializer(), """{"id":"1","title":"T","status":"NEW","evidence":[{"id":"e","evidenceType":"GUIDELINE","citation":"c","lastVerifiedAt":null}],"outcome":null,"unknown":true}""")
+        assertEquals(1, rec.evidence.size)
+        assertEquals(null, rec.outcome)
+    }
 }

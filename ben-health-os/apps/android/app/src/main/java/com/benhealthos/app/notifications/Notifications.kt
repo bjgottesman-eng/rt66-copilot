@@ -25,6 +25,7 @@ object NotificationChannels {
                 lockscreenVisibility = android.app.Notification.VISIBILITY_PRIVATE
             },
         )
+        AlertNotifier.ensureChannel(context)
     }
 }
 

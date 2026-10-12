@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { TodayResponse } from '@bho/contracts';
 import { apiFetch } from '@/lib/api';
 import { Card, PageHeader } from '@/components/ui';
@@ -33,8 +34,8 @@ export default async function TodayPage() {
           <ul className="mt-2 space-y-2 text-sm">{today.whatMatters.map((s, i) => <li key={i}>{s}</li>)}</ul>
         </Card>
         <Card>
-          <p className="text-xs uppercase tracking-widest text-muted">What should I do today</p>
-          <ul className="mt-2 list-disc space-y-2 pl-5 text-sm">{today.doToday.map((s, i) => <li key={i}>{s}</li>)}</ul>
+          <div className="flex items-center justify-between gap-2"><p className="text-xs uppercase tracking-widest text-muted">What should I do today</p><Link href="/inbox" className="text-xs text-accent">Inbox</Link></div>
+          <ul className="mt-2 list-disc space-y-2 pl-5 text-sm" data-testid="do-today">{today.doToday.map((s, i) => <li key={i}>{s}</li>)}</ul>
         </Card>
       </section>
       <div className="space-y-5">

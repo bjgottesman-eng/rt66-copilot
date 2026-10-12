@@ -13,6 +13,7 @@ import { decideReviews, importLabFile, reviewQueue } from '../services/labs.js';
 import { createAllergy, createMedication, createSupplement } from '../services/medications.js';
 import { createCondition } from '../services/clinicalRecords.js';
 import { createPreventive } from '../services/preventive.js';
+import { generateWeeklyReport, refreshAlerts } from '../services/intelligence.js';
 import { localDateOf, addDays } from '@bho/analytics';
 
 const SeedBody = z.object({
@@ -70,7 +71,10 @@ export async function demoRoutes(app: FastifyInstance, ctx: AppContext): Promise
     await createPreventive(ctx.pool, user.userId, { title: 'Colorectal cancer screening', category: 'CANCER_SCREENING', guidelineSource: 'USPSTF — verify eligibility with your clinician', status: 'DISCUSS_WITH_CLINICIAN' });
     await withUser(ctx.pool, user.userId, (tx) => tx.query('update public.profiles set demo_mode = true, birth_date = coalesce(birth_date, $2::date) where id = $1', [user.userId, '1986-06-15']));
     const derived = await deriveForUser(ctx.pool, user.userId);
-    return { seeded: true, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, cronometerCsv: { meals: csv.meals, days: csv.days, inserted: csv.ingest?.inserted ?? 0, healthConnectDuplicatesLinked: csv.healthConnectDuplicatesLinked }, labs: { staged: labs.staged, confirmed: confirmedLabs?.confirmed ?? 0, pendingReview: labs.staged - (confirmedLabs?.confirmed ?? 0) }, derived };
+    // Phase 6: the first Weekly Health CEO report (rules engine; AI narrative only if sharing is on and a provider is configured) and the alert inbox
+    const report = await generateWeeklyReport(ctx.pool, ctx.config, user.userId, { force: true }, new Date(), (m) => request.log.warn(m));
+    await refreshAlerts(ctx.pool, ctx.config, user.userId);
+    return { seeded: true, weeklyReport: { id: report.id, periodTo: report.periodTo, priorities: report.content.priorities.length, ai: (report.generator as { ai?: { status?: string } }).ai?.status ?? 'DISABLED' }, endDate, scenario: ds.scenario, summary: ds.summary, ingest: totals, manualBloodPressure: ds.manualBloodPressure.length, cronometerCsv: { meals: csv.meals, days: csv.days, inserted: csv.ingest?.inserted ?? 0, healthConnectDuplicatesLinked: csv.healthConnectDuplicatesLinked }, labs: { staged: labs.staged, confirmed: confirmedLabs?.confirmed ?? 0, pendingReview: labs.staged - (confirmedLabs?.confirmed ?? 0) }, derived };
   });
 
   app.delete('/v1/demo', async (request, reply) => {

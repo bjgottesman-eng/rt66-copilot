@@ -12,9 +12,14 @@ export async function listSources(pool: pg.Pool, userId: string, now: Date = new
       [userId],
     );
     const stats = await tx.query<{ connector: string; n: number; latest: Date | null; latest_ingested: Date | null; coverage30: number; metrics: string[] }>(
-      `select connector, count(*)::int as n, max(measured_at) as latest, max(ingested_at) filter (where measured_at = (select max(measured_at) from public.observations o2 where o2.user_id = o.user_id and o2.connector = o.connector and o2.deleted_at is null)) as latest_ingested,
-              count(distinct local_date) filter (where local_date >= ($2::timestamptz - interval '30 days')::date)::int as coverage30, array_agg(distinct metric_id) as metrics
-       from public.observations o where user_id = $1 and deleted_at is null and canonical group by connector`,
+      `with agg as (
+         select connector, count(*)::int as n, max(measured_at) as latest,
+                count(distinct local_date) filter (where local_date >= ($2::timestamptz - interval '30 days')::date)::int as coverage30, array_agg(distinct metric_id) as metrics
+         from public.observations where user_id = $1 and deleted_at is null and canonical group by connector
+       )
+       select a.connector, a.n, a.latest, a.coverage30, a.metrics,
+              (select max(o.ingested_at) from public.observations o where o.user_id = $1 and o.connector = a.connector and o.deleted_at is null and o.measured_at = a.latest) as latest_ingested
+       from agg a`,
       [userId, nowIso],
     );
     const devices = await tx.query<{ connector: string; id: string; label: string; manufacturer: string | null; model: string | null; last_seen_at: Date }>('select connector, id, label, manufacturer, model, last_seen_at from public.source_devices where user_id = $1 order by last_seen_at desc', [userId]);

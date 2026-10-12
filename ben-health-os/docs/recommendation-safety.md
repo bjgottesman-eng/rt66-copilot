@@ -38,3 +38,16 @@ Recommendations record evidence source, publication date, population, strength, 
 limitations and last verification date. Citations are never invented; changing guidelines are
 re-fetched from official sources before use. Clinical recommendations are separated from
 exploratory longevity interventions.
+
+## Implementation (Phase 6)
+- `services/ai/src/rules.ts` — `recommendation_rules/v1`: every candidate carries observation,
+  reason, proposed action, confidence, claim type, limitations, clinician-review status, evidence
+  entries (observation / derived metric / lab / guideline with citation and verification note) and
+  the packet item ids it rests on. Blood pressure and flagged labs open as DISCUSS_WITH_CLINICIAN.
+- `services/ai/src/validate.ts` — `ai_response_validator/v1`: forbidden patterns and citation checks
+  applied to every provider finding and the summary.
+- `services/api/src/services/intelligence.ts` — persistence with the no-repeat rules (active or
+  recently completed rule → skipped; dismissed rule → skipped unless the evidence date is newer than
+  the dismissal), the three-priority re-ranking, `recommendation_outcome/v1` (7 days before vs 7 days
+  after acceptance, descriptive only).
+- See ADR 0008 for the packet, provider and validator design.

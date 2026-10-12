@@ -9,6 +9,7 @@ import com.benhealthos.app.data.sync.HealthConnectSyncer
 import com.benhealthos.app.domain.DashboardRepository
 import com.benhealthos.app.domain.SharedConfig
 import com.benhealthos.app.integrations.healthconnect.HealthConnectManager
+import com.benhealthos.app.notifications.AlertNotifier
 import com.benhealthos.app.security.SecureStore
 import kotlinx.serialization.json.Json
 
@@ -28,6 +29,7 @@ class AppContainer(private val context: Context) {
     val healthConnect: HealthConnectManager by lazy { HealthConnectManager(context) }
     val syncer: HealthConnectSyncer by lazy { HealthConnectSyncer(context, healthConnect, api, database, settings, json) }
     val dashboard: DashboardRepository by lazy { DashboardRepository(api, database, json) }
+    val alertNotifier: AlertNotifier by lazy { AlertNotifier(context, api) }
 }
 
 val Context.appContainer: AppContainer

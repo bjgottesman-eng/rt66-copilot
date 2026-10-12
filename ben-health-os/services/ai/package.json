@@ -1,0 +1,29 @@
+{
+  "name": "@bho/ai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phase 6 intelligence layer: analysis packets with sharing controls, deterministic recommendation rules with evidence, AI provider adapters (mock, Anthropic Messages API), response validation and the weekly/monthly report assembly. No database access; all inputs are structured packets.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "echo 'no linter configured for ai'"
+  },
+  "dependencies": {
+    "@bho/contracts": "workspace:*",
+    "@bho/shared-config": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "@types/node": "26.6.5"
+  }
+}

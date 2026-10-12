@@ -32,6 +32,8 @@ import com.benhealthos.app.presentation.screens.ManualBpScreen
 import com.benhealthos.app.presentation.screens.MoreScreen
 import com.benhealthos.app.presentation.screens.NotImplementedScreen
 import com.benhealthos.app.presentation.screens.OnboardingScreen
+import com.benhealthos.app.presentation.screens.HealthCeoScreen
+import com.benhealthos.app.presentation.screens.InboxScreen
 import com.benhealthos.app.presentation.screens.LabsScreen
 import com.benhealthos.app.presentation.screens.MedicationsScreen
 import com.benhealthos.app.presentation.screens.NutritionScreen
@@ -93,6 +95,8 @@ private fun MainScaffold(onSignOut: () -> Unit) {
             composable("labs") { LabsScreen() }
             composable("medications") { MedicationsScreen() }
             composable("preventive") { PreventiveScreen() }
+            composable("health-ceo") { HealthCeoScreen() }
+            composable("inbox") { InboxScreen() }
             composable("placeholder/{name}/{phase}") { entry ->
                 NotImplementedScreen(entry.arguments?.getString("name") ?: "", entry.arguments?.getString("phase")?.toIntOrNull() ?: 0)
             }

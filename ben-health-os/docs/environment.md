@@ -24,7 +24,12 @@
 | `EPIC_CLIENT_ID`, `EPIC_CLIENT_SECRET` | Phase 5 | patient-facing app registered at https://fhir.epic.com (non-production and production client ids); redirect URI `<PUBLIC_BASE_URL>/v1/oauth/clinical_fhir/callback`. Epic patient apps are normally public clients (PKCE, no secret). Enables the clinical records connector for Weill Cornell and NYU Langone. |
 | `FHIR_BASE_OVERRIDE` | tests | points every organization at a mock FHIR server. |
 | `DOCUMENT_STORAGE_DIR` | Phase 5 | directory for uploaded lab PDFs/CSVs and generated briefs (default `./data/documents`); files never live in the database. Back it up and restrict permissions with the database. |
-| `JOB_SECRET` | Phase 2/3 | shared secret for `POST /internal/jobs/reconcile` (hourly) and `POST /internal/jobs/derive` (nightly) via header `x-job-secret`; schedule with pg_cron + pg_net or a container cron. |
+| `JOB_SECRET` | Phase 2/3/6 | shared secret for `POST /internal/jobs/reconcile` (hourly), `POST /internal/jobs/derive` (nightly) and `POST /internal/jobs/reports` (daily, after derive; generates the weekly report once per complete week, the monthly one on the 1st/2nd, refreshes alerts) via header `x-job-secret`; schedule with pg_cron + pg_net or a container cron. |
+| `AI_PROVIDER` | Phase 6 | `none` (default; reports are rules-based), `mock` (deterministic in-process provider for tests/demo), `anthropic` (live Claude Messages API). A provider is consulted only for users whose profile has `ai_sharing.enabled = true`. |
+| `ANTHROPIC_API_KEY` | Phase 6 | required when `AI_PROVIDER=anthropic`; without it the status is BLOCKED BY CREDENTIALS and reports stay rules-based. Server-side only. |
+| `AI_MODEL` | optional | model id for the Anthropic adapter (default `claude-sonnet-5-5`). |
+| `AI_API_BASE` | tests | override the Messages API base URL (mock server). |
+| `AI_MOCK_INCLUDE_INVALID` | tests | `true` makes the mock provider also emit an uncited and an unsafe finding so the validator path is visible. |
 | `PORT`, `HOST`, `LOG_LEVEL`, `NODE_ENV` | optional | defaults 8787 / 0.0.0.0 / info / development. |
 
 ## Web (`apps/web`)
@@ -49,6 +54,6 @@ build only.
    NYU Langone FHIR access — the connector is built and mock-tested; it needs the client id
    (`EPIC_CLIENT_ID`) and, for production, Epic's app review.
 5. **Google Play Console** health declaration + privacy policy URL before a store release (Phase 8).
-6. **AI provider API key** (Phase 6) — a consumer ChatGPT/Claude subscription is not an API.
+6. **AI provider API key** (Phase 6) — `ANTHROPIC_API_KEY` for the Claude Messages API; a consumer ChatGPT/Claude subscription is not an API. The adapter, packet, validator and reports are built and mock-tested; the live call is BLOCKED BY CREDENTIALS. Turning on "AI data sharing" in Settings is Ben's own consent step and stays off by default.
 7. The **Samsung Galaxy S26 Ultra** itself for TESTED ON PHYSICAL DEVICE verification
    (`docs/device-setup.md`).

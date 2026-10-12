@@ -19,6 +19,7 @@ import { jobRoutes } from './routes/jobs.js';
 import { analyticsRoutes } from './routes/analytics.js';
 import { nutritionRoutes } from './routes/nutrition.js';
 import { clinicalRoutes } from './routes/clinical.js';
+import { intelligenceRoutes } from './routes/intelligence.js';
 import { createConnectorRuntime, type ConnectorRuntime } from './services/connectors.js';
 
 export interface AppContext {
@@ -76,6 +77,7 @@ export async function buildApp(overrides: Partial<NodeJS.ProcessEnv> = {}): Prom
   await app.register(async (instance) => analyticsRoutes(instance, ctx));
   await app.register(async (instance) => nutritionRoutes(instance, ctx));
   await app.register(async (instance) => clinicalRoutes(instance, ctx));
+  await app.register(async (instance) => intelligenceRoutes(instance, ctx));
 
   app.addHook('onClose', async () => {
     await pool.end();

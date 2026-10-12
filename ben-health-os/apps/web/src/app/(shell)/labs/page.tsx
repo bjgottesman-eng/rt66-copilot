@@ -31,7 +31,7 @@ export default async function LabsPage() {
         <Card className="mt-5 border-watch/40">
           <h3 className="text-sm font-semibold">Review {queue.total} imported result(s)</h3>
           <p className="mt-1 text-xs text-muted">Check the mapping, value, unit and collection date, then confirm. Rejected rows stay on file as evidence but never count.</p>
-          <div className="mt-3"><LabReviewQueue pending={queue.pending} /></div>
+          <div className="mt-3"><LabReviewQueue key={queue.pending.map((p) => p.id).join(',')} pending={queue.pending} /></div>
         </Card>
       )}
       <Card className="mt-5">

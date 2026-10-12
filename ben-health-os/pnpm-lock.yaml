@@ -117,6 +117,25 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(@types/node@26.6.5)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
 
+  services/ai:
+    dependencies:
+      '@bho/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@bho/shared-config':
+        specifier: workspace:*
+        version: link:../../packages/shared-config
+    devDependencies:
+      '@types/node':
+        specifier: 26.6.5
+        version: 26.6.5
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 4.1.11
+        version: 4.1.11(@types/node@26.6.5)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15))
+
   services/analytics:
     dependencies:
       '@bho/contracts':
@@ -138,6 +157,9 @@ importers:
 
   services/api:
     dependencies:
+      '@bho/ai':
+        specifier: workspace:*
+        version: link:../ai
       '@bho/analytics':
         specifier: workspace:*
         version: link:../analytics
