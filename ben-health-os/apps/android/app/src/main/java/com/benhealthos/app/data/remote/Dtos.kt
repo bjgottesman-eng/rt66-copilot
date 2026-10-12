@@ -150,3 +150,20 @@ data class ManualBpDto(
 )
 @Serializable data class BpReadingDto(val id: String, val sessionId: String? = null, val measuredAt: String, val systolic: Double, val diastolic: Double, val pulse: Double? = null, val connector: String, val canonical: Boolean)
 @Serializable data class ApiErrorDto(val error: String, val message: String)
+
+@Serializable data class OAuthStartDto(val url: String)
+@Serializable data class BpAverageDto(val systolic: Double, val diastolic: Double, val pulse: Double? = null, val n: Int)
+@Serializable data class BpSessionDto(val sessionId: String? = null, val startedAt: String, val n: Int, val systolic: Double, val diastolic: Double, val pulse: Double? = null, val rule: String)
+@Serializable data class BpTargetsDto(val systolicMax: Double, val diastolicMax: Double, val source: String, val clinicianConfigured: Boolean)
+@Serializable data class BpFullReadingDto(val id: String, val measuredAt: String, val systolic: Double, val diastolic: Double, val pulse: Double? = null, val connector: String, val deviceLabel: String? = null, val canonical: Boolean)
+@Serializable
+data class BpSummaryDto(
+    val latest: BpFullReadingDto? = null,
+    val lastSyncAt: String? = null,
+    val avg7d: BpAverageDto? = null,
+    val avg30d: BpAverageDto? = null,
+    val sessions: List<BpSessionDto> = emptyList(),
+    val readings: List<BpFullReadingDto> = emptyList(),
+    val targets: BpTargetsDto,
+    val notes: List<String> = emptyList(),
+)

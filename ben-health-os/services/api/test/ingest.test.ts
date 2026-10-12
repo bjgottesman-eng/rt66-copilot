@@ -111,7 +111,7 @@ describe('Health Connect ingest', () => {
     expect(hc.observationCount).toBeGreaterThan(1000);
     expect(hc.devices.length).toBeGreaterThan(3);
     expect(hc.availableMetrics).toContain('steps');
-    expect(s.sources.find((x) => x.connectorId === 'oura')!.implementationStatus).toBe('NOT_IMPLEMENTED');
+    expect(s.sources.find((x) => x.connectorId === 'oura')!.implementationStatus).toBe('BLOCKED_BY_CREDENTIALS'); // implemented, but this test app has no Oura credentials
 
     // Series endpoint: daily buckets have nulls for missing days (never zero)
     const series = await app.inject({ method: 'GET', url: `/v1/metrics/resting_heart_rate/series?from=${new Date(NOW.getTime() - 45 * 86_400_000).toISOString()}&to=${NOW.toISOString()}&bucket=raw`, headers: auth });

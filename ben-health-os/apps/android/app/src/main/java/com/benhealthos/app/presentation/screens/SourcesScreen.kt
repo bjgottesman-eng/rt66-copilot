@@ -81,6 +81,31 @@ class SourcesViewModel(app: Application) : AndroidViewModel(app) {
 
     fun refreshPermissions(result: Set<String>) { granted.value = result }
 
+    val actionMessage = MutableStateFlow<String?>(null)
+
+    /** Starts the provider OAuth flow in the browser; the API completes it and shows a return page. */
+    fun connect(connector: String, open: (String) -> Unit) {
+        viewModelScope.launch {
+            actionMessage.value = null
+            try { open(container.api.oauthStart(connector).url) } catch (e: Exception) { actionMessage.value = "Connect failed: ${e.message}" }
+        }
+    }
+
+    fun refreshSource(connector: String) {
+        viewModelScope.launch {
+            actionMessage.value = "Refreshing $connector…"
+            actionMessage.value = try { val r = container.api.refreshSource(connector); "$connector: ${r.inserted} new, ${r.updated} updated, ${r.unchangedDuplicates} unchanged" } catch (e: Exception) { "Refresh failed: ${e.message}" }
+            load()
+        }
+    }
+
+    fun disconnectSource(connector: String) {
+        viewModelScope.launch {
+            actionMessage.value = try { container.api.disconnectSource(connector); "$connector disconnected" } catch (e: Exception) { "Disconnect failed: ${e.message}" }
+            load()
+        }
+    }
+
     fun syncNow() {
         viewModelScope.launch {
             syncing.value = true
@@ -102,6 +127,7 @@ fun SourcesScreen(vm: SourcesViewModel = viewModel()) {
     val syncStates by vm.syncStates.collectAsState()
     val pending by vm.pending.collectAsState()
     val log by vm.log.collectAsState()
+    val actionMessage by vm.actionMessage.collectAsState()
     val launcher = rememberLauncherForActivityResult(vm.hc.permissionContract()) { vm.refreshPermissions(it) }
     LaunchedEffect(Unit) { vm.load() }
     var showStates by remember { mutableStateOf(false) }
@@ -131,6 +157,7 @@ fun SourcesScreen(vm: SourcesViewModel = viewModel()) {
                 }
             }
             error?.let { e -> item { Text("Backend status unavailable: $e", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) } }
+            actionMessage?.let { m -> item { Text(m, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) } }
             sources?.let { cached ->
                 if (cached.fromCache) item { Text("Showing cached source status from ${relativeTime(cached.fetchedAt)}.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(cached.value.sources, key = { it.connectorId }) { s ->
@@ -152,6 +179,15 @@ fun SourcesScreen(vm: SourcesViewModel = viewModel()) {
                         if (s.missingPermissions.isNotEmpty()) Text("Missing: ${s.missingPermissions.joinToString { it.removePrefix("android.permission.health.") }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                         if (s.devices.isNotEmpty()) Text("Devices: ${s.devices.joinToString { it.label }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         s.notes.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        if (s.connectorId == "oura" || s.connectorId == "withings") {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                                if ("connect" in s.actions || "reconnect" in s.actions) {
+                                    Button(onClick = { vm.connect(s.connectorId) { url -> context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))) } }) { Text(if ("reconnect" in s.actions) "Reconnect" else "Connect") }
+                                }
+                                if ("refresh" in s.actions) OutlinedButton(onClick = { vm.refreshSource(s.connectorId) }) { Text("Refresh") }
+                                if ("disconnect" in s.actions) OutlinedButton(onClick = { vm.disconnectSource(s.connectorId) }) { Text("Disconnect") }
+                            }
+                        }
                     }
                 }
             }

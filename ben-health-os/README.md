@@ -4,7 +4,7 @@ Private, connected personal health intelligence. One longitudinal record across 
 (Samsung Health, Withings, Stelo, Cronometer…), Withings, labs and clinical records, with honest
 freshness, provenance and deduplication — and no invented numbers.
 
-**Status (2026-10-12): Phase 1 foundation implemented and tested with synthetic data.** See
+**Status (2026-10-12): Phases 0–2 implemented and tested with synthetic/mock data.** See
 `docs/testing.md` for what has been verified and how, and `docs/roadmap.md` for phases.
 
 | Component | What works today | Status |
@@ -13,7 +13,8 @@ freshness, provenance and deduplication — and no invented numbers.
 | Analytics (`services/analytics`) | Time zones/DST, units, stats, 7-day vs preceding 28-day baselines, freshness, dedup, BP sessions, domain status | TESTED WITH MOCK DATA (40 unit tests) |
 | Web dashboard (`apps/web`) | Login, Today (5 domains), Trends, Blood pressure, Data Sources, Settings, honest placeholders | TESTED WITH MOCK DATA (build + Playwright smoke) |
 | Android app (`apps/android`) | Onboarding, Health Connect availability/permissions, backfill + change-token sync, offline queue, Today/Trends/Sources/BP/Settings, biometric lock, Keystore-encrypted session | IMPLEMENTED; unit tests pass; **not yet run on a physical device** |
-| Oura, Withings, Stelo, Cronometer, Function, FHIR | Verified documentation + feasibility matrix (`docs/integrations.md`) | NOT IMPLEMENTED (Phase 2+) |
+| Oura + Withings connectors (`services/integrations`, API routes) | OAuth (PKCE), encrypted token storage with rotation, history import, incremental reconcile, HMAC-verified replay-safe webhooks, BP dashboard on web + Android | TESTED WITH MOCK DATA (13 connector + 8 API flow tests); live = BLOCKED BY CREDENTIALS |
+| Stelo, Cronometer CSV, Function, FHIR | Verified documentation + feasibility matrix (`docs/integrations.md`); Stelo/Cronometer data already flow through Health Connect | NOT IMPLEMENTED as connectors (Phase 4/5) |
 
 ## Quick start (local, no cloud accounts needed)
 

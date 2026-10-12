@@ -4,7 +4,7 @@ import { CONNECTORS } from '@bho/shared-config';
 import { hoursBetween } from '@bho/analytics';
 import { withUser } from '../db/pool.js';
 
-export async function listSources(pool: pg.Pool, userId: string, now: Date = new Date()): Promise<SourcesResponse> {
+export async function listSources(pool: pg.Pool, userId: string, now: Date = new Date(), configured: Set<string> = new Set()): Promise<SourcesResponse> {
   const nowIso = now.toISOString();
   return withUser(pool, userId, async (tx) => {
     const conns = await tx.query<{ connector: string; status: string; last_successful_sync_at: Date | null; last_sync_attempt_at: Date | null; last_sync_status: string; last_error: string | null; granted_permissions: string[]; requested_permissions: string[]; metadata: Record<string, unknown> }>(
@@ -25,8 +25,15 @@ export async function listSources(pool: pg.Pool, userId: string, now: Date = new
       const c = byConn.get(def.id);
       const s = byStats.get(def.id);
       const notes = [def.notes];
-      let connectionStatus: SourceStatus['connectionStatus'] = (c?.status as SourceStatus['connectionStatus']) ?? (def.implementationStatus === 'NOT_IMPLEMENTED' ? 'NOT_CONFIGURED' : 'NOT_CONFIGURED');
+      const isOAuth = def.integrationClass === 'VERIFIED_DIRECT_API';
+      const serverConfigured = !isOAuth || configured.has(def.id);
+      let implementationStatus: SourceStatus['implementationStatus'] = def.implementationStatus;
+      if (isOAuth && def.implementationStatus !== 'NOT_IMPLEMENTED' && !serverConfigured) implementationStatus = 'BLOCKED_BY_CREDENTIALS';
+      let connectionStatus: SourceStatus['connectionStatus'] = (c?.status as SourceStatus['connectionStatus']) ?? 'NOT_CONFIGURED';
       if (def.implementationStatus === 'NOT_IMPLEMENTED') notes.push(`Not implemented yet (planned for phase ${def.phase}).`);
+      else if (isOAuth && !serverConfigured) notes.push(`Server credentials missing: set ${def.id.toUpperCase()}_CLIENT_ID and ${def.id.toUpperCase()}_CLIENT_SECRET (see docs/environment.md).`);
+      else if (isOAuth && !c) notes.push('Not connected yet. Connect authorizes Ben Health OS with the provider and imports history; the source shows as connected only after data is retrieved.');
+      if (c?.status === 'EXPIRED') notes.push('Authorization expired or was revoked at the provider; reconnect to resume synchronization.');
       if (c && connectionStatus === 'PARTIAL') notes.push('Authorized, but no observations have been received yet.');
       const missing = c ? c.requested_permissions.filter((p) => !c.granted_permissions.includes(p)) : [];
       if (missing.length) notes.push(`${missing.length} requested permission(s) not granted; affected metrics stay NOT_CONNECTED.`);
@@ -34,7 +41,7 @@ export async function listSources(pool: pg.Pool, userId: string, now: Date = new
       const latestIngested = s?.latest_ingested ? new Date(s.latest_ingested).toISOString() : null;
       const actions: SourceStatus['actions'] = [];
       if (def.integrationClass === 'VERIFIED_DIRECT_API' || def.integrationClass === 'CLINICAL_FHIR') {
-        if (def.implementationStatus !== 'NOT_IMPLEMENTED') actions.push(c && c.status !== 'DISCONNECTED' ? 'reconnect' : 'connect');
+        if (def.implementationStatus !== 'NOT_IMPLEMENTED' && serverConfigured) actions.push(c && c.status !== 'DISCONNECTED' ? 'reconnect' : 'connect');
       }
       if (c && c.status !== 'DISCONNECTED' && def.id !== 'manual' && def.id !== 'demo') actions.push('refresh');
       if (c && c.status !== 'DISCONNECTED' && def.id !== 'manual' && def.id !== 'demo') actions.push('disconnect');
@@ -43,7 +50,7 @@ export async function listSources(pool: pg.Pool, userId: string, now: Date = new
         connectorId: def.id,
         displayName: def.displayName,
         integrationClass: def.integrationClass,
-        implementationStatus: def.implementationStatus,
+        implementationStatus,
         connectionStatus,
         lastSuccessfulSyncAt: c?.last_successful_sync_at ? new Date(c.last_successful_sync_at).toISOString() : null,
         lastSyncAttemptAt: c?.last_sync_attempt_at ? new Date(c.last_sync_attempt_at).toISOString() : null,

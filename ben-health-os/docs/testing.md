@@ -16,6 +16,8 @@ Status vocabulary (used everywhere, including the Data Sources screens):
 | `packages/contracts` (vitest) | ingest record validation (instant/interval, payload per type, time ordering), batch defaults, manual BP rules | 7 passed |
 | `services/analytics` (vitest) | local-day bucketing incl. record zone offsets and DST (23 h / 25 h days), unit conversion + incompatible-unit refusal, non-overlapping 7-vs-28-day windows, coverage gating, change classification, daily aggregation rules, sparkline gaps, all seven freshness statuses, payload hashing, cross-source BP/sleep dedup, steps never summed, BP sessions and morning/evening split, plausibility, domain status | 40 passed |
 | `fixtures` (vitest) | deterministic generation, contract validity of every synthetic batch, scenario features (ring-off gap, glucose gap, implausible value) | 2 passed |
+| `services/integrations` (vitest, local mock HTTP server) | Oura mapper (long sleep → session/stages/nightly metrics, naps, daily docs, workouts, heart rate), date windows, HMAC signature verification, PKCE; Withings mapper (value decoding, BP + pulse grouping, attrib → recording method, objectives skipped); clients: authorize URLs, code exchange, single-use refresh rotation, pagination (next_token, more/offset), 429 retry with Retry-After, status envelopes | 13 passed |
+| `services/api` connector flows (vitest, mock Oura + Withings servers) | OAuth start → consent URL → callback (PKCE verifier matches challenge, single-use state), encrypted token storage, initial history import, CONNECTED status and actions, BLOCKED BY CREDENTIALS when unconfigured, Oura verification handshake, bad/valid signatures, duplicate deliveries, delete events, unknown users ignored, expiring token refresh (single-use) + audit, Withings HEAD validation, notification → fetch window → ingest, duplicate notification, incremental `lastupdate`, disconnect clears tokens, reconcile job secret | 8 passed |
 | `services/api` (vitest, real Postgres 16 with RLS) | health, auth (401s, dev login, profile updates, AI-sharing default), full synthetic ingest (4 batches), idempotent re-ingest, update supersedes raw event, Today contract + freshness, steps by origin priority, sources/permissions, series with gaps, BP pulse attachment and sessions, deletions, sync-report → REVOKED status, manual BP idempotency + session grouping + dedup against cuff, implausible manual values flagged, RLS isolation between users, export/delete-all with audit, demo seed guard and clear | 11 passed |
 | `apps/web` (vitest) | formatting helpers | 3 passed |
 | `apps/web` (Playwright, Chromium) | login → empty Today with 5 domains and honest NOT CONNECTED → demo seed → Today with values and freshness → Trends chart → Blood pressure page + manual entry → Data Sources with CONNECTED Health Connect → placeholder page → Settings export link; screenshots in `screenshots/` | 1 passed |
@@ -36,24 +38,24 @@ Status vocabulary (used everywhere, including the Data Sources screens):
 | Duplicates not counted twice | TESTED WITH MOCK DATA | analytics dedup tests; API cross-source tests (sleep, workouts, BP manual vs cuff) |
 | Historical backfill | IMPLEMENTED (device pending) | 7-day window planner tests; syncer backfill path |
 | Manual measurements | TESTED WITH MOCK DATA | API + web e2e |
+| OAuth callback handling, token refresh, webhook replay (spec §35 tests) | TESTED WITH MOCK DATA | `services/api/test/connectors.test.ts` |
 | Reports use actual data | N/A Phase 6 | — |
 | Recommendations link to evidence | N/A Phase 6 (schema present) | — |
 | No secrets in source | VERIFIED | `.env*` ignored; config via env only |
-| OAuth credentials server-side | DESIGNED (Phase 2) | encrypted columns + TokenCipher implemented |
+| OAuth credentials server-side | TESTED WITH MOCK DATA | tokens AES-256-GCM encrypted; export never includes ciphertext; refresh rotation audited |
 | Database access restricted | TESTED WITH MOCK DATA | RLS tests (psql + API) |
 | Sensitive info not logged | IMPLEMENTED | request serializers exclude bodies; auth header redacted |
 | Export and deletion | TESTED WITH MOCK DATA | API tests + web Settings |
 | Permission revocation respected | TESTED WITH MOCK DATA | sync report path; device verification pending |
 | Idempotent sync, resumable imports | TESTED WITH MOCK DATA | re-ingest no-op test; per-record savepoints; offline queue replay (device pending) |
-| Webhook retries | N/A Phase 2 (table + dedupe key ready) | — |
+| Webhook retries / replay | TESTED WITH MOCK DATA | duplicate deliveries processed once; failed processing releases the dedupe row so provider retries succeed |
 | Time zones / DST | TESTED WITH MOCK DATA | analytics time tests |
 | Missing data ≠ zero | TESTED WITH MOCK DATA | windows + sparkline tests; Today shows gaps |
 | Stale data labelled | TESTED WITH MOCK DATA | freshness tests + UI chips with reasons |
 
 ## Not tested (honest list)
 - Anything on a physical Android device or emulator (no device in the build environment).
-- Hosted Supabase auth/JWKS, Oura, Withings, Stelo, Cronometer, Function, FHIR: not implemented
-  or BLOCKED BY CREDENTIALS.
+- Hosted Supabase auth/JWKS: BLOCKED BY CREDENTIALS. Oura and Withings: implemented and mock-tested; live API behaviour (rate limits, real payload variations, webhook delivery) BLOCKED BY CREDENTIALS. Stelo/Cronometer CSV/Function/FHIR connectors: not implemented.
 - Background execution behaviour under Doze/App Standby on the Galaxy S26 Ultra.
 - Load/performance beyond the 5k-record synthetic dataset (ingest of 4,937 records ≈ 3 s locally).
 

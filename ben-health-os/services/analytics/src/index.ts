@@ -8,3 +8,4 @@ export * from './dedup.js';
 export * from './plausibility.js';
 export * from './bp.js';
 export * from './domains.js';
+export * from './exercise.js';

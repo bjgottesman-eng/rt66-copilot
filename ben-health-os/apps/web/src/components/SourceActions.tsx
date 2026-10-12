@@ -5,10 +5,32 @@ import { useRouter } from 'next/navigation';
 export function SourceActions({ connectorId, actions }: { connectorId: string; actions: string[] }) {
   const router = useRouter();
   const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   async function run(action: string) {
     setMsg(null);
+    if (action === 'connect' || action === 'reconnect') {
+      setBusy(true);
+      const res = await fetch(`/api/proxy/v1/oauth/${connectorId}/start?client=web&returnTo=/sources`);
+      const body = await res.json();
+      setBusy(false);
+      if (!res.ok) {
+        setMsg(body.message ?? 'could not start authorization');
+        return;
+      }
+      window.location.href = body.url; // provider consent screen; the API callback returns here
+      return;
+    }
     if (action === 'refresh') {
-      setMsg(connectorId === 'health_connect' ? 'Health Connect syncs from the Android app; open the app or wait for its background sync.' : 'Refresh is available once this connector is implemented.');
+      if (connectorId === 'health_connect') {
+        setMsg('Health Connect syncs from the Android app; open the app or wait for its background sync.');
+        return;
+      }
+      setBusy(true);
+      const res = await fetch(`/api/proxy/v1/sources/${connectorId}/refresh`, { method: 'POST' });
+      const body = await res.json();
+      setBusy(false);
+      setMsg(res.ok ? `Refreshed: ${body.inserted} new, ${body.updated} updated, ${body.unchangedDuplicates} unchanged.` : body.message ?? 'refresh failed');
+      router.refresh();
       return;
     }
     if (action === 'export') {
@@ -16,6 +38,7 @@ export function SourceActions({ connectorId, actions }: { connectorId: string; a
       return;
     }
     if (action === 'disconnect') {
+      if (!confirm(`Disconnect ${connectorId}? Stored tokens are deleted; imported data stays until you delete it.`)) return;
       const res = await fetch(`/api/proxy/v1/sources/${connectorId}/disconnect`, { method: 'POST' });
       setMsg(res.ok ? 'Disconnected.' : 'failed');
     }
@@ -25,13 +48,12 @@ export function SourceActions({ connectorId, actions }: { connectorId: string; a
       const body = await res.json();
       setMsg(res.ok ? `Deleted ${Object.values(body.deleted as Record<string, number>).reduce((a, b) => a + b, 0)} rows.` : body.message ?? 'failed');
     }
-    if (action === 'connect' || action === 'reconnect') setMsg('OAuth connection flows arrive in Phase 2.');
     router.refresh();
   }
   return (
     <div className="flex flex-wrap items-center gap-2">
       {actions.map((a) => (
-        <button key={a} onClick={() => run(a)} className={`rounded-lg border px-3 py-1 text-xs ${a === 'delete' ? 'border-attention/40 text-attention' : 'border-line text-muted hover:text-ink'}`}>
+        <button key={a} disabled={busy} onClick={() => run(a)} className={`rounded-lg border px-3 py-1 text-xs disabled:opacity-50 ${a === 'delete' ? 'border-attention/40 text-attention' : a === 'connect' || a === 'reconnect' ? 'border-accent text-accent' : 'border-line text-muted hover:text-ink'}`} data-testid={`action-${connectorId}-${a}`}>
           {a}
         </button>
       ))}

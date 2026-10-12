@@ -13,6 +13,15 @@
 | `ALLOW_DEMO_SEED` | optional | default true; set false in production. |
 | `CORS_ORIGINS` | optional | comma-separated web origins. |
 | `PUBLIC_BASE_URL` | Phase 2 | public HTTPS URL for OAuth redirects and webhooks. |
+| `WEB_BASE_URL` | Phase 2 | where OAuth callbacks redirect web users (default `http://localhost:3000`). |
+| `OURA_CLIENT_ID`, `OURA_CLIENT_SECRET` | Phase 2 | from https://developer.ouraring.com/; redirect URI `<PUBLIC_BASE_URL>/v1/oauth/oura/callback`. Enables the Oura connector. |
+| `OURA_WEBHOOK_VERIFICATION_TOKEN` | Phase 2 | random string used in the Oura subscription handshake (defaults to a random per-process value; set it so restarts keep subscriptions valid). |
+| `OURA_HISTORY_DAYS` | optional | initial import depth (default 90). |
+| `OURA_API_BASE`, `OURA_AUTH_BASE` | tests | override endpoints (mock servers). |
+| `WITHINGS_CLIENT_ID`, `WITHINGS_CLIENT_SECRET` | Phase 2 | from https://developer.withings.com/dashboard/; redirect URI `<PUBLIC_BASE_URL>/v1/oauth/withings/callback`; notification callback `<PUBLIC_BASE_URL>/v1/webhooks/withings` must be public HTTPS. |
+| `WITHINGS_HISTORY_DAYS` | optional | initial import depth (default 730). |
+| `WITHINGS_API_BASE`, `WITHINGS_ACCOUNT_BASE` | tests | override endpoints (mock servers). |
+| `JOB_SECRET` | Phase 2 | shared secret for `POST /internal/jobs/reconcile` (header `x-job-secret`); schedule hourly via pg_cron + pg_net or a container cron. |
 | `PORT`, `HOST`, `LOG_LEVEL`, `NODE_ENV` | optional | defaults 8787 / 0.0.0.0 / info / development. |
 
 ## Web (`apps/web`)

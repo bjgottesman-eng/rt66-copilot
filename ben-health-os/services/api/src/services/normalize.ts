@@ -1,104 +1,7 @@
-import type { HealthConnectRecord } from '@bho/contracts';
-import { localDateOf, plausibilityFlags, timestampFlags } from '@bho/analytics';
+import type { HealthConnectRecord, NormalizedObservation, NormalizedRecord, NormalizedWorkout } from '@bho/contracts';
+import { categorizeExercise, localDateOf, plausibilityFlags, timestampFlags } from '@bho/analytics';
 
-export interface NormalizedObservation {
-  metricId: string;
-  value: number;
-  unit: string;
-  measuredAt: string;
-  startAt: string | null;
-  endAt: string | null;
-  localDate: string;
-  zoneOffset: string | null;
-  externalId: string;
-  qualityFlags: string[];
-}
-
-export interface NormalizedBp {
-  externalId: string;
-  measuredAt: string;
-  localDate: string;
-  zoneOffset: string | null;
-  systolic: number;
-  diastolic: number;
-  bodyPosition: number | null;
-  measurementLocation: number | null;
-  qualityFlags: string[];
-}
-
-export interface NormalizedSleep {
-  externalId: string;
-  startAt: string;
-  endAt: string;
-  startZoneOffset: string | null;
-  endZoneOffset: string | null;
-  localDate: string;
-  durationMin: number;
-  timeInBedMin: number;
-  efficiency: number | null;
-  deepMin: number | null;
-  lightMin: number | null;
-  remMin: number | null;
-  awakeMin: number | null;
-  title: string | null;
-  notes: string | null;
-  stages: Array<{ startAt: string; endAt: string; stage: string }>;
-  qualityFlags: string[];
-}
-
-export interface NormalizedWorkout {
-  externalId: string;
-  startAt: string;
-  endAt: string;
-  localDate: string;
-  durationMin: number;
-  exerciseType: number | null;
-  exerciseTypeName: string | null;
-  category: 'CARDIO' | 'RESISTANCE' | 'MOBILITY' | 'SPORT' | 'OTHER';
-  title: string | null;
-  notes: string | null;
-  segments: unknown | null;
-  qualityFlags: string[];
-}
-
-export interface NormalizedMeal {
-  externalId: string;
-  eatenAt: string;
-  endAt: string | null;
-  localDate: string;
-  mealType: string | null;
-  name: string | null;
-  energyKcal: number | null;
-  proteinG: number | null;
-  carbsG: number | null;
-  fatG: number | null;
-  saturatedFatG: number | null;
-  fiberG: number | null;
-  sodiumMg: number | null;
-  potassiumMg: number | null;
-  sugarG: number | null;
-  nutrients: Record<string, number>;
-}
-
-export interface NormalizedGlucose {
-  externalId: string;
-  measuredAt: string;
-  localDate: string;
-  mgDl: number;
-  specimenSource: string | null;
-  mealRelation: string | null;
-  qualityFlags: string[];
-}
-
-export interface NormalizedRecord {
-  observations: NormalizedObservation[];
-  bp?: NormalizedBp;
-  sleep?: NormalizedSleep;
-  workout?: NormalizedWorkout;
-  meal?: NormalizedMeal;
-  glucose?: NormalizedGlucose;
-  notes: string[];
-}
+export type { NormalizedObservation, NormalizedBp, NormalizedSleep, NormalizedWorkout, NormalizedMeal, NormalizedGlucose, NormalizedRecord } from '@bho/contracts';
 
 const SLEEP_STAGE_NAMES: Record<number, string> = { 0: 'UNKNOWN', 1: 'AWAKE', 2: 'SLEEPING', 3: 'OUT_OF_BED', 4: 'LIGHT', 5: 'DEEP', 6: 'REM', 7: 'AWAKE_IN_BED' };
 const ASLEEP = new Set(['SLEEPING', 'LIGHT', 'DEEP', 'REM']);
@@ -106,16 +9,6 @@ const AWAKE = new Set(['AWAKE', 'AWAKE_IN_BED']);
 
 /** Numeric fallback for Health Connect ExerciseSessionRecord types; the app sends names, which win. */
 const EXERCISE_TYPE_NUMERIC: Record<number, string> = { 0: 'OTHER_WORKOUT', 8: 'BIKING', 13: 'CALISTHENICS', 37: 'HIKING', 56: 'RUNNING', 70: 'STRENGTH_TRAINING', 79: 'WALKING', 81: 'WEIGHTLIFTING' };
-
-export function categorizeExercise(name: string | null): NormalizedWorkout['category'] {
-  if (!name) return 'OTHER';
-  const n = name.toUpperCase();
-  if (/STRENGTH|WEIGHT|CALISTHENICS|RESISTANCE/.test(n)) return 'RESISTANCE';
-  if (/RUN|WALK|BIK|CYCL|SWIM|ROW|ELLIPTICAL|HIK|STAIR|HIGH_INTENSITY|HIIT|TREADMILL|SKI|SKAT|WHEELCHAIR/.test(n)) return 'CARDIO';
-  if (/YOGA|PILATES|STRETCH|MOBILITY/.test(n)) return 'MOBILITY';
-  if (/BASKETBALL|SOCCER|FOOTBALL|TENNIS|GOLF|BADMINTON|BASEBALL|HOCKEY|RUGBY|VOLLEYBALL|SQUASH|RACQUET|PADDLE|PICKLEBALL|MARTIAL|BOXING/.test(n)) return 'SPORT';
-  return 'OTHER';
-}
 
 const MEAL_TYPES: Record<number, string> = { 0: 'UNKNOWN', 1: 'BREAKFAST', 2: 'LUNCH', 3: 'DINNER', 4: 'SNACK' };
 const GLUCOSE_SPECIMEN: Record<number, string> = { 0: 'UNKNOWN', 1: 'INTERSTITIAL_FLUID', 2: 'CAPILLARY_BLOOD', 3: 'PLASMA', 4: 'SERUM', 5: 'TEARS', 6: 'WHOLE_BLOOD' };

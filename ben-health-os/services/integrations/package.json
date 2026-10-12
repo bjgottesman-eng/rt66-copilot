@@ -1,0 +1,30 @@
+{
+  "name": "@bho/integrations",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Connector clients and mappers for official cloud APIs (Oura API v2, Withings Public API). Pure TypeScript with injectable fetch so everything is testable against mock servers; the API service owns tokens, persistence and routes.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "echo 'no linter configured for integrations'"
+  },
+  "dependencies": {
+    "@bho/analytics": "workspace:*",
+    "@bho/contracts": "workspace:*",
+    "@bho/shared-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

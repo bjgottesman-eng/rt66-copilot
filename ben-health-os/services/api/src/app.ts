@@ -13,10 +13,15 @@ import { sourcesRoutes } from './routes/sources.js';
 import { measurementRoutes } from './routes/measurements.js';
 import { accountRoutes } from './routes/account.js';
 import { demoRoutes } from './routes/demo.js';
+import { oauthRoutes } from './routes/oauth.js';
+import { webhookRoutes } from './routes/webhooks.js';
+import { jobRoutes } from './routes/jobs.js';
+import { createConnectorRuntime, type ConnectorRuntime } from './services/connectors.js';
 
 export interface AppContext {
   config: AppConfig;
   pool: pg.Pool;
+  connectors: ConnectorRuntime;
 }
 
 declare module 'fastify' {
@@ -41,7 +46,7 @@ export async function buildApp(overrides: Partial<NodeJS.ProcessEnv> = {}): Prom
     bodyLimit: 8 * 1024 * 1024,
     trustProxy: true,
   });
-  const ctx: AppContext = { config, pool };
+  const ctx: AppContext = { config, pool, connectors: createConnectorRuntime(config, { warn: (m) => app.log.warn(m) }) };
   app.decorate('ctx', ctx);
 
   await app.register(cors, { origin: config.corsOrigins, credentials: true, methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'] });
@@ -62,6 +67,9 @@ export async function buildApp(overrides: Partial<NodeJS.ProcessEnv> = {}): Prom
   await app.register(async (instance) => measurementRoutes(instance, ctx));
   await app.register(async (instance) => accountRoutes(instance, ctx));
   await app.register(async (instance) => demoRoutes(instance, ctx));
+  await app.register(async (instance) => oauthRoutes(instance, ctx));
+  await app.register(async (instance) => webhookRoutes(instance, ctx));
+  await app.register(async (instance) => jobRoutes(instance, ctx));
 
   app.addHook('onClose', async () => {
     await pool.end();

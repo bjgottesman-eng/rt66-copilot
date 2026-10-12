@@ -21,7 +21,23 @@ const EnvSchema = z.object({
   ALLOW_DEMO_SEED: z.coerce.boolean().default(true),
   CORS_ORIGINS: z.string().default('http://localhost:3000,http://127.0.0.1:3000'),
   PUBLIC_BASE_URL: z.string().url().default('http://localhost:8787'),
+  WEB_BASE_URL: z.string().url().default('http://localhost:3000'),
   APP_VERSION: z.string().default('0.1.0'),
+  /** Oura API v2 app (developer.ouraring.com). Both required to enable the connector. */
+  OURA_CLIENT_ID: z.string().optional(),
+  OURA_CLIENT_SECRET: z.string().optional(),
+  OURA_API_BASE: z.string().url().optional(),
+  OURA_AUTH_BASE: z.string().url().optional(),
+  OURA_WEBHOOK_VERIFICATION_TOKEN: z.string().optional(),
+  OURA_HISTORY_DAYS: z.coerce.number().int().min(1).max(730).default(90),
+  /** Withings Public API app (developer.withings.com). Both required to enable the connector. */
+  WITHINGS_CLIENT_ID: z.string().optional(),
+  WITHINGS_CLIENT_SECRET: z.string().optional(),
+  WITHINGS_API_BASE: z.string().url().optional(),
+  WITHINGS_ACCOUNT_BASE: z.string().url().optional(),
+  WITHINGS_HISTORY_DAYS: z.coerce.number().int().min(1).max(3650).default(730),
+  /** Shared secret for internal scheduled-job endpoints (pg_cron / container cron). */
+  JOB_SECRET: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema> & { corsOrigins: string[] };

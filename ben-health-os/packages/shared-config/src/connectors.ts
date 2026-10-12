@@ -80,7 +80,7 @@ export const CONNECTORS: ConnectorDefinition[] = [
       'stress_high_minutes', 'vo2_max',
     ],
     phase: 2,
-    implementationStatus: 'NOT_IMPLEMENTED',
+    implementationStatus: 'TESTED_WITH_MOCK_DATA',
     notes: 'Oura API v2 (OAuth2 + webhooks). Original Oura scores are preserved and never recomputed.',
   },
   {
@@ -90,7 +90,7 @@ export const CONNECTORS: ConnectorDefinition[] = [
     expectedSyncIntervalHours: 24,
     metrics: ['blood_pressure_systolic', 'blood_pressure_diastolic', 'pulse', 'weight', 'body_fat_pct'],
     phase: 2,
-    implementationStatus: 'NOT_IMPLEMENTED',
+    implementationStatus: 'TESTED_WITH_MOCK_DATA',
     notes: 'Withings Public API (OAuth2 + notify webhooks). Primary blood-pressure source.',
   },
   {

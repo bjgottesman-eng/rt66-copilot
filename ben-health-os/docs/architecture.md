@@ -18,7 +18,7 @@
                                                    │ raw events · normalized rows │
                                                    │ derived metrics · RLS        │
                                                    └──────────────────────────────┘
-Phase 2+: services/integrations (Oura/Withings OAuth + webhooks) → same ingest pipeline
+services/integrations (Oura/Withings OAuth + webhooks, Phase 2) → same persistence pipeline
 ```
 
 ### Android app (`apps/android`)
@@ -57,6 +57,14 @@ Phase 2+: services/integrations (Oura/Withings OAuth + webhooks) → same ingest
 - Dashboard (`services/dashboard.ts`): loads canonical observations for the last 35 local days,
   aggregates per catalog rule (steps by origin priority, never summed), computes 7-day vs
   preceding 28-day comparisons, freshness and domain status through `services/analytics`.
+
+### Connectors (`services/integrations` + `services/api/src/services/connectors.ts`)
+Pure clients/mappers (injectable fetch, retry with backoff, pagination) produce the same
+connector-neutral `ExternalRecordInput` that Health Connect records are converted into, so one
+`persistRecords` pipeline handles raw events, typed rows, observations, dedup and daily recompute for
+every source. The API owns OAuth state (PKCE), encrypted tokens with single-use refresh rotation,
+initial imports, webhook verification (Oura HMAC, Withings HEAD) and replay-safe processing
+(`webhook_events` dedupe keys), reconciliation (`/v1/sources/:connector/refresh`, `/internal/jobs/reconcile`).
 
 ### Analytics (`services/analytics`)
 The single authoritative implementation of: local-day bucketing (record zone offset first, user

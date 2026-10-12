@@ -13,11 +13,22 @@ function statusTone(s: string): 'good' | 'watch' | 'attention' | 'neutral' {
   return 'neutral';
 }
 
-export default async function SourcesPage() {
+export default async function SourcesPage({ searchParams }: { searchParams: Promise<{ connected?: string; error?: string; connector?: string; warning?: string }> }) {
+  const sp = await searchParams;
   const { sources } = await apiFetch<SourcesResponse>('/v1/sources');
   return (
     <>
       <PageHeader title="Data Sources" subtitle="A source is shown as connected only after authentication and data retrieval both succeeded." />
+      {sp.connected && (
+        <Card className="mb-4 border-good/40">
+          <p className="text-sm">{sp.connected} connected and history imported.{sp.warning ? ` First import reported: ${sp.warning}` : ''}</p>
+        </Card>
+      )}
+      {sp.error && (
+        <Card className="mb-4 border-attention/40">
+          <p className="text-sm text-attention">{sp.connector ?? 'Connection'} failed: {sp.error}</p>
+        </Card>
+      )}
       <div className="space-y-4">
         {sources.map((s) => (
           <Card key={s.connectorId}>

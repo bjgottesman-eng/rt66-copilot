@@ -31,7 +31,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.benhealthos.app.data.local.PendingUploadEntity
 import com.benhealthos.app.data.remote.ApiException
+import com.benhealthos.app.data.remote.BpSummaryDto
 import com.benhealthos.app.data.remote.ManualBpDto
+import com.benhealthos.app.presentation.components.StatusChip
+import com.benhealthos.app.presentation.components.relativeTime
+import androidx.compose.runtime.LaunchedEffect
 import com.benhealthos.app.di.appContainer
 import com.benhealthos.app.presentation.components.SectionCard
 import kotlinx.coroutines.launch
@@ -53,10 +57,33 @@ fun ManualBpScreen() {
     var posture by remember { mutableStateOf("SEATED") }
     var message by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var summary by remember { mutableStateOf<BpSummaryDto?>(null) }
+    var summaryError by remember { mutableStateOf<String?>(null) }
+    var reloadKey by remember { mutableStateOf(0) }
+    LaunchedEffect(reloadKey) { try { summary = container.api.bloodPressureSummary(30); summaryError = null } catch (e: Exception) { summaryError = e.message } }
     val field = Modifier.fillMaxWidth()
 
     Scaffold(topBar = { TopAppBar(title = { Text("Blood pressure") }) }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            summary?.let { s ->
+                SectionCard("Latest · 30-day view") {
+                    val l = s.latest
+                    Text(if (l != null) "${l.systolic.toInt()}/${l.diastolic.toInt()} mmHg${l.pulse?.let { " · ${it.toInt()} bpm" } ?: ""}" else "No readings yet", style = MaterialTheme.typography.headlineSmall)
+                    if (l != null) Text("${relativeTime(l.measuredAt)} · ${l.deviceLabel ?: l.connector}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Column { Text("7-day", style = MaterialTheme.typography.labelSmall); Text(s.avg7d?.let { "${it.systolic.toInt()}/${it.diastolic.toInt()} (${it.n})" } ?: "—", style = MaterialTheme.typography.titleMedium) }
+                        Column { Text("30-day", style = MaterialTheme.typography.labelSmall); Text(s.avg30d?.let { "${it.systolic.toInt()}/${it.diastolic.toInt()} (${it.n})" } ?: "—", style = MaterialTheme.typography.titleMedium) }
+                        Column { Text("Target", style = MaterialTheme.typography.labelSmall); Text("< ${s.targets.systolicMax.toInt()}/${s.targets.diastolicMax.toInt()}", style = MaterialTheme.typography.titleMedium) }
+                    }
+                    Text(if (s.targets.clinicianConfigured) "Clinician target" else "Default population placeholder; set with your clinician", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(8.dp))
+                    s.sessions.take(5).forEach { ses -> Row(Modifier.fillMaxWidth()) { Text("${relativeTime(ses.startedAt)} · ${ses.systolic.toInt()}/${ses.diastolic.toInt()}${ses.pulse?.let { " · ${it.toInt()} bpm" } ?: ""} · ${ses.n} reading${if (ses.n == 1) "" else "s"}", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f)) } }
+                    Text("Last sync ${relativeTime(s.lastSyncAt)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (s.readings.any { !it.canonical }) StatusChip("DUPLICATES_LINKED")
+                }
+            }
+            summaryError?.let { Text("Summary unavailable: $it", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
             SectionCard("Primary source") {
                 Text("Your Withings cuff syncs automatically: cuff → Withings cloud → backend (Phase 2 API connection) and via Health Connect when the Withings app exports to it. Manual entry below is optional and deduplicated against cuff readings.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -84,6 +111,7 @@ fun ManualBpScreen() {
                             val r = container.api.manualBloodPressure(dto)
                             message = "Saved ${r.systolic.toInt()}/${r.diastolic.toInt()}${if (!r.canonical) " (linked as duplicate of a cuff reading)" else ""}."
                             systolic = ""; diastolic = ""; pulse = ""
+                            reloadKey++
                         } catch (e: ApiException) {
                             message = if (e.code in 400..499) "Rejected: ${e.message}" else queue(container, dto)
                         } catch (e: IOException) {

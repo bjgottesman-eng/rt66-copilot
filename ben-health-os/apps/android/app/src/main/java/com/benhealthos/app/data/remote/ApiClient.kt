@@ -51,6 +51,11 @@ class ApiClient(
 
     suspend fun manualBloodPressureRaw(bodyJson: String): BpReadingDto = postRaw("/v1/measurements/blood-pressure", bodyJson, BpReadingDto.serializer())
 
+    suspend fun oauthStart(connector: String): OAuthStartDto = get("/v1/oauth/$connector/start?client=android", OAuthStartDto.serializer())
+    suspend fun refreshSource(connector: String): IngestResultDto = postRaw("/v1/sources/$connector/refresh", "{}", IngestResultDto.serializer())
+    suspend fun disconnectSource(connector: String) = postNoContent("/v1/sources/$connector/disconnect", "{}")
+    suspend fun bloodPressureSummary(days: Int = 30): BpSummaryDto = get("/v1/blood-pressure/summary?days=$days", BpSummaryDto.serializer())
+
     suspend fun seedDemo(days: Int): JsonObject = postRaw("/v1/demo/seed", """{"days":$days,"replace":true}""", JsonObject.serializer())
     suspend fun clearDemo() = deleteNoContent("/v1/demo")
     suspend fun deleteAllData() = postOrDelete("DELETE", "/v1/me/data", """{"confirmation":"DELETE ALL MY HEALTH DATA"}""")

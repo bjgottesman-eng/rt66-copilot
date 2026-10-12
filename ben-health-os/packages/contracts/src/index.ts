@@ -5,3 +5,4 @@ export * from './dashboard.js';
 export * from './sources.js';
 export * from './measurements.js';
 export * from './auth.js';
+export * from './normalized.js';
