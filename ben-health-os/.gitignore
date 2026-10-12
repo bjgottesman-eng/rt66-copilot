@@ -1,0 +1,39 @@
+# dependencies / builds
+node_modules/
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.turbo/
+
+# env & secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# android
+apps/android/.gradle/
+apps/android/build/
+apps/android/**/build/
+apps/android/local.properties
+apps/android/.kotlin/
+apps/android/captures/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# supabase local
+supabase/.branches/
+supabase/.temp/
+
+# test artifacts
+test-results/
+playwright-report/
+
+# os / editors
+.DS_Store
+.idea/
+*.iml
+.vscode/

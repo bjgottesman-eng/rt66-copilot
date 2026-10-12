@@ -1,0 +1,37 @@
+{
+  "name": "@bho/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ben Health OS web dashboard (Next.js App Router). Shares the backend with the Android app; performs no health calculations of its own.",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "lint": "echo 'eslint not configured for web in phase 1'"
+  },
+  "dependencies": {
+    "@bho/contracts": "workspace:*",
+    "@bho/shared-config": "workspace:*",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.3",
+    "clsx": "2.1.1",
+    "next": "15.5.27",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "recharts": "3.10.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

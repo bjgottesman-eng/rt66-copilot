@@ -1,0 +1,25 @@
+{
+  "name": "@bho/shared-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Single source of truth for freshness thresholds, source priority, dedup windows, metric catalog and connector registry. JSON in ./config is generated from ./src and consumed by the Android app.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "config"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node dist/scripts/emit-json.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "echo 'no linter configured for shared-config'"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "@types/node": "26.6.5"
+  }
+}

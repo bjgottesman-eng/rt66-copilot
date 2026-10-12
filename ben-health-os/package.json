@@ -1,0 +1,26 @@
+{
+  "name": "ben-health-os",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Ben Health OS \u2014 private, connected personal health intelligence (Android + web + secure backend)",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build:packages": "pnpm -r --filter './packages/**' --filter './services/**' run build",
+    "build": "pnpm run build:packages && pnpm --filter @bho/web run build",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm run build:packages && pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:reset": "bash scripts/db-reset.sh",
+    "dev:api": "pnpm --filter @bho/api run dev",
+    "dev:web": "pnpm --filter @bho/web run dev",
+    "demo:seed": "pnpm --filter @bho/api run seed:demo",
+    "verify": "bash scripts/verify.sh"
+  },
+  "devDependencies": {
+    "pg": "8.23.1"
+  }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ben Health OS</string>
+    <string name="privacy_policy_title">How Ben Health OS uses Health Connect data</string>
+    <string name="privacy_policy_body">Ben Health OS reads the health data you choose to share from Health Connect (activity, sleep, heart, body, nutrition, glucose and vital-sign records written by apps such as Oura, Samsung Health, Withings, Stelo and Cronometer). The data is uploaded over an encrypted connection to your own Ben Health OS backend, where it is stored with per-user row-level security, kept with its original source and timestamps, deduplicated across sources, and used only to build your personal dashboard, trends and reports.\n\nWe never sell health data, never use advertising SDKs, never profile you for third parties, and never share data with AI providers unless you explicitly enable it in Settings. You can export everything, delete everything, and revoke Health Connect access at any time from Health Connect or from Data Sources in the app. Nothing here diagnoses disease or replaces your clinicians.</string>
+</resources>

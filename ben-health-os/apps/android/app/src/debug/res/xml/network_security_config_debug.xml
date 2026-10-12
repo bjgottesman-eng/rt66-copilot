@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DEBUG BUILDS ONLY. Permits cleartext HTTP so a developer phone can reach the API on a LAN address
+     such as http://192.168.1.20:8787 or the emulator host http://10.0.2.2:8787. Release builds use
+     the platform default (cleartext blocked) and must point at an HTTPS deployment. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

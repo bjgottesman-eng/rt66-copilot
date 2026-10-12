@@ -1,0 +1,35 @@
+{
+  "name": "@bho/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Ben Health OS backend API: authentication, Health Connect ingest with provenance and deduplication, dashboard, data sources, manual measurements, export and deletion.",
+  "main": "./dist/server.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "seed:demo": "tsx src/scripts/seed-demo.ts",
+    "lint": "echo 'no linter configured for api'"
+  },
+  "dependencies": {
+    "@bho/analytics": "workspace:*",
+    "@bho/contracts": "workspace:*",
+    "@bho/fixtures": "workspace:*",
+    "@bho/shared-config": "workspace:*",
+    "@fastify/cors": "11.3.1",
+    "fastify": "5.12.5",
+    "jose": "6.2.12",
+    "pg": "8.23.1",
+    "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/pg": "8.23.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

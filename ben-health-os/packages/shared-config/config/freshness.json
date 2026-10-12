@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "statuses": [
+    "CURRENT",
+    "RECENT",
+    "SOURCE_DELAYED",
+    "STALE",
+    "SYNC_ERROR",
+    "NOT_CONNECTED",
+    "INSUFFICIENT_DATA"
+  ],
+  "defaults": {
+    "expectedLatencyHours": 6,
+    "currentWithinHours": 12,
+    "recentWithinHours": 36,
+    "staleAfterHours": 168
+  },
+  "metrics": {
+    "steps": {
+      "expectedLatencyHours": 1,
+      "currentWithinHours": 4,
+      "recentWithinHours": 24,
+      "staleAfterHours": 72
+    },
+    "heart_rate": {
+      "expectedLatencyHours": 1,
+      "currentWithinHours": 4,
+      "recentWithinHours": 24,
+      "staleAfterHours": 72
+    },
+    "resting_heart_rate": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "hrv_rmssd": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "sleep_duration": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "respiratory_rate": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "spo2": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "readiness_score": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "sleep_score": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "activity_score": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 30,
+      "recentWithinHours": 54,
+      "staleAfterHours": 120
+    },
+    "blood_pressure_systolic": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 36,
+      "recentWithinHours": 96,
+      "staleAfterHours": 336
+    },
+    "blood_pressure_diastolic": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 36,
+      "recentWithinHours": 96,
+      "staleAfterHours": 336
+    },
+    "pulse": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 36,
+      "recentWithinHours": 96,
+      "staleAfterHours": 336
+    },
+    "weight": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 48,
+      "recentWithinHours": 168,
+      "staleAfterHours": 504
+    },
+    "body_fat_pct": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 48,
+      "recentWithinHours": 168,
+      "staleAfterHours": 504
+    },
+    "blood_glucose": {
+      "expectedLatencyHours": 3,
+      "currentWithinHours": 6,
+      "recentWithinHours": 24,
+      "staleAfterHours": 96
+    },
+    "exercise_minutes": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 48,
+      "recentWithinHours": 96,
+      "staleAfterHours": 240
+    },
+    "resistance_sessions": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 72,
+      "recentWithinHours": 120,
+      "staleAfterHours": 336
+    },
+    "zone2_minutes": {
+      "expectedLatencyHours": 2,
+      "currentWithinHours": 48,
+      "recentWithinHours": 96,
+      "staleAfterHours": 240
+    },
+    "calories": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 36,
+      "recentWithinHours": 72,
+      "staleAfterHours": 240
+    },
+    "protein_g": {
+      "expectedLatencyHours": 12,
+      "currentWithinHours": 36,
+      "recentWithinHours": 72,
+      "staleAfterHours": 240
+    },
+    "vo2_max": {
+      "expectedLatencyHours": 24,
+      "currentWithinHours": 336,
+      "recentWithinHours": 720,
+      "staleAfterHours": 2160
+    },
+    "lab_result": {
+      "expectedLatencyHours": 72,
+      "currentWithinHours": 2160,
+      "recentWithinHours": 4320,
+      "staleAfterHours": 8760
+    }
+  }
+}

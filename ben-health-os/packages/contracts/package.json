@@ -1,0 +1,29 @@
+{
+  "name": "@bho/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zod schemas and TypeScript types for every Ben Health OS API payload. Shared by the API service, the web dashboard and tests; mirrored by Kotlin DTOs in the Android app.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "echo 'no linter configured for contracts'"
+  },
+  "dependencies": {
+    "@bho/shared-config": "workspace:*",
+    "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "@types/node": "26.6.5"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@bho/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The single authoritative implementation of Ben Health OS health calculations: time zones, units, statistics, windows/baselines, freshness, deduplication, source priority, plausibility, blood-pressure sessions, domain status.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "echo 'no linter configured for analytics'"
+  },
+  "dependencies": {
+    "@bho/contracts": "workspace:*",
+    "@bho/shared-config": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "@types/node": "26.6.5"
+  }
+}

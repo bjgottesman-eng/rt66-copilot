@@ -1,0 +1,29 @@
+{
+  "name": "@bho/fixtures",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic synthetic health data for demo mode and tests. Contains no real personal data. Patterns: Oura sleep/recovery, Samsung Health steps/workouts, Withings BP/weight via Health Connect, Stelo glucose, Cronometer nutrition, manual BP; deliberate overlaps, gaps and implausible values to exercise dedup, freshness and quality checks.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "demo"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node dist/scripts/emit-json.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "echo 'no linter configured for fixtures'"
+  },
+  "dependencies": {
+    "@bho/analytics": "workspace:*",
+    "@bho/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "@types/node": "26.6.5"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "windows": {
+    "blood_pressure": {
+      "windowSeconds": 180,
+      "valueTolerance": 0
+    },
+    "pulse": {
+      "windowSeconds": 180,
+      "valueTolerance": 1
+    },
+    "weight": {
+      "windowSeconds": 600,
+      "valueTolerance": 0.1
+    },
+    "body_fat_pct": {
+      "windowSeconds": 600,
+      "valueTolerance": 0.2
+    },
+    "blood_glucose": {
+      "windowSeconds": 90,
+      "valueTolerance": 1
+    },
+    "resting_heart_rate": {
+      "windowSeconds": 21600,
+      "valueTolerance": 1
+    },
+    "hrv_rmssd": {
+      "windowSeconds": 21600,
+      "valueTolerance": 1
+    },
+    "sleep": {
+      "windowSeconds": 1800,
+      "valueTolerance": 0,
+      "minOverlapFraction": 0.8
+    },
+    "workout": {
+      "windowSeconds": 300,
+      "valueTolerance": 0,
+      "minOverlapFraction": 0.7
+    },
+    "steps": {
+      "windowSeconds": 0,
+      "valueTolerance": 0
+    }
+  }
+}
